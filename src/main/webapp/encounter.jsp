@@ -132,6 +132,22 @@
             color: #c0d470; font-size: 13px;
         }
 
+        /* Flee warning */
+        .flee-warning {
+            background: linear-gradient(135deg, #3a1010, #5a1a1a);
+            border: 2px solid #e04040; border-radius: 14px;
+            padding: 14px 18px; margin-bottom: 14px;
+            display: flex; gap: 12px; align-items: center;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 8px rgba(255,80,80,0.3); }
+            50% { box-shadow: 0 0 20px rgba(255,80,80,0.6); }
+        }
+        .flee-warning .fw-icon { font-size: 28px; flex-shrink: 0; }
+        .flee-warning .fw-text { font-size: 13px; color: #f0c0c0; line-height: 1.6; }
+        .flee-warning .fw-text strong { color: #ff8080; }
+
         /* Trait suggestion */
         .trait-suggestion {
             background: linear-gradient(135deg, #1a2a3a, #253545);
@@ -287,6 +303,17 @@
             <br><small style="color:#e08060;">&#x23F3; 时间不多了……</small>
         <% } %>
         </div>
+
+        <!-- Flee warning banner -->
+        <% if (enc.isFleeWarning()) { %>
+        <div class="flee-warning">
+            <div class="fw-icon">&#x26A0;&#xFE0F;</div>
+            <div class="fw-text">
+                <strong><%= enc.getAnimalEmoji() %><%= enc.getAnimalName() %></strong> 焦躁不安，下回合可能<strong>逃跑</strong>！
+                <br><small>压力越高逃跑概率越大，快用「后退」或「等待」降低压力吧</small>
+            </div>
+        </div>
+        <% } %>
 
         <!-- Pacing hint -->
         <%

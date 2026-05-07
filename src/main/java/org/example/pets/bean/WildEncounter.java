@@ -54,6 +54,8 @@ public class WildEncounter {
     private String companionName;
     private String companionEmoji;
     private int consecutiveSuccesses;   // 金丝猴情绪连锁
+    private boolean fleeWarning;        // 动物发出逃跑预警（下回合可能逃跑）
+    private int fleeWarningThreshold;   // 触发预警时的压力值
     private boolean fleeBlockUsed;      // 北极熊压制
     private boolean bufferUsed;         // 棕熊守护
     private boolean forcedChangeUsed;   // 伞蜥虚张声势
@@ -90,6 +92,8 @@ public class WildEncounter {
         this.success = this.failed = this.left = this.timeout = false;
         this.maxRounds = DEFAULT_MAX_ROUNDS;
         this.consecutiveSuccesses = 0;
+        this.fleeWarning = false;
+        this.fleeWarningThreshold = 0;
         this.fleeBlockUsed = false;
         this.bufferUsed = false;
         this.forcedChangeUsed = false;
@@ -846,6 +850,8 @@ public class WildEncounter {
         String pre = companionEmoji + companionName + "的「" + companionTrait.getName() + "」觉得：";
 
         // 针对性的行为建议
+        if (fleeWarning)
+            return pre + animalName + "已经发出逃跑信号了！立刻用「后退」拉开距离，或「等待」让它冷静，这是最后的机会！";
         if (pressure >= 65)
             return pre + "压力太大了！试试「后退」给" + animalName + "留出空间，或「等待」让它冷静下来。";
         if (interest <= 20)
@@ -873,27 +879,69 @@ public class WildEncounter {
         if (companionTrait == CompanionTrait.BROWN_BEAR && !bufferUsed && pressure >= PRESSURE_FLEE - 10) {
             bufferUsed = true;
             pressure = clamp(pressure - 25);
+            fleeWarning = false;
             traitHint = companionEmoji + companionName + "的「守护」挡在了" + animalName + "面前！压力大幅降低！";
         }
 
-        // 北极熊「压制」：可强制阻止一次逃跑
+        // 北极熊「压制」：可强制阻止一次逃跑（高压力直接逃跑）
         if (companionTrait == CompanionTrait.POLAR_BEAR && !fleeBlockUsed && pressure >= PRESSURE_FLEE) {
             fleeBlockUsed = true;
             pressure = clamp(pressure - 30);
-            interest = clamp(interest - 10); // 代价
+            interest = clamp(interest - 10);
+            fleeWarning = false;
             traitHint = companionEmoji + companionName + "的「压制」气场阻止了" + animalName + "逃跑！";
         }
 
         // 细纹斑马「群体安心」：逃跑概率降低（压力阈值提高）
         int effectiveFlee = PRESSURE_FLEE;
         if (companionTrait == CompanionTrait.ZEBRA) {
-            effectiveFlee = 95; // 更难逃跑
+            effectiveFlee = 95;
         }
 
-        // 检查回合超时：动物失去耐心跑走
+        // 检查回合超时
         if (roundsUsed >= maxRounds && !success) {
             timeout = true;
             return;
+        }
+
+        // ========== 压力逃跑预警机制 ==========
+        // 压力>25时每回合有概率触发逃跑预警，下回合未缓解则逃跑
+        if (!success && !failed && !left && !timeout) {
+            if (fleeWarning) {
+                // 上回合已预警——检查压力是否缓解
+                if (pressure < Math.max(30, fleeWarningThreshold - 10)) {
+                    fleeWarning = false;
+                    traitHint = "🍃 " + animalEmoji + animalName + "看起来平静了些……逃跑的危机暂时解除了。";
+                } else {
+                    // 北极熊/棕熊可强制挽留
+                    if (companionTrait == CompanionTrait.POLAR_BEAR && !fleeBlockUsed) {
+                        fleeBlockUsed = true;
+                        pressure = clamp(pressure - 30);
+                        interest = clamp(interest - 10);
+                        fleeWarning = false;
+                        traitHint = companionEmoji + companionName + "的「压制」气场强行留住了" + animalName + "！";
+                        return;
+                    }
+                    if (companionTrait == CompanionTrait.BROWN_BEAR && !bufferUsed) {
+                        bufferUsed = true;
+                        pressure = clamp(pressure - 25);
+                        fleeWarning = false;
+                        traitHint = companionEmoji + companionName + "的「守护」挡在了" + animalName + "面前！它留下来了！";
+                        return;
+                    }
+                    // 无法挽留 → 逃跑
+                    failed = true;
+                    return;
+                }
+            } else if (pressure > 25) {
+                double fleeChance = getEffectiveFleeChance();
+                if (RAND.nextDouble() < fleeChance) {
+                    fleeWarning = true;
+                    fleeWarningThreshold = pressure;
+                    String pressureDesc = pressure >= 70 ? "极度不安" : pressure >= 50 ? "明显焦躁" : "有些紧张";
+                    traitHint = "⚠️ " + animalEmoji + animalName + "看起来" + pressureDesc + "，似乎随时会逃跑！降低压力或许能安抚它……";
+                }
+            }
         }
 
         // 检查物种特定捕捉条件
@@ -905,6 +953,19 @@ public class WildEncounter {
         } else if (interest <= INTEREST_GONE) {
             left = true;
         }
+    }
+
+    /** 计算逃跑概率（受同伴特性影响） */
+    private double getEffectiveFleeChance() {
+        double base = (pressure - 25) / 100.0; // 压力50→25%, 70→45%, 90→65%
+        if (companionTrait == null) return base;
+        return switch (companionTrait) {
+            case KOALA, BROWN_BEAR  -> base * 0.4;   // 放松/守护 大幅降低
+            case ZEBRA              -> base * 0.5;   // 群体安心 大幅降低
+            case ARCTIC_FOX         -> base * 0.6;   // 耐心试探 降低
+            case POLAR_BEAR         -> base * 0.7;   // 压制 降低
+            default                 -> base;
+        };
     }
 
     private int clamp(int v) { return Math.max(0, Math.min(100, v)); }
@@ -937,6 +998,8 @@ public class WildEncounter {
     public String getRevealedEmotionHint() { return revealedEmotionHint; }
     public boolean isFleeBlockUsed() { return fleeBlockUsed; }
     public boolean isBufferUsed() { return bufferUsed; }
+    public boolean isFleeWarning() { return fleeWarning; }
+    public int getFleeWarningThreshold() { return fleeWarningThreshold; }
     public boolean isForcedChangeUsed() { return forcedChangeUsed; }
     public Attitude getLastAttitudeUsed() { return lastAttitudeUsed; }
     public String getTraitSuggestion() { return traitSuggestion; }
@@ -977,7 +1040,7 @@ public class WildEncounter {
 
     /** 失败提示（根据原因不同） */
     public String getFailureHint() {
-        if (failed) return "这次靠得太急了。下次试着先降低它的压力——静静等待，或者移开视线。";
+        if (failed) return "它被压力吓跑了。注意观察动物的焦躁信号——压力超过25时可能随时逃跑，及时用「后退」或「等待」降低压力吧！";
         if (left)   return "你的动作没能引起它的兴趣。试试模仿它的动作，或者用温柔的声音呼唤。";
         if (timeout) return "它离开了，但并非空手而归。下次试着在" + maxRounds + "回合内赢得它的信任吧！";
         return "";
