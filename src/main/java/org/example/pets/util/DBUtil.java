@@ -16,7 +16,8 @@ public class DBUtil {
             String port = envFirst("DB_PORT", "MYSQLPORT", "3306");
             String name = envFirst("DB_NAME", "MYSQLDATABASE", "pets_game");
             URL = "jdbc:mysql://" + host + ":" + port + "/" + name
-                + "?useSSL=false&allowPublicKeyRetrieval=true"
+                + "?connectTimeout=10000&socketTimeout=15000"
+                + "&useSSL=false&allowPublicKeyRetrieval=true"
                 + "&serverTimezone=Asia/Shanghai&characterEncoding=UTF-8"
                 + "&connectionCollation=utf8mb4_unicode_ci";
         }
