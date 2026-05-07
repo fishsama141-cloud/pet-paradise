@@ -11,18 +11,37 @@ public class DBUtil {
         String dbUrl = System.getenv("DB_URL");
         if (dbUrl != null && !dbUrl.isEmpty()) {
             URL = dbUrl;
+            USER = envFirst("DB_USER", "MYSQLUSER", "root");
+            PASSWORD = envFirst("DB_PASSWORD", "MYSQLPASSWORD", "");
         } else {
-            String host = envFirst("DB_HOST", "MYSQLHOST", "localhost");
-            String port = envFirst("DB_PORT", "MYSQLPORT", "3306");
-            String name = envFirst("DB_NAME", "MYSQLDATABASE", "pets_game");
-            URL = "jdbc:mysql://" + host + ":" + port + "/" + name
-                + "?connectTimeout=10000&socketTimeout=15000"
-                + "&useSSL=false&allowPublicKeyRetrieval=true"
-                + "&serverTimezone=Asia/Shanghai&characterEncoding=UTF-8"
-                + "&connectionCollation=utf8mb4_unicode_ci";
+            String railUrl = System.getenv("DATABASE_URL");
+            if (railUrl != null && !railUrl.isEmpty() && railUrl.startsWith("mysql://")) {
+                // Railway DATABASE_URL: mysql://user:pass@host:port/db
+                String rest = railUrl.substring("mysql://".length());
+                int at = rest.indexOf('@');
+                String userInfo = rest.substring(0, at);
+                String[] up = userInfo.split(":", 2);
+                USER = up[0];
+                PASSWORD = up.length > 1 ? up[1] : "";
+                String hostPart = rest.substring(at + 1);
+                URL = "jdbc:mysql://" + hostPart
+                    + "?connectTimeout=10000&socketTimeout=15000"
+                    + "&useSSL=false&allowPublicKeyRetrieval=true"
+                    + "&serverTimezone=Asia/Shanghai&characterEncoding=UTF-8"
+                    + "&connectionCollation=utf8mb4_unicode_ci";
+            } else {
+                String host = envFirst("DB_HOST", "MYSQLHOST", "localhost");
+                String port = envFirst("DB_PORT", "MYSQLPORT", "3306");
+                String name = envFirst("DB_NAME", "MYSQLDATABASE", "pets_game");
+                URL = "jdbc:mysql://" + host + ":" + port + "/" + name
+                    + "?connectTimeout=10000&socketTimeout=15000"
+                    + "&useSSL=false&allowPublicKeyRetrieval=true"
+                    + "&serverTimezone=Asia/Shanghai&characterEncoding=UTF-8"
+                    + "&connectionCollation=utf8mb4_unicode_ci";
+                USER = envFirst("DB_USER", "MYSQLUSER", "root");
+                PASSWORD = envFirst("DB_PASSWORD", "MYSQLPASSWORD", "");
+            }
         }
-        USER = envFirst("DB_USER", "MYSQLUSER", "root");
-        PASSWORD = envFirst("DB_PASSWORD", "MYSQLPASSWORD", "");
     }
 
     private static String envFirst(String... keys) {
@@ -30,18 +49,19 @@ public class DBUtil {
             String v = System.getenv(k);
             if (v != null && !v.isEmpty()) return v;
         }
-        return keys[keys.length - 1]; // last arg is the fallback value
+        return keys[keys.length - 1];
     }
 
     static {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException("MySQL驱动加载失败", e);
+            throw new RuntimeException(e);
         }
     }
 
     public static Connection getConnection() throws SQLException {
+        System.out.println("==> DB connecting to: " + URL);
         return DriverManager.getConnection(URL, USER, PASSWORD);
     }
 
