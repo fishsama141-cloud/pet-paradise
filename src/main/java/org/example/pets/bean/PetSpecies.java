@@ -401,6 +401,10 @@ public class PetSpecies {
         return result;
     }
 
+    public static List<PetSpecies> getByRegion(String regionId) {
+        return getByRegion(regionId, 999);
+    }
+
     /** 根据区域ID查找区域定义 */
     public static RegionDef getRegionById(String regionId) {
         for (RegionDef rd : REGIONS) {

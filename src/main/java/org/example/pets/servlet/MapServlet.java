@@ -1025,31 +1025,28 @@ public class MapServlet extends HttpServlet {
 
     // ==================== Helpers ====================
 
-    /** 从全部物种中加权随机选择 — 当前区域权重×3，已解锁区域×1，未解锁×0.4 */
+    /** 从当前区域物种中按出现率加权随机选择 */
     private PetSpecies pickWeightedSpecies(String currentRegion, String userId) {
-        Set<String> unlockedIds;
-        try { unlockedIds = petDAO.getUnlockedRegionIds(userId); }
-        catch (SQLException e) { unlockedIds = Set.of(currentRegion); }
+        List<PetSpecies> regionPets = PetSpecies.getByRegion(currentRegion);
+        if (regionPets.isEmpty()) {
+            // fallback: if region has no explicit pets, use first 5 ALL species
+            regionPets = PetSpecies.ALL.subList(0, Math.min(5, PetSpecies.ALL.size()));
+        }
 
         double totalWeight = 0;
-        double[] weights = new double[PetSpecies.ALL.size()];
-        for (int i = 0; i < PetSpecies.ALL.size(); i++) {
-            PetSpecies sp = PetSpecies.ALL.get(i);
-            double w = sp.getEncounterRate();
-            if (sp.getRegionId().equals(currentRegion)) w *= 3.0;
-            else if (unlockedIds.contains(sp.getRegionId())) w *= 1.0;
-            else w *= 0.4;
-            weights[i] = w;
-            totalWeight += w;
+        double[] weights = new double[regionPets.size()];
+        for (int i = 0; i < regionPets.size(); i++) {
+            weights[i] = regionPets.get(i).getEncounterRate();
+            totalWeight += weights[i];
         }
 
         double r = RAND.nextDouble() * totalWeight;
         double cumulative = 0;
-        for (int i = 0; i < PetSpecies.ALL.size(); i++) {
+        for (int i = 0; i < regionPets.size(); i++) {
             cumulative += weights[i];
-            if (r <= cumulative) return PetSpecies.ALL.get(i);
+            if (r <= cumulative) return regionPets.get(i);
         }
-        return PetSpecies.ALL.get(PetSpecies.ALL.size() - 1); // fallback
+        return regionPets.get(regionPets.size() - 1);
     }
 
     private String getRegionName(String regionId) {

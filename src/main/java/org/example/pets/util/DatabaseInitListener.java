@@ -10,9 +10,6 @@ public class DatabaseInitListener implements ServletContextListener {
     public void contextInitialized(ServletContextEvent sce) {
         new Thread(() -> {
             String sql = """
-                -- Fix missing columns on existing tables
-                ALTER TABLE pets ADD COLUMN rarity VARCHAR(20) DEFAULT 'common';
-
                 CREATE TABLE IF NOT EXISTS users (
                     id VARCHAR(36) PRIMARY KEY,
                     username VARCHAR(50) UNIQUE NOT NULL,

@@ -546,7 +546,7 @@
         if (result != null && result.isComplete) {
         %>
             document.getElementById('resultOverlay').style.display = 'flex';
-            document.getElementById('resultTier').textContent = '<%= result.tier.equals("win") ? "&#x1F389;" : result.tier.equals("tie") ? "&#x1F91D;" : "&#x1F605;" %>';
+            document.getElementById('resultTier').innerHTML = '<%= result.tier.equals("win") ? "&#x1F389;" : result.tier.equals("tie") ? "&#x1F91D;" : "&#x1F605;" %>';
             document.getElementById('resultMsg').textContent = '<%= result.message.replace("'", "\\'") %>';
             document.getElementById('resultVS').innerHTML = '<div class="vs-side"><span class="vs-emoji">&#x1F60A;</span><span class="vs-label">你</span></div><div class="vs-mid">VS</div><div class="vs-side"><span class="vs-emoji"><%= pet.getEmoji() %></span><span class="vs-label"><%= pet.getName() %></span></div>';
             var rewardsHtml = '<div class="reward-badge">&#x1F60A; 心情 +<%= result.mood %></div>' +
