@@ -8,53 +8,55 @@ import java.sql.*;
 public class DatabaseInitListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        String sql = """
-            CREATE TABLE IF NOT EXISTS users (
-                id VARCHAR(36) PRIMARY KEY,
-                username VARCHAR(50) UNIQUE NOT NULL,
-                password VARCHAR(100) NOT NULL,
-                email VARCHAR(100),
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        new Thread(() -> {
+            String sql = """
+                CREATE TABLE IF NOT EXISTS users (
+                    id VARCHAR(36) PRIMARY KEY,
+                    username VARCHAR(50) UNIQUE NOT NULL,
+                    password VARCHAR(100) NOT NULL,
+                    email VARCHAR(100),
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-            CREATE TABLE IF NOT EXISTS pets (
-                id VARCHAR(36) PRIMARY KEY,
-                user_id VARCHAR(36) NOT NULL,
-                name VARCHAR(50) NOT NULL,
-                species VARCHAR(50) NOT NULL,
-                emoji VARCHAR(10),
-                region VARCHAR(50),
-                description TEXT,
-                level INT DEFAULT 1,
-                experience INT DEFAULT 0,
-                hunger INT DEFAULT 70,
-                mood INT DEFAULT 70,
-                cleanliness INT DEFAULT 70,
-                affinity INT DEFAULT 0,
-                bond INT DEFAULT 0,
-                personality VARCHAR(20) DEFAULT '活泼',
-                last_interaction TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                adopted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                CREATE TABLE IF NOT EXISTS pets (
+                    id VARCHAR(36) PRIMARY KEY,
+                    user_id VARCHAR(36) NOT NULL,
+                    name VARCHAR(50) NOT NULL,
+                    species VARCHAR(50) NOT NULL,
+                    emoji VARCHAR(10),
+                    region VARCHAR(50),
+                    description TEXT,
+                    level INT DEFAULT 1,
+                    experience INT DEFAULT 0,
+                    hunger INT DEFAULT 70,
+                    mood INT DEFAULT 70,
+                    cleanliness INT DEFAULT 70,
+                    affinity INT DEFAULT 0,
+                    bond INT DEFAULT 0,
+                    personality VARCHAR(20) DEFAULT '活泼',
+                    last_interaction TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    adopted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-            CREATE TABLE IF NOT EXISTS activity_log (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                pet_id VARCHAR(36) NOT NULL,
-                message VARCHAR(500),
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (pet_id) REFERENCES pets(id) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-            """;
-        try (Connection conn = DBUtil.getConnection();
-             Statement stmt = conn.createStatement()) {
-            for (String s : sql.split(";")) {
-                String trimmed = s.trim();
-                if (!trimmed.isEmpty()) stmt.execute(trimmed);
+                CREATE TABLE IF NOT EXISTS activity_log (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    pet_id VARCHAR(36) NOT NULL,
+                    message VARCHAR(500),
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (pet_id) REFERENCES pets(id) ON DELETE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                """;
+            try (Connection conn = DBUtil.getConnection();
+                 Statement stmt = conn.createStatement()) {
+                for (String s : sql.split(";")) {
+                    String trimmed = s.trim();
+                    if (!trimmed.isEmpty()) stmt.execute(trimmed);
+                }
+                System.out.println("==> Database tables initialized.");
+            } catch (SQLException e) {
+                System.err.println("DB init error: " + e.getMessage());
             }
-            System.out.println("==> Database tables initialized.");
-        } catch (SQLException e) {
-            System.err.println("DB init error: " + e.getMessage());
-        }
+        }, "db-init").start();
     }
 }
