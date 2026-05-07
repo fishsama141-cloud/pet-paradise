@@ -7,7 +7,7 @@ RUN apt-get update -qq && apt-get install -y -qq curl default-mysql-client && rm
 ENV CATALINA_HOME=/opt/tomcat
 ENV PATH=$CATALINA_HOME/bin:$PATH
 RUN mkdir -p $CATALINA_HOME
-RUN curl -fsSL https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.52/bin/apache-tomcat-10.1.52.tar.gz \
+RUN curl -fsSL https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.54/bin/apache-tomcat-10.1.54.tar.gz \
     | tar xz -C $CATALINA_HOME --strip-components=1
 
 # Copy Maven wrapper and source
