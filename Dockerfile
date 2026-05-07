@@ -1,32 +1,24 @@
-FROM eclipse-temurin:22-jdk
-
-# Install MySQL client + tools
-RUN apt-get update -qq && apt-get install -y -qq curl default-mysql-client && rm -rf /var/lib/apt/lists/*
-
-# Install Tomcat 10.1
-ENV CATALINA_HOME=/opt/tomcat
-ENV PATH=$CATALINA_HOME/bin:$PATH
-RUN mkdir -p $CATALINA_HOME
-RUN curl -fsSL https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.54/bin/apache-tomcat-10.1.54.tar.gz \
-    | tar xz -C $CATALINA_HOME --strip-components=1
-
-# Copy Maven wrapper and source
+# Stage 1: Build
+FROM maven:3.9-eclipse-temurin-21 AS builder
 WORKDIR /app
+COPY pom.xml mvnw mvnw.cmd ./
 COPY .mvn .mvn
-COPY mvnw mvnw.cmd pom.xml ./
-RUN chmod +x mvnw && ./mvnw dependency:resolve -q || true
-
-# Copy source and build
+RUN mvn dependency:resolve -q
 COPY src src
-RUN ./mvnw package -DskipTests -q
+RUN mvn package -DskipTests -q
 
-# Deploy WAR to Tomcat
-RUN rm -rf $CATALINA_HOME/webapps/* && cp target/*.war $CATALINA_HOME/webapps/ROOT.war
+# Stage 2: Run
+FROM tomcat:10.1-jdk21
+RUN rm -rf /usr/local/tomcat/webapps/*
+COPY --from=builder /app/target/*.war /usr/local/tomcat/webapps/ROOT.war
 
-# Copy init script
+# Install MySQL client for init
+RUN apt-get update -qq && apt-get install -y -qq default-mysql-client && rm -rf /var/lib/apt/lists/*
+
 COPY init.sql /app/init.sql
 COPY docker-entrypoint.sh /app/docker-entrypoint.sh
 RUN chmod +x /app/docker-entrypoint.sh
 
+ENV CATALINA_HOME=/usr/local/tomcat
 EXPOSE 8080
 CMD ["/app/docker-entrypoint.sh"]
