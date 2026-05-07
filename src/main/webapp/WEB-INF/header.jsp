@@ -1,0 +1,1 @@
+<a href="<%= request.getContextPath() %>/pet">🐾 虚拟宠物</a>
