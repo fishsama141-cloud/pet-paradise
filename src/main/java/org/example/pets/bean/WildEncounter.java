@@ -42,7 +42,9 @@ public class WildEncounter {
     private int pressure;    // 压力 0-100
     private int trust;       // 信任 0-100
     private int roundsUsed;
-    private boolean success, failed, left;
+    private boolean success, failed, left, timeout;
+    private int maxRounds;
+    private static final int DEFAULT_MAX_ROUNDS = 12;
     private String lastFeedback;
     private String lastAnimalReaction; // 动物对你行为的具体回应文本
     private String companionEffect;    // 同行宠物本回合的效果说明
@@ -85,7 +87,8 @@ public class WildEncounter {
         this.pressure  = clamp(base[2] + RAND.nextInt(10));
         this.trust     = clamp(base[3] + RAND.nextInt(12));
         this.roundsUsed = 0;
-        this.success = this.failed = this.left = false;
+        this.success = this.failed = this.left = this.timeout = false;
+        this.maxRounds = DEFAULT_MAX_ROUNDS;
         this.consecutiveSuccesses = 0;
         this.fleeBlockUsed = false;
         this.bufferUsed = false;
@@ -115,6 +118,12 @@ public class WildEncounter {
                     this.hiddenEmotionRevealed = true;
                     this.revealedEmotionHint = revealEmotionHint();
                     this.traitHint = companionEmoji + companionName + "的「观察入微」觉察到：" + revealedEmotionHint;
+                }
+                // 挽留特性：北极狐「耐心试探」/ 树袋熊「放松」可多挽留3回合
+                if (companionTrait == CompanionTrait.ARCTIC_FOX || companionTrait == CompanionTrait.KOALA) {
+                    this.maxRounds = DEFAULT_MAX_ROUNDS + 3;
+                    this.traitHint = companionEmoji + companionName + "的「" + companionTrait.getName()
+                        + "」让" + animalName + "愿意多停留一会儿（+" + (maxRounds - DEFAULT_MAX_ROUNDS) + "回合）";
                 }
             }
         }
@@ -241,6 +250,11 @@ public class WildEncounter {
      */
     public String useAttitude(Attitude att) {
         if (isOver()) return "互动已结束";
+
+        // 同态度冷却：不能连续使用同一态度（等待除外）
+        if (att == lastAttitudeUsed && att != Attitude.WAIT && !canBypassCooldown(att)) {
+            return animalEmoji + animalName + "对你的重复动作感到困惑……试试换个态度吧！";
+        }
 
         roundsUsed++;
         lastFeedback = null;
@@ -786,6 +800,43 @@ public class WildEncounter {
     }
 
     /** 探测系/共情系同伴根据动物当前情绪给出行动建议 */
+    /** 公开方法：检查某态度是否处于冷却中（JSP用） */
+    public boolean isOnCooldown(Attitude att) {
+        return att == lastAttitudeUsed && att != Attitude.WAIT && !canBypassCooldown(att);
+    }
+
+    /** 获取冷却绕过的提示文本（JSP用） */
+    public String getCooldownBypassHint(Attitude att) {
+        if (companionTrait == null || att != lastAttitudeUsed || att == Attitude.WAIT) return null;
+        if (companionTrait == CompanionTrait.DOLPHIN && att == Attitude.OFFER_FOOD)
+            return companionEmoji + "的「共情」让你可以连续投喂";
+        if (companionTrait == CompanionTrait.LION && att == Attitude.APPROACH)
+            return companionEmoji + "的「威慑」让你可以连续靠近";
+        if (companionTrait == CompanionTrait.KANGAROO && att == Attitude.MIMIC)
+            return companionEmoji + "的「节奏爆发」让你可以连续模仿";
+        if (companionTrait == CompanionTrait.SLOTH && att == Attitude.STEP_BACK)
+            return companionEmoji + "的「安静陪伴」让你可以连续后退";
+        if (companionTrait == CompanionTrait.DOG && att == Attitude.OBSERVE)
+            return companionEmoji + "的「安心感」让你可以连续观察";
+        return null;
+    }
+
+    /** 检查同伴特性是否允许连续使用同一态度 */
+    private boolean canBypassCooldown(Attitude att) {
+        if (companionTrait == null) return false;
+        // 海豚「共情」→ 投喂可连续
+        if (companionTrait == CompanionTrait.DOLPHIN && att == Attitude.OFFER_FOOD) return true;
+        // 狮子「威慑」→ 靠近可连续
+        if (companionTrait == CompanionTrait.LION && att == Attitude.APPROACH) return true;
+        // 袋鼠「节奏爆发」→ 模仿可连续
+        if (companionTrait == CompanionTrait.KANGAROO && att == Attitude.MIMIC) return true;
+        // 树懒「安静陪伴」→ 后退可连续
+        if (companionTrait == CompanionTrait.SLOTH && att == Attitude.STEP_BACK) return true;
+        // 小狗「安心感」→ 观察可连续
+        if (companionTrait == CompanionTrait.DOG && att == Attitude.OBSERVE) return true;
+        return false;
+    }
+
     private String generateTraitSuggestion(Attitude justUsed) {
         if (companionTrait == null) return null;
         CompanionTrait.TraitType type = companionTrait.getType();
@@ -839,6 +890,12 @@ public class WildEncounter {
             effectiveFlee = 95; // 更难逃跑
         }
 
+        // 检查回合超时：动物失去耐心跑走
+        if (roundsUsed >= maxRounds && !success) {
+            timeout = true;
+            return;
+        }
+
         // 检查物种特定捕捉条件
         if (security >= captureReq[0] && interest >= captureReq[1]
             && pressure <= captureReq[2] && trust >= captureReq[3]) {
@@ -854,9 +911,11 @@ public class WildEncounter {
 
     // ==================== 查询 ====================
 
-    public boolean isOver() { return success || failed || left; }
+    public boolean isOver() { return success || failed || left || timeout; }
     public boolean isSuccess() { return success; }
     public boolean isFailed() { return failed || left; }
+    public boolean isTimeout() { return timeout; }
+    public int getMaxRounds() { return maxRounds; }
 
     public String getAnimalName() { return animalName; }
     public String getAnimalEmoji() { return animalEmoji; }
@@ -912,6 +971,7 @@ public class WildEncounter {
         if (success) return animalName + "感受到了你的诚意，主动向你走来！";
         if (failed) return "压力过大——" + animalName + "惊恐地逃走了……";
         if (left)   return "兴趣消退——" + animalName + "转身离开了……";
+        if (timeout) return "时间到了——" + animalName + "失去了耐心，消失在丛林深处……但它留下了一些食物作为馈赠。";
         return "";
     }
 
@@ -919,6 +979,7 @@ public class WildEncounter {
     public String getFailureHint() {
         if (failed) return "这次靠得太急了。下次试着先降低它的压力——静静等待，或者移开视线。";
         if (left)   return "你的动作没能引起它的兴趣。试试模仿它的动作，或者用温柔的声音呼唤。";
+        if (timeout) return "它离开了，但并非空手而归。下次试着在" + maxRounds + "回合内赢得它的信任吧！";
         return "";
     }
 

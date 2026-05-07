@@ -159,6 +159,14 @@ public class PetServlet extends HttpServlet {
 
         String petName = pet.getName();
         String petEmoji = pet.getEmoji();
+        String rarity = pet.getRarityLabel();
+        int expReward;
+        switch (rarity) {
+            case "common"   -> expReward = 10 + new Random().nextInt(11);  // 10-20
+            case "uncommon" -> expReward = 25 + new Random().nextInt(16);  // 25-40
+            case "rare"     -> expReward = 45 + new Random().nextInt(36);  // 45-80
+            default         -> expReward = 15 + new Random().nextInt(16);  // 15-30
+        }
         petDAO.deletePet(petId);
 
         // Give bonuses to remaining pets
@@ -166,15 +174,17 @@ public class PetServlet extends HttpServlet {
         for (Pet p : remaining) {
             p.setAffinity(Math.min(100, p.getAffinity() + 8));
             p.setBond(Math.min(100, p.getBond() + 5));
-            p.addLog("🌿 你放生了" + petName + "，获得了自然的祝福！亲密度+8 默契+5");
+            p.gainExp(expReward);
+            p.addLog("🌿 你放生了" + petName + "，获得了自然的祝福！亲密度+8 默契+5 EXP+" + expReward);
             petDAO.updatePet(p);
             for (String log : p.getActivityLog()) {
                 petDAO.addActivityLog(p.getId(), log);
             }
         }
 
+        String rarityLabel = rarity.equals("common") ? "普通" : rarity.equals("uncommon") ? "稀有" : "传说";
         req.getSession().setAttribute("adoptSuccess",
-            "🌿 你放生了「" + petEmoji + " " + petName + "」，希望它在广阔天地里自由快乐！其他伙伴获得了祝福：亲密度+8，默契+5。");
+            "🌿 你放生了「" + petEmoji + " " + petName + "」(" + rarityLabel + ")，希望它在广阔天地里自由快乐！其他伙伴获得：EXP+" + expReward + "，亲密度+8，默契+5。");
         resp.sendRedirect(req.getContextPath() + "/dashboard");
     }
 

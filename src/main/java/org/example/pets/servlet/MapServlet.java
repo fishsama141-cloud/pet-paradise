@@ -446,6 +446,13 @@ public class MapServlet extends HttpServlet {
                 String hint = encounter.getFailureHint();
                 String failMsg = encounter.getAnimalEmoji() + " " + endReason;
                 if (hint != null && !hint.isEmpty()) failMsg += "\n" + hint;
+
+                // 超时时给予食物奖励
+                if (encounter.isTimeout()) {
+                    String timeoutFoodMsg = awardTimeoutFoods(user.getId());
+                    if (!timeoutFoodMsg.isEmpty()) failMsg += "\n" + timeoutFoodMsg;
+                }
+
                 req.getSession().setAttribute("encounterResult", failMsg);
                 resp.sendRedirect(req.getContextPath() + "/map");
             }
@@ -467,7 +474,9 @@ public class MapServlet extends HttpServlet {
         String regionName = getRegionName(region != null ? region : "east_asia");
 
         List<Pet> userPets = petDAO.getPetsByUserId(user.getId());
-        int expReward = 25 + RAND.nextInt(16);
+        PetSpecies speciesObj = (PetSpecies) session.getAttribute("encounterSpecies");
+        String rarity = speciesObj != null ? speciesObj.getRarityLabel() : "common";
+        int expReward = expForRarity(rarity);
 
         // Get companion pet
         Pet companion = null;
@@ -1065,6 +1074,32 @@ public class MapServlet extends HttpServlet {
             if (rd.name().equals(regionName)) return rd.id();
         }
         return "east_asia";
+    }
+
+    /** 超时时随机给1-2个食物 */
+    private String awardTimeoutFoods(String userId) throws SQLException {
+        List<FoodDef> allFoods = FoodDef.ALL;
+        if (allFoods.isEmpty()) return "";
+        int count = 1 + RAND.nextInt(2);
+        StringBuilder fb = new StringBuilder();
+        for (int i = 0; i < count; i++) {
+            FoodDef food = allFoods.get(RAND.nextInt(allFoods.size()));
+            petDAO.addFood(userId, food.getName(), food.getEmoji(), 1);
+            if (i > 0) fb.append("、");
+            fb.append(food.getEmoji()).append(food.getName());
+        }
+        return "\n🎁 它留下了食物：" + fb;
+    }
+
+    /** 根据稀有度计算经验奖励 */
+    private int expForRarity(String rarity) {
+        if (rarity == null) return 15 + RAND.nextInt(16);
+        return switch (rarity) {
+            case "common"   -> 10 + RAND.nextInt(11);  // 10-20
+            case "uncommon" -> 25 + RAND.nextInt(16);  // 25-40
+            case "rare"     -> 45 + RAND.nextInt(36);  // 45-80
+            default         -> 15 + RAND.nextInt(16);  // 15-30
+        };
     }
 
     // ── Inner classes ──

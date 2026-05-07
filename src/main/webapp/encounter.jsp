@@ -161,6 +161,16 @@
             box-shadow: 0 6px 20px rgba(240,194,122,0.2);
             background: linear-gradient(135deg, #3d2f1f, #5a3e28);
         }
+        .att-btn.cooldown {
+            opacity: 0.4; cursor: not-allowed; filter: grayscale(60%);
+        }
+        .att-btn.bypass {
+            border-color: #f0c27a; background: linear-gradient(135deg, #3d2f10, #5a4e18);
+            box-shadow: 0 0 12px rgba(240,194,122,0.3);
+        }
+        .att-btn.bypass:hover {
+            border-color: #FFD700; box-shadow: 0 0 16px rgba(255,215,0,0.5);
+        }
         .att-btn .att-emoji { font-size: 26px; display: block; margin-bottom: 4px; }
         .att-btn .att-name { font-size: 14px; font-weight: 700; }
         .att-btn .att-desc { font-size: 10px; color: #8a7a6a; margin-top: 2px; }
@@ -270,7 +280,13 @@
         <% } %>
 
         <!-- Round counter -->
-        <div class="rounds">互动回合：<span><%= enc.getRoundsUsed() %></span></div>
+        <div class="rounds">回合：<span><%= enc.getRoundsUsed() %> / <%= enc.getMaxRounds() %></span>
+        <% if (enc.getRoundsUsed() >= enc.getMaxRounds() - 3 && enc.getMaxRounds() > 12) { %>
+            <br><small style="color:#f0c27a;">&#x1F49B; 同伴特性延长了相遇时间</small>
+        <% } else if (enc.getRoundsUsed() >= enc.getMaxRounds() - 3) { %>
+            <br><small style="color:#e08060;">&#x23F3; 时间不多了……</small>
+        <% } %>
+        </div>
 
         <!-- Pacing hint -->
         <%
@@ -304,14 +320,18 @@
 
         <!-- Attitude buttons -->
         <div class="attitudes-title">选择你的态度：</div>
-        <form method="post" action="<%= request.getContextPath() %>/map">
+        <form method="post" action="<%= request.getContextPath() %>/map" id="attitudeForm">
             <input type="hidden" name="action" value="attitude">
             <div class="attitude-grid">
-                <% for (WildEncounter.Attitude a : WildEncounter.Attitude.values()) { %>
-                <button type="submit" name="attitude" value="<%= a.name() %>" class="att-btn">
+                <% for (WildEncounter.Attitude a : WildEncounter.Attitude.values()) {
+                    boolean onCooldown = enc.isOnCooldown(a);
+                    String bypassHint = enc.getCooldownBypassHint(a);
+                %>
+                <button type="submit" name="attitude" value="<%= a.name() %>" class="att-btn<%= onCooldown ? " cooldown" : (bypassHint != null ? " bypass" : "") %>"
+                    <%= onCooldown ? "disabled title=\"冷却中——下回合可用\"" : (bypassHint != null ? "title=\"" + bypassHint + "\"" : "") %>>
                     <span class="att-emoji"><%= a.emoji %></span>
-                    <span class="att-name"><%= a.label %></span>
-                    <span class="att-desc"><%= a.desc %></span>
+                    <span class="att-name"><%= a.label %><%= bypassHint != null ? " &#x2B50;" : "" %></span>
+                    <span class="att-desc"><%= onCooldown ? "冷却中" : (bypassHint != null ? bypassHint : a.desc) %></span>
                 </button>
                 <% } %>
             </div>

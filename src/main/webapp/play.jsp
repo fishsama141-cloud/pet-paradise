@@ -261,9 +261,10 @@
         <!-- Game 2: Breakout -->
         <div class="game-panel" id="panel-breakout">
             <h3>&#x1F9F1; 打砖块</h3>
-            <p class="game-desc">限时 <strong>60 秒</strong>，移动鼠标控制挡板击碎更多砖块！（30块）</p>
+            <p class="game-desc">限时 <strong>60 秒</strong>，移动鼠标控制挡板击碎更多砖块！（30块）<br>3条命，掉球扣命，命用完则结束</p>
             <div class="breakout-info">
                 <span>&#x23F1;&#xFE0F; <span id="bkTimer" style="color:#4CAF50;">60</span> 秒</span>
+                <span>&#x2764;&#xFE0F; <span id="bkLives" style="color:#FF5252;">&#x2764;&#x2764;&#x2764;</span></span>
                 <span>&#x1F9F1; <span id="brickCount">0</span>/30</span>
             </div>
             <div class="breakout-wrap">
@@ -320,7 +321,7 @@
         // ==================== Breakout Game (Timer-based) ====================
         var breakoutRunning = false, breakoutOver = false;
         var canvas, ctx, animationId;
-        var paddle, ball, bricks, brickCount;
+        var paddle, ball, bricks, brickCount, bkLives;
         var brickRows = 5, brickCols = 6, totalBricks = brickRows * brickCols;
         var brickColors = ['#FF6B6B','#FF8C42','#FFD93D','#6BCB77','#4D96FF'];
         var bkTimeLeft = 60, bkTimerInterval;
@@ -337,7 +338,8 @@
             ctx = canvas.getContext('2d');
             paddle = { x: canvas.width/2 - 40, y: canvas.height - 30, w: 80, h: 10 };
             ball = { x: canvas.width/2, y: canvas.height - 50, r: 6, dx: 3, dy: -3 };
-            brickCount = 0; bkTimeLeft = 60;
+            brickCount = 0; bkTimeLeft = 60; bkLives = 3;
+            document.getElementById('bkLives').innerHTML = '&#x2764;&#x2764;&#x2764;';
             bricks = [];
             var bw = (canvas.width - 20) / brickCols, bh = 18;
             for (var r = 0; r < brickRows; r++) {
@@ -415,8 +417,14 @@
             }
 
             if (ball.y - ball.r > canvas.height) {
-                ball.x = canvas.width/2; ball.y = canvas.height - 50;
-                ball.dx = (Math.random() > 0.5 ? 3 : -3); ball.dy = -3;
+                bkLives--;
+                var hearts = ''; for (var i = 0; i < 3; i++) hearts += i < bkLives ? '&#x2764;' : '&#x1F5A4;';
+                document.getElementById('bkLives').innerHTML = hearts;
+                if (bkLives <= 0) { endBreakout(); return; }
+                // Respawn at bricks center
+                var brickAreaCenterY = 30 + brickRows * (18 + 4) / 2;
+                ball.x = canvas.width/2; ball.y = brickAreaCenterY;
+                ball.dx = (Math.random() > 0.5 ? 3 : -3); ball.dy = 3;
             }
 
             animationId = requestAnimationFrame(loop);
