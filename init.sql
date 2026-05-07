@@ -1,13 +1,6 @@
 -- ============================================
 -- 宠物乐园 (Pet Paradise) 数据库初始化脚本
--- 用 Navicat 执行此脚本即可创建数据库
 -- ============================================
-
-CREATE DATABASE IF NOT EXISTS pets_game
-    DEFAULT CHARACTER SET utf8mb4
-    DEFAULT COLLATE utf8mb4_unicode_ci;
-
-USE pets_game;
 
 -- 用户表
 CREATE TABLE IF NOT EXISTS users (
