@@ -173,12 +173,12 @@ public class WildEncounter {
 
     private int[] baseEmotions(Archetype a) {
         return switch (a) {
-            case CAUTIOUS   -> new int[]{25, 40, 35, 10};  // 安全感低,兴趣中,压力高,信任低
-            case CURIOUS    -> new int[]{40, 55, 20, 15};  // 安全感中,兴趣高,压力低
-            case BOLD       -> new int[]{55, 35, 15, 10};  // 安全感高,兴趣中,压力低,信任低
-            case GENTLE     -> new int[]{30, 45, 20, 20};  // 安全感低,兴趣中,压力低,信任中
-            case PLAYFUL    -> new int[]{45, 60, 10, 18};  // 安全感中,兴趣高,压力低
-            case MYSTERIOUS -> new int[]{35, 30, 25, 5};   // 一切都中等偏低
+            case CAUTIOUS   -> new int[]{25, 40, 48, 10};  // 安全感低,兴趣中,压力高,信任低
+            case CURIOUS    -> new int[]{40, 55, 33, 15};  // 安全感中,兴趣高,压力中
+            case BOLD       -> new int[]{55, 35, 28, 10};  // 安全感高,兴趣中,压力中,信任低
+            case GENTLE     -> new int[]{30, 45, 32, 20};  // 安全感低,兴趣中,压力中,信任中
+            case PLAYFUL    -> new int[]{45, 60, 22, 18};  // 安全感中,兴趣高,压力中低
+            case MYSTERIOUS -> new int[]{35, 30, 36, 5};   // 一切都中等,压力偏高
         };
     }
 
@@ -364,23 +364,23 @@ public class WildEncounter {
                 case PLAYFUL    -> arr(0, -12, -3, -2);
                 case MYSTERIOUS -> arr(5, 5, -5, 8);
             };
-            // 投喂：用食物建立正面联结
+            // 投喂：用食物建立正面联结，但陌生人的食物让动物警觉
             case OFFER_FOOD -> switch (arch) {
-                case CAUTIOUS   -> arr(5, 8, 3, 12);
-                case CURIOUS    -> arr(5, 10, 2, 10);
-                case BOLD       -> arr(3, 5, 5, 8);
-                case GENTLE     -> arr(8, 8, 5, 15);
-                case PLAYFUL    -> arr(5, 8, 3, 14);
-                case MYSTERIOUS -> arr(3, 6, 5, 6);
+                case CAUTIOUS   -> arr(5, 8, 8, 12);
+                case CURIOUS    -> arr(5, 10, 6, 10);
+                case BOLD       -> arr(3, 5, 7, 8);
+                case GENTLE     -> arr(8, 8, 7, 15);
+                case PLAYFUL    -> arr(5, 8, 5, 14);
+                case MYSTERIOUS -> arr(3, 6, 6, 6);
             };
-            // 模仿：尝试用姿态建立共鸣
+            // 模仿：尝试用姿态建立共鸣，但模仿不准确会让动物困惑
             case MIMIC -> switch (arch) {
-                case CAUTIOUS   -> arr(10, 5, -5, 12);
-                case CURIOUS    -> arr(5, 12, -3, 10);
-                case BOLD       -> arr(3, 5, -5, 5);
-                case GENTLE     -> arr(8, 8, -8, 12);
-                case PLAYFUL    -> arr(5, 15, -5, 8);
-                case MYSTERIOUS -> arr(8, 10, -3, 8);
+                case CAUTIOUS   -> arr(10, 5, 3, 12);
+                case CURIOUS    -> arr(5, 12, 2, 10);
+                case BOLD       -> arr(3, 5, 0, 5);
+                case GENTLE     -> arr(8, 8, 2, 12);
+                case PLAYFUL    -> arr(5, 15, -3, 8);
+                case MYSTERIOUS -> arr(8, 10, 2, 8);
             };
             // 后退：拉开距离，主动给对方空间
             case STEP_BACK -> switch (arch) {
@@ -925,7 +925,7 @@ public class WildEncounter {
         }
 
         // ========== 压力逃跑预警机制 ==========
-        // 压力>25时每回合有概率触发逃跑预警，下回合未缓解则逃跑
+        // 压力>20时每回合有概率触发逃跑预警，下回合未缓解则逃跑
         if (!success && !failed && !left && !timeout) {
             if (fleeWarning) {
                 // 上回合已预警——检查压力是否缓解
@@ -953,7 +953,7 @@ public class WildEncounter {
                     failed = true;
                     return;
                 }
-            } else if (pressure > 25) {
+            } else if (pressure > 20) {
                 double fleeChance = getEffectiveFleeChance();
                 if (RAND.nextDouble() < fleeChance) {
                     fleeWarning = true;
@@ -977,7 +977,7 @@ public class WildEncounter {
 
     /** 计算逃跑概率（受同伴特性影响） */
     private double getEffectiveFleeChance() {
-        double base = (pressure - 25) / 100.0;
+        double base = (pressure - 20) / 80.0;
         if (companionTrait == null) return base;
         if (companionTrait == CompanionTrait.KOALA || companionTrait == CompanionTrait.BROWN_BEAR)
             return base * 0.4;
@@ -1062,7 +1062,7 @@ public class WildEncounter {
 
     /** 失败提示（根据原因不同） */
     public String getFailureHint() {
-        if (failed) return "它被压力吓跑了。注意观察动物的焦躁信号——压力超过25时可能随时逃跑，及时用「后退」或「等待」降低压力吧！";
+        if (failed) return "它被压力吓跑了。注意观察动物的焦躁信号——压力超过20时可能随时逃跑，压力越高概率越大，及时用「后退」或「等待」降低压力吧！";
         if (left)   return "你的动作没能引起它的兴趣。试试模仿它的动作，或者用温柔的声音呼唤。";
         if (timeout) return "它离开了，但并非空手而归。下次试着在" + maxRounds + "回合内赢得它的信任吧！";
         return "";
