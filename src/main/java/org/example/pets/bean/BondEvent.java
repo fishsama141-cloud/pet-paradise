@@ -84,12 +84,12 @@ public class BondEvent {
         WildEncounter.Archetype arch = enc.getArchetype();
 
         return switch (arch) {
-            case CAUTIOUS -> sec >= 50 && pressure <= 30 && enc.getRoundsUsed() >= 2;
-            case CURIOUS -> interest >= 55 && sec >= 30;
-            case BOLD -> trust >= 25 && pressure <= 45 && enc.getRoundsUsed() >= 1;
-            case GENTLE -> trust >= 30 && sec >= 35 && pressure <= 40;
-            case PLAYFUL -> interest >= 60 && pressure <= 35;
-            case MYSTERIOUS -> trust >= 35 && enc.getRoundsUsed() >= 3;
+            case CAUTIOUS -> sec >= 35 && pressure <= 40 && enc.getRoundsUsed() >= 1;
+            case CURIOUS -> interest >= 40 && sec >= 20;
+            case BOLD -> trust >= 15 && pressure <= 55 && enc.getRoundsUsed() >= 1;
+            case GENTLE -> trust >= 20 && sec >= 25 && pressure <= 50;
+            case PLAYFUL -> interest >= 45 && pressure <= 45;
+            case MYSTERIOUS -> trust >= 20 && enc.getRoundsUsed() >= 2;
         };
     }
 
@@ -116,46 +116,46 @@ public class BondEvent {
     private void setBaseParams() {
         switch (type) {
             case SLOW_APPROACH -> {
-                this.phases = difficulty <= 1 ? 3 : difficulty == 2 ? 4 : 5;
-                this.timingWindow = difficulty <= 1 ? 800 : difficulty == 2 ? 600 : 450;
-                this.maxMistakes = difficulty <= 1 ? 3 : difficulty == 2 ? 2 : 1;
-                this.speed = 100;
+                this.phases = difficulty <= 1 ? 4 : difficulty == 2 ? 5 : 6;
+                this.timingWindow = difficulty <= 1 ? 600 : difficulty == 2 ? 450 : 300;
+                this.maxMistakes = difficulty <= 1 ? 2 : difficulty == 2 ? 1 : 1;
+                this.speed = 130;
                 this.zoneSize = 0;
             }
             case RHYTHM_SYNC -> {
-                this.phases = difficulty <= 1 ? 3 : difficulty == 2 ? 4 : 4;
-                this.timingWindow = difficulty <= 1 ? 500 : difficulty == 2 ? 350 : 250;
-                this.maxMistakes = difficulty <= 1 ? 3 : difficulty == 2 ? 2 : 1;
-                this.speed = difficulty <= 1 ? 80 : difficulty == 2 ? 100 : 130;
+                this.phases = difficulty <= 1 ? 4 : difficulty == 2 ? 5 : 5;
+                this.timingWindow = difficulty <= 1 ? 380 : difficulty == 2 ? 260 : 180;
+                this.maxMistakes = difficulty <= 1 ? 2 : difficulty == 2 ? 1 : 1;
+                this.speed = difficulty <= 1 ? 100 : difficulty == 2 ? 120 : 150;
                 this.zoneSize = 0;
             }
             case GENTLE_OFFER -> {
                 this.phases = 1;
-                this.timingWindow = difficulty <= 1 ? 1200 : difficulty == 2 ? 800 : 500;
+                this.timingWindow = difficulty <= 1 ? 900 : difficulty == 2 ? 600 : 350;
                 this.maxMistakes = difficulty <= 1 ? 2 : difficulty == 2 ? 1 : 1;
-                this.speed = 100;
+                this.speed = 120;
                 this.zoneSize = 0;
             }
             case FOLLOW_MOVEMENT -> {
                 this.phases = 1;
-                this.timingWindow = 10000; // 10s total
-                this.maxMistakes = difficulty <= 1 ? 5 : difficulty == 2 ? 3 : 2;
-                this.speed = difficulty <= 1 ? 60 : difficulty == 2 ? 85 : 110;
-                this.zoneSize = difficulty <= 1 ? 120 : difficulty == 2 ? 90 : 70;
+                this.timingWindow = 8000;
+                this.maxMistakes = difficulty <= 1 ? 3 : difficulty == 2 ? 2 : 1;
+                this.speed = difficulty <= 1 ? 80 : difficulty == 2 ? 100 : 130;
+                this.zoneSize = difficulty <= 1 ? 100 : difficulty == 2 ? 75 : 55;
             }
             case STEADY_BREATH -> {
-                this.phases = difficulty <= 1 ? 4 : difficulty == 2 ? 5 : 6;
-                this.timingWindow = difficulty <= 1 ? 600 : difficulty == 2 ? 450 : 350;
-                this.maxMistakes = difficulty <= 1 ? 3 : difficulty == 2 ? 2 : 1;
-                this.speed = difficulty <= 1 ? 70 : difficulty == 2 ? 90 : 110;
+                this.phases = difficulty <= 1 ? 5 : difficulty == 2 ? 6 : 7;
+                this.timingWindow = difficulty <= 1 ? 450 : difficulty == 2 ? 320 : 240;
+                this.maxMistakes = difficulty <= 1 ? 2 : difficulty == 2 ? 1 : 1;
+                this.speed = difficulty <= 1 ? 90 : difficulty == 2 ? 110 : 130;
                 this.zoneSize = 0;
             }
             case GAZE_LOCK -> {
                 this.phases = 1;
-                this.timingWindow = difficulty <= 1 ? 8000 : difficulty == 2 ? 10000 : 12000;
-                this.maxMistakes = difficulty <= 1 ? 4 : difficulty == 2 ? 2 : 1;
-                this.speed = difficulty <= 1 ? 50 : difficulty == 2 ? 75 : 100;
-                this.zoneSize = difficulty <= 1 ? 100 : difficulty == 2 ? 75 : 55;
+                this.timingWindow = difficulty <= 1 ? 6000 : difficulty == 2 ? 8000 : 10000;
+                this.maxMistakes = difficulty <= 1 ? 3 : difficulty == 2 ? 2 : 1;
+                this.speed = difficulty <= 1 ? 70 : difficulty == 2 ? 95 : 120;
+                this.zoneSize = difficulty <= 1 ? 85 : difficulty == 2 ? 60 : 42;
             }
         }
     }

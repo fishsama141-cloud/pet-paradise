@@ -44,7 +44,7 @@ public class WildEncounter {
     private int roundsUsed;
     private boolean success, failed, left, timeout;
     private int maxRounds;
-    private static final int DEFAULT_MAX_ROUNDS = 12;
+    private static final int DEFAULT_MAX_ROUNDS = 6;
     private String lastFeedback;
     private String lastAnimalReaction; // 动物对你行为的具体回应文本
     private String companionEffect;    // 同行宠物本回合的效果说明
@@ -112,12 +112,12 @@ public class WildEncounter {
         this.pendingBondEvent = null;
         this.bondEventUsed = false;
         this.speciesRarity = species.getRarity();
-        // 稀有度决定bond事件次数: common=0~1, uncommon=1, rare=1~2
+        // 每个遭遇至少1次bond事件: common=1, uncommon=1~2, rare=2~3
         this.bondEventsMax = switch (speciesRarity) {
-            case "common" -> RAND.nextInt(2);      // 0 or 1
-            case "uncommon" -> 1;
-            case "rare" -> 1 + RAND.nextInt(2);    // 1 or 2
-            default -> RAND.nextInt(2);
+            case "common" -> 1;
+            case "uncommon" -> 1 + RAND.nextInt(2);    // 1 or 2
+            case "rare" -> 2 + RAND.nextInt(2);        // 2 or 3
+            default -> 1;
         };
 
         // 同行宠物特性初始化
@@ -240,38 +240,38 @@ public class WildEncounter {
     private static int[] getCaptureRequirements(String speciesId) {
         return switch (speciesId) {
             // 🏯 东亚森林
-            case "east_asia_red_panda"    -> arr(70, 30, 30, 75);
-            case "east_asia_crane"        -> arr(80, 25, 25, 70);
-            case "east_asia_golden_monkey" -> arr(45, 60, 25, 80);
-            case "starter_cat"            -> arr(60, 45, 30, 75);
-            case "starter_fox"            -> arr(75, 35, 20, 75);
+            case "east_asia_red_panda"    -> arr(55, 20, 40, 60);
+            case "east_asia_crane"        -> arr(65, 20, 35, 55);
+            case "east_asia_golden_monkey" -> arr(35, 50, 35, 65);
+            case "starter_cat"            -> arr(50, 35, 40, 60);
+            case "starter_fox"            -> arr(60, 25, 30, 60);
             // 🌴 亚马孙
-            case "amazon_toucan"          -> arr(35, 70, 35, 75);
-            case "amazon_sloth"           -> arr(60, 20, 35, 70);
-            case "amazon_jaguar"          -> arr(50, 45, 20, 85);
-            case "starter_macaw"          -> arr(35, 70, 25, 75);
+            case "amazon_toucan"          -> arr(25, 55, 45, 60);
+            case "amazon_sloth"           -> arr(50, 15, 45, 55);
+            case "amazon_jaguar"          -> arr(40, 35, 30, 70);
+            case "starter_macaw"          -> arr(25, 55, 35, 60);
             // 🦁 非洲
-            case "africa_zebra"           -> arr(65, 40, 30, 75);
-            case "africa_giraffe"         -> arr(75, 30, 25, 70);
-            case "africa_lion"            -> arr(55, 35, 20, 85);
-            case "starter_dog"            -> arr(45, 65, 25, 70);
-            case "starter_rabbit"         -> arr(80, 45, 20, 80);
+            case "africa_zebra"           -> arr(50, 30, 40, 60);
+            case "africa_giraffe"         -> arr(60, 20, 35, 55);
+            case "africa_lion"            -> arr(45, 25, 30, 70);
+            case "starter_dog"            -> arr(35, 50, 35, 55);
+            case "starter_rabbit"         -> arr(65, 35, 30, 65);
             // 🦘 澳大利亚
-            case "australia_koala"        -> arr(70, 25, 35, 75);
-            case "australia_platypus"     -> arr(50, 60, 20, 70);
-            case "australia_kangaroo"     -> arr(45, 65, 25, 80);
-            case "starter_lizard"         -> arr(55, 50, 20, 75);
+            case "australia_koala"        -> arr(55, 20, 45, 60);
+            case "australia_platypus"     -> arr(40, 50, 30, 55);
+            case "australia_kangaroo"     -> arr(35, 50, 35, 65);
+            case "starter_lizard"         -> arr(45, 40, 30, 60);
             // ❄️ 北极
-            case "arctic_snowy_owl"       -> arr(80, 30, 20, 75);
-            case "arctic_fox"             -> arr(75, 40, 25, 70);
-            case "arctic_polar_bear"      -> arr(55, 30, 20, 85);
-            case "starter_bear"           -> arr(65, 35, 30, 75);
+            case "arctic_snowy_owl"       -> arr(65, 20, 30, 60);
+            case "arctic_fox"             -> arr(60, 30, 35, 55);
+            case "arctic_polar_bear"      -> arr(45, 20, 30, 70);
+            case "starter_bear"           -> arr(50, 25, 40, 60);
             // 🌊 深海
-            case "ocean_turtle"           -> arr(70, 25, 30, 80);
-            case "ocean_squid"            -> arr(40, 55, 30, 75);
-            case "ocean_whale"            -> arr(55, 30, 25, 85);
-            case "starter_dolphin"        -> arr(50, 60, 20, 80);
-            default                       -> arr(55, 40, 30, 75);
+            case "ocean_turtle"           -> arr(55, 20, 40, 65);
+            case "ocean_squid"            -> arr(30, 45, 40, 60);
+            case "ocean_whale"            -> arr(45, 20, 35, 70);
+            case "starter_dolphin"        -> arr(40, 50, 30, 65);
+            default                       -> arr(45, 30, 40, 60);
         };
     }
 
@@ -1106,32 +1106,19 @@ public class WildEncounter {
      * @return BondEvent 如果应该触发，否则 null
      */
     public BondEvent checkBondEvent() {
-        // 已触发过且配额已用完
         if (bondEventsMax <= 0) return null;
-        // 交锋中进行bond事件才有效（至少1回合后）
         if (roundsUsed < 1) return null;
-        // 已结束的不触发
         if (isOver()) return null;
-        // 检查情绪阈值
         if (!BondEvent.shouldTrigger(this)) return null;
 
-        // 特定态度更容易触发：观察、投喂、模仿
-        boolean softTrigger = roundsUsed >= 3;
-        double chance = softTrigger ? 0.45 : 0.25;
-        // 稀有度越高越容易触发
-        if ("rare".equals(speciesRarity)) chance += 0.15;
-        if ("uncommon".equals(speciesRarity)) chance += 0.08;
-
-        if (RAND.nextDouble() < chance) {
-            BondEvent.EventType eventType = BondEvent.selectFor(archetype, RAND);
-            int rarityTier = "rare".equals(speciesRarity) ? 3 : "uncommon".equals(speciesRarity) ? 2 : 1;
-            pendingBondEvent = new BondEvent(eventType, animalName, animalEmoji,
-                rarityTier, companionTrait, companionBond);
-            bondEventsMax--;
-            bondEventUsed = true;
-            return pendingBondEvent;
-        }
-        return null;
+        // 每个遭遇保证触发：情绪达标后必定触发
+        BondEvent.EventType eventType = BondEvent.selectFor(archetype, RAND);
+        int rarityTier = "rare".equals(speciesRarity) ? 3 : "uncommon".equals(speciesRarity) ? 2 : 1;
+        pendingBondEvent = new BondEvent(eventType, animalName, animalEmoji,
+            rarityTier, companionTrait, companionBond);
+        bondEventsMax--;
+        bondEventUsed = true;
+        return pendingBondEvent;
     }
 
     /**

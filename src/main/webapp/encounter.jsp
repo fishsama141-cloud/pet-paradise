@@ -187,9 +187,9 @@
         .att-btn.bypass:hover {
             border-color: #FFD700; box-shadow: 0 0 16px rgba(255,215,0,0.5);
         }
-        .att-btn .att-emoji { font-size: 26px; display: block; margin-bottom: 4px; }
-        .att-btn .att-name { font-size: 14px; font-weight: 700; }
-        .att-btn .att-desc { font-size: 10px; color: #8a7a6a; margin-top: 2px; }
+        .att-btn .att-emoji { font-size: 36px; display: block; margin-bottom: 6px; }
+        .att-btn .att-name { font-size: 18px; font-weight: 700; }
+        .att-btn .att-desc { font-size: 13px; color: #8a7a6a; margin-top: 3px; }
 
         /* Feedback */
         .feedback {
@@ -211,56 +211,62 @@
         }
         .btn-back:hover { color: #c0b090; }
 
-        /* Bond Event UI */
-        .bond-event {
+        /* Bond Event Modal Overlay */
+        .bond-modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.80); z-index: 9999;
+            display: flex; align-items: center; justify-content: center;
+            animation: fadeIn 0.3s ease;
+            backdrop-filter: blur(4px);
+        }
+        .bond-modal {
             background: linear-gradient(135deg, #1a2230, #1d2a38);
             border: 2px solid #f0c27a; border-radius: 20px;
-            padding: 20px; margin-bottom: 14px;
-            animation: bondIn 0.6s ease;
-            box-shadow: 0 0 30px rgba(240,194,122,0.15);
+            padding: 24px; width: 92%; max-width: 520px; max-height: 90vh;
+            overflow-y: auto; position: relative;
+            animation: bondModalIn 0.5s ease;
+            box-shadow: 0 0 60px rgba(240,194,122,0.25);
         }
-        @keyframes bondIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
+        @keyframes bondModalIn {
+            from { opacity: 0; transform: scale(0.9) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
         }
-        .bond-event .be-header {
-            text-align: center; margin-bottom: 14px;
+        .bond-modal .be-header { text-align: center; margin-bottom: 14px; }
+        .bond-modal .be-title {
+            font-size: 22px; font-weight: 700; color: #f0c27a; margin-bottom: 4px;
         }
-        .bond-event .be-title {
-            font-size: 20px; font-weight: 700; color: #f0c27a; margin-bottom: 4px;
-        }
-        .bond-event .be-scene {
-            font-size: 14px; color: #c0d0e0; line-height: 1.7; margin-bottom: 12px;
+        .bond-modal .be-scene {
+            font-size: 15px; color: #c0d0e0; line-height: 1.7; margin-bottom: 12px;
             font-style: italic;
         }
-        .bond-event .be-instruction {
-            font-size: 13px; color: #a0b0c0; margin-bottom: 16px;
-            padding: 8px 14px; background: rgba(240,194,122,0.08);
+        .bond-modal .be-instruction {
+            font-size: 14px; color: #a0b0c0; margin-bottom: 16px;
+            padding: 10px 16px; background: rgba(240,194,122,0.1);
             border-radius: 10px;
         }
-        .bond-event .be-game-area {
+        .bond-modal .be-game-area {
             background: #111820; border-radius: 16px;
             padding: 20px; min-height: 200px; position: relative;
             overflow: hidden; user-select: none; cursor: default;
             border: 1px solid #2a3a4a;
         }
-        .bond-event .be-trait-hint {
-            margin-top: 14px; font-size: 12px; color: #90b090;
+        .bond-modal .be-trait-hint {
+            margin-top: 14px; font-size: 13px; color: #90b090;
             text-align: center; padding: 6px 14px;
             background: rgba(120,200,120,0.08); border-radius: 10px;
         }
-        .bond-event .be-score-bar {
+        .bond-modal .be-score-bar {
             height: 6px; background: #1a202a; border-radius: 3px;
             margin-top: 14px; overflow: hidden;
         }
-        .bond-event .be-score-fill {
+        .bond-modal .be-score-fill {
             height: 100%; background: linear-gradient(90deg, #e04040, #f0c040, #40c040);
             border-radius: 3px; transition: width 0.3s;
         }
-        .bond-event .be-mistakes {
+        .bond-modal .be-mistakes {
             text-align: center; margin-top: 8px; font-size: 12px; color: #e08060;
         }
-        .bond-event .be-mistakes .dot { color: #f04040; }
+        .bond-modal .be-mistakes .dot { color: #f04040; }
 
         /* Bond result */
         .bond-result {
@@ -471,32 +477,38 @@
         <div class="bond-result"><%= bondResult %></div>
         <% } %>
 
-        <!-- Bond Event UI -->
+        <!-- Bond Event Modal -->
         <%
             BondEvent bondEvent = (BondEvent) request.getAttribute("bondEvent");
         %>
         <% if (bondEvent != null) { %>
-        <div class="bond-event" id="bondEvent">
-            <div class="be-header">
-                <div class="be-title">&#x2728; <%= bondEvent.getAnimalEmoji() %> <%= bondEvent.getAnimalName() %>对你产生了兴趣</div>
-                <div class="be-scene"><%= bondEvent.getType().scene %></div>
-                <div class="be-instruction">&#x1F3AE; <%= bondEvent.getType().instruction %></div>
+        <div class="bond-modal-overlay" id="bondModalOverlay">
+            <div class="bond-modal" id="bondEvent">
+                <div class="be-header">
+                    <div class="be-title">&#x2728; <%= bondEvent.getAnimalEmoji() %> <%= bondEvent.getAnimalName() %>对你产生了兴趣</div>
+                    <div class="be-scene"><%= bondEvent.getType().scene %></div>
+                    <div class="be-instruction">&#x1F3AE; <%= bondEvent.getType().instruction %></div>
+                </div>
+                <div class="be-game-area" id="gameArea">
+                    <div style="text-align:center;padding:60px 20px;color:#8a9a7a;">
+                        &#x1F3AE; 小游戏加载中……
+                    </div>
+                </div>
+                <div class="be-score-bar"><div class="be-score-fill" id="scoreFill" style="width:50%"></div></div>
+                <div class="be-mistakes" id="mistakeDots"></div>
+                <% if (bondEvent.getTraitModifierText() != null && !bondEvent.getTraitModifierText().isEmpty()) { %>
+                <div class="be-trait-hint">&#x1F31F; <%= bondEvent.getTraitModifierText() %></div>
+                <% } %>
+                <form method="post" action="<%= request.getContextPath() %>/map" id="bondForm">
+                    <input type="hidden" name="action" value="bond_event">
+                    <input type="hidden" name="score" id="bondScore" value="50">
+                </form>
             </div>
-            <div class="be-game-area" id="gameArea"></div>
-            <div class="be-score-bar"><div class="be-score-fill" id="scoreFill" style="width:50%"></div></div>
-            <div class="be-mistakes" id="mistakeDots"></div>
-            <% if (bondEvent.getTraitModifierText() != null && !bondEvent.getTraitModifierText().isEmpty()) { %>
-            <div class="be-trait-hint">&#x1F31F; <%= bondEvent.getTraitModifierText() %></div>
-            <% } %>
-            <form method="post" action="<%= request.getContextPath() %>/map" id="bondForm">
-                <input type="hidden" name="action" value="bond_event">
-                <input type="hidden" name="score" id="bondScore" value="50">
-            </form>
         </div>
         <% } %>
 
         <!-- Attitude buttons (hidden during bond event) -->
-        <div id="attitudeSection" class="<%= bondEvent != null ? "hidden" : "" %>">
+        <div id="attitudeSection">
         <div class="attitudes-title">选择你的态度：</div>
         <form method="post" action="<%= request.getContextPath() %>/map" id="attitudeForm">
             <input type="hidden" name="action" value="attitude">
