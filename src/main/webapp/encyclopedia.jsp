@@ -12,30 +12,6 @@
     if (collectedSpecies == null) collectedSpecies = Set.of();
     if (ownedFoods == null) ownedFoods = Set.of();
 
-    // Compute archetype for a species
-    String getArch(String speciesId) {
-        if (speciesId == null) return "MYSTERIOUS";
-        if (speciesId.contains("fox") || speciesId.contains("crane") || speciesId.contains("owl")
-            || speciesId.contains("rabbit")) return "CAUTIOUS";
-        if (speciesId.contains("monkey") || speciesId.contains("toucan") || speciesId.contains("macaw")
-            || speciesId.contains("dolphin")) return "CURIOUS";
-        if (speciesId.contains("jaguar") || speciesId.contains("lion") || speciesId.contains("bear")
-            || speciesId.contains("kangaroo")) return "BOLD";
-        if (speciesId.contains("sloth") || speciesId.contains("koala") || speciesId.contains("turtle")
-            || speciesId.contains("giraffe")) return "GENTLE";
-        if (speciesId.contains("dog") || speciesId.contains("cat") || speciesId.contains("zebra")
-            || speciesId.contains("platypus")) return "PLAYFUL";
-        return "MYSTERIOUS";
-    }
-    String archLabel(String arch) {
-        return switch (arch) {
-            case "CAUTIOUS" -> "&#x1F440; 谨慎型"; case "CURIOUS" -> "&#x1F50D; 好奇型";
-            case "BOLD" -> "&#x1F4AA; 大胆型"; case "GENTLE" -> "&#x1F33F; 温柔型";
-            case "PLAYFUL" -> "&#x1F3BE; 活泼型"; case "MYSTERIOUS" -> "&#x2728; 神秘型";
-            default -> "";
-        };
-    }
-
     // Group species by archetype
     Map<String, List<PetSpecies>> archSpeciesMap = new LinkedHashMap<>();
     archSpeciesMap.put("CAUTIOUS", new ArrayList<>());
@@ -296,8 +272,9 @@
                         <% } %>
                     </div>
                     <div class="sc-capture">
-                        &#x1F3AF; 捕捉条件：安&#x2265;<%= getCap(sp.getId())[0] %> 趣&#x2265;<%= getCap(sp.getId())[1] %>
-                        压&#x2264;<%= getCap(sp.getId())[2] %> 信&#x2265;<%= getCap(sp.getId())[3] %>
+                        <% int[] cap = getCap(sp.getId()); %>
+                        &#x1F3AF; 捕捉条件：安&#x2265;<%= cap[0] %> 趣&#x2265;<%= cap[1] %>
+                        压&#x2264;<%= cap[2] %> 信&#x2265;<%= cap[3] %>
                     </div>
                 </div>
                 <% } %>
@@ -338,8 +315,9 @@
                         <% } %>
                     </div>
                     <div class="sc-capture">
-                        &#x1F3AF; 捕捉条件：安&#x2265;<%= getCap(sp.getId())[0] %> 趣&#x2265;<%= getCap(sp.getId())[1] %>
-                        压&#x2264;<%= getCap(sp.getId())[2] %> 信&#x2265;<%= getCap(sp.getId())[3] %>
+                        <% int[] cap2 = getCap(sp.getId()); %>
+                        &#x1F3AF; 捕捉条件：安&#x2265;<%= cap2[0] %> 趣&#x2265;<%= cap2[1] %>
+                        压&#x2264;<%= cap2[2] %> 信&#x2265;<%= cap2[3] %>
                     </div>
                 </div>
                 <% } %>
@@ -407,7 +385,7 @@
 
             if (activeLabels.length > 0) {
                 info.style.display = 'block';
-                info.textContent = '&#x1F50D; 正在筛选：' + activeLabels.join(' + ');
+                info.textContent = '🔍 正在筛选：' + activeLabels.join(' + ');
             } else {
                 info.style.display = 'none';
             }
@@ -443,36 +421,59 @@
 </body>
 </html>
 <%!
+    String getArch(String speciesId) {
+        if (speciesId == null) return "MYSTERIOUS";
+        if (speciesId.contains("fox") || speciesId.contains("crane") || speciesId.contains("owl")
+            || speciesId.contains("rabbit")) return "CAUTIOUS";
+        if (speciesId.contains("monkey") || speciesId.contains("toucan") || speciesId.contains("macaw")
+            || speciesId.contains("dolphin")) return "CURIOUS";
+        if (speciesId.contains("jaguar") || speciesId.contains("lion") || speciesId.contains("bear")
+            || speciesId.contains("kangaroo")) return "BOLD";
+        if (speciesId.contains("sloth") || speciesId.contains("koala") || speciesId.contains("turtle")
+            || speciesId.contains("giraffe")) return "GENTLE";
+        if (speciesId.contains("dog") || speciesId.contains("cat") || speciesId.contains("zebra")
+            || speciesId.contains("platypus")) return "PLAYFUL";
+        return "MYSTERIOUS";
+    }
+
+    String archLabel(String arch) {
+        if ("CAUTIOUS".equals(arch)) return "&#x1F440; 谨慎型";
+        if ("CURIOUS".equals(arch)) return "&#x1F50D; 好奇型";
+        if ("BOLD".equals(arch)) return "&#x1F4AA; 大胆型";
+        if ("GENTLE".equals(arch)) return "&#x1F33F; 温柔型";
+        if ("PLAYFUL".equals(arch)) return "&#x1F3BE; 活泼型";
+        if ("MYSTERIOUS".equals(arch)) return "&#x2728; 神秘型";
+        return "";
+    }
+
     int[] getCap(String speciesId) {
         if (speciesId == null) return new int[]{55, 40, 30, 75};
-        return switch (speciesId) {
-            case "east_asia_red_panda"    -> new int[]{70, 30, 30, 75};
-            case "east_asia_crane"        -> new int[]{80, 25, 25, 70};
-            case "east_asia_golden_monkey" -> new int[]{45, 60, 25, 80};
-            case "starter_cat"            -> new int[]{60, 45, 30, 75};
-            case "starter_fox"            -> new int[]{75, 35, 20, 75};
-            case "amazon_toucan"          -> new int[]{35, 70, 35, 75};
-            case "amazon_sloth"           -> new int[]{60, 20, 35, 70};
-            case "amazon_jaguar"          -> new int[]{50, 45, 20, 85};
-            case "starter_macaw"          -> new int[]{35, 70, 25, 75};
-            case "africa_zebra"           -> new int[]{65, 40, 30, 75};
-            case "africa_giraffe"         -> new int[]{75, 30, 25, 70};
-            case "africa_lion"            -> new int[]{55, 35, 20, 85};
-            case "starter_dog"            -> new int[]{45, 65, 25, 70};
-            case "starter_rabbit"         -> new int[]{80, 45, 20, 80};
-            case "australia_koala"        -> new int[]{70, 25, 35, 75};
-            case "australia_platypus"     -> new int[]{50, 60, 20, 70};
-            case "australia_kangaroo"     -> new int[]{45, 65, 25, 80};
-            case "starter_lizard"         -> new int[]{55, 50, 20, 75};
-            case "arctic_snowy_owl"       -> new int[]{80, 30, 20, 75};
-            case "arctic_fox"             -> new int[]{75, 40, 25, 70};
-            case "arctic_polar_bear"      -> new int[]{55, 30, 20, 85};
-            case "starter_bear"           -> new int[]{65, 35, 30, 75};
-            case "ocean_turtle"           -> new int[]{70, 25, 30, 80};
-            case "ocean_squid"            -> new int[]{40, 55, 30, 75};
-            case "ocean_whale"            -> new int[]{55, 30, 25, 85};
-            case "starter_dolphin"        -> new int[]{50, 60, 20, 80};
-            default                       -> new int[]{55, 40, 30, 75};
-        };
+        if ("east_asia_red_panda".equals(speciesId)) return new int[]{70, 30, 30, 75};
+        if ("east_asia_crane".equals(speciesId)) return new int[]{80, 25, 25, 70};
+        if ("east_asia_golden_monkey".equals(speciesId)) return new int[]{45, 60, 25, 80};
+        if ("starter_cat".equals(speciesId)) return new int[]{60, 45, 30, 75};
+        if ("starter_fox".equals(speciesId)) return new int[]{75, 35, 20, 75};
+        if ("amazon_toucan".equals(speciesId)) return new int[]{35, 70, 35, 75};
+        if ("amazon_sloth".equals(speciesId)) return new int[]{60, 20, 35, 70};
+        if ("amazon_jaguar".equals(speciesId)) return new int[]{50, 45, 20, 85};
+        if ("starter_macaw".equals(speciesId)) return new int[]{35, 70, 25, 75};
+        if ("africa_zebra".equals(speciesId)) return new int[]{65, 40, 30, 75};
+        if ("africa_giraffe".equals(speciesId)) return new int[]{75, 30, 25, 70};
+        if ("africa_lion".equals(speciesId)) return new int[]{55, 35, 20, 85};
+        if ("starter_dog".equals(speciesId)) return new int[]{45, 65, 25, 70};
+        if ("starter_rabbit".equals(speciesId)) return new int[]{80, 45, 20, 80};
+        if ("australia_koala".equals(speciesId)) return new int[]{70, 25, 35, 75};
+        if ("australia_platypus".equals(speciesId)) return new int[]{50, 60, 20, 70};
+        if ("australia_kangaroo".equals(speciesId)) return new int[]{45, 65, 25, 80};
+        if ("starter_lizard".equals(speciesId)) return new int[]{55, 50, 20, 75};
+        if ("arctic_snowy_owl".equals(speciesId)) return new int[]{80, 30, 20, 75};
+        if ("arctic_fox".equals(speciesId)) return new int[]{75, 40, 25, 70};
+        if ("arctic_polar_bear".equals(speciesId)) return new int[]{55, 30, 20, 85};
+        if ("starter_bear".equals(speciesId)) return new int[]{65, 35, 30, 75};
+        if ("ocean_turtle".equals(speciesId)) return new int[]{70, 25, 30, 80};
+        if ("ocean_squid".equals(speciesId)) return new int[]{40, 55, 30, 75};
+        if ("ocean_whale".equals(speciesId)) return new int[]{55, 30, 25, 85};
+        if ("starter_dolphin".equals(speciesId)) return new int[]{50, 60, 20, 80};
+        return new int[]{55, 40, 30, 75};
     }
 %>
