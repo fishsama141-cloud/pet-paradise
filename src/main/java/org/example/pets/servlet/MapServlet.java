@@ -104,6 +104,7 @@ public class MapServlet extends HttpServlet {
                 case "explore" -> startAdventure(req, resp, user);
                 case "choice" -> processChoice(req, resp, user);
                 case "attitude" -> processAttitude(req, resp, user);
+                case "bond_event" -> processBondEvent(req, resp, user);
                 case "adopt" -> handleAdopt(req, resp, user);
                 case "unlock_region" -> handleUnlockRegion(req, resp, user);
                 default -> resp.sendRedirect(req.getContextPath() + "/map");
@@ -457,10 +458,89 @@ public class MapServlet extends HttpServlet {
                 resp.sendRedirect(req.getContextPath() + "/map");
             }
         } else {
+            // 检查是否触发互动高潮事件
+            BondEvent bondEvent = encounter.checkBondEvent();
+            if (bondEvent != null) {
+                session.setAttribute("bondEvent", bondEvent);
+                System.out.println("[MapServlet] Bond event triggered: " + bondEvent.getType().name() +
+                    " for " + bondEvent.getAnimalName());
+            }
             req.setAttribute("encounter", encounter);
             req.setAttribute("species", species);
             req.setAttribute("regionName", getRegionName(region));
             req.setAttribute("companion", companion);
+            req.setAttribute("bondEvent", bondEvent);
+            req.getRequestDispatcher("/encounter.jsp").forward(req, resp);
+        }
+    }
+
+    /** Process bond event result from the mini-game */
+    private void processBondEvent(HttpServletRequest req, HttpServletResponse resp, User user)
+            throws SQLException, ServletException, IOException {
+        HttpSession session = req.getSession();
+        WildEncounter encounter = (WildEncounter) session.getAttribute("encounter");
+        PetSpecies species = (PetSpecies) session.getAttribute("encounterSpecies");
+        String region = (String) session.getAttribute("encounterRegion");
+        BondEvent bondEvent = (BondEvent) session.getAttribute("bondEvent");
+
+        if (encounter == null || species == null || bondEvent == null) {
+            resp.sendRedirect(req.getContextPath() + "/map");
+            return;
+        }
+
+        int score;
+        try {
+            score = Integer.parseInt(req.getParameter("score"));
+            score = Math.max(0, Math.min(100, score));
+        } catch (NumberFormatException e) {
+            score = 50;
+        }
+
+        System.out.println("[MapServlet] processBondEvent: type=" + bondEvent.getType().name() +
+            " score=" + score);
+
+        String feedback = encounter.applyBondEventResult(score);
+        session.removeAttribute("bondEvent");
+
+        // Get companion
+        Pet companion = null;
+        String companionId = (String) session.getAttribute("advCompanionId");
+        if (companionId != null) {
+            try { companion = petDAO.getPetById(companionId); } catch (SQLException ignored) {}
+        }
+
+        if (encounter.isOver()) {
+            if (encounter.isSuccess()) {
+                int[] stats = species.rollStats();
+                req.setAttribute("species", species);
+                req.setAttribute("rolledStats", stats);
+                req.setAttribute("regionName", getRegionName(region));
+                req.setAttribute("encounterFeedback", feedback);
+                req.setAttribute("companion", companion);
+                req.getRequestDispatcher("/adopt.jsp").forward(req, resp);
+            } else {
+                session.removeAttribute("encounter");
+                session.removeAttribute("encounterSpecies");
+                session.removeAttribute("encounterRegion");
+                session.removeAttribute("advCompanionId");
+                session.removeAttribute("advCompanionName");
+                session.removeAttribute("advCompanionEmoji");
+                String failMsg = encounter.getAnimalEmoji() + " " + encounter.getEndReason();
+                String hint = encounter.getFailureHint();
+                if (hint != null && !hint.isEmpty()) failMsg += "\n" + hint;
+                if (encounter.isTimeout()) {
+                    String timeoutFoodMsg = awardTimeoutFoods(user.getId());
+                    if (!timeoutFoodMsg.isEmpty()) failMsg += "\n" + timeoutFoodMsg;
+                }
+                req.getSession().setAttribute("encounterResult", failMsg);
+                resp.sendRedirect(req.getContextPath() + "/map");
+            }
+        } else {
+            req.setAttribute("encounter", encounter);
+            req.setAttribute("species", species);
+            req.setAttribute("regionName", getRegionName(region));
+            req.setAttribute("companion", companion);
+            req.setAttribute("bondResult", feedback);
             req.getRequestDispatcher("/encounter.jsp").forward(req, resp);
         }
     }

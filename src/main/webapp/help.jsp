@@ -98,6 +98,7 @@
     <div class="main">
         <div class="help-tabs">
             <button class="help-tab active" onclick="switchHelp('attributes')">&#x1F4CA; 属性详解</button>
+            <button class="help-tab" onclick="switchHelp('bondevent')">&#x1F91D; 互动事件</button>
             <button class="help-tab" onclick="switchHelp('gameplay')">&#x1F3AE; 玩法指南</button>
         </div>
 
@@ -205,6 +206,109 @@
             </div>
         </div>
 
+        <!-- ==================== 互动高潮事件 ==================== -->
+        <div class="help-section" id="help-bondevent">
+            <div class="section-title">&#x1F91D; 互动高潮事件系统 (Bond Event)</div>
+
+            <div class="rule-card">
+                <div class="rc-header"><span class="rc-icon">&#x2728;</span><span class="rc-name">什么是互动高潮事件？</span></div>
+                <div class="rc-desc">
+                    在遭遇野生动物的过程中，当情绪条件满足时，动物可能主动发起一次<strong>更深层的互动</strong>——不是普通的回合制选择，而是一个有操作性的即时小游戏。<br>
+                    这是你和野生动物之间的<strong>关系突破时刻</strong>——成功通过将大幅提升信任，甚至直接触发可收养状态！
+                </div>
+                <div class="rc-formula">触发频率：稀有度决定遭遇战中的事件配额
+&#x1F7E2; 常见 (common)：0~1 次
+&#x1F7E1; 稀有 (uncommon)：1 次
+&#x1F534; 极稀有 (rare)：1~2 次</div>
+            </div>
+
+            <div class="rule-card">
+                <div class="rc-header"><span class="rc-icon">&#x1F3AF;</span><span class="rc-name">触发条件</span></div>
+                <div class="rc-desc">
+                    每种性格原型的动物有不同的触发条件，通常在<strong>遭遇中后期</strong>、情绪积累到一定程度时触发：
+                </div>
+                <div class="rc-formula"><b>谨慎 (CAUTIOUS)</b>：安全感 &#x2265; 50 且 压力 &#x2264; 30 且 已进行 &#x2265; 2 回合
+<b>好奇 (CURIOUS)</b>：兴趣 &#x2265; 55 且 安全感 &#x2265; 30
+<b>大胆 (BOLD)</b>：信任 &#x2265; 25 且 压力 &#x2264; 45 且 已进行 &#x2265; 1 回合
+<b>温柔 (GENTLE)</b>：信任 &#x2265; 30 且 安全感 &#x2265; 35 且 压力 &#x2264; 40
+<b>顽皮 (PLAYFUL)</b>：兴趣 &#x2265; 60 且 压力 &#x2264; 35
+<b>神秘 (MYSTERIOUS)</b>：信任 &#x2265; 35 且 已进行 &#x2265; 3 回合</div>
+            </div>
+
+            <div class="rule-card">
+                <div class="rc-header"><span class="rc-icon">&#x1F3AE;</span><span class="rc-name">六种事件类型</span></div>
+                <div class="rc-desc">
+                    根据动物原型匹配最合适的事件类型，每种都有独特的操作方式和策略：
+                </div>
+                <div class="rc-formula"><b>&#x1F45F; 缓慢接近 (SLOW_APPROACH)</b> — 谨慎/温柔型
+  按住按钮接近动物，它在回头时你必须松手。考验耐心与时机。
+
+<b>&#x1F3B5; 节奏同步 (RHYTHM_SYNC)</b> — 好奇/顽皮/大胆/神秘型
+  光点随机亮起，在时间窗口内点击。考验反应与节奏感。
+
+<b>&#x1F34E; 温柔投喂 (GENTLE_OFFER)</b> — 温柔型
+  等待完美时机递出食物。过早惊吓动物，过晚错失良机。
+
+<b>&#x1F30A; 跟随移动 (FOLLOW_MOVEMENT)</b> — 好奇/顽皮型
+  动物移动时保持光标在舒适区内。考验微操与稳定。
+
+<b>&#x1F4A8; 呼吸同步 (STEADY_BREATH)</b> — 谨慎/神秘型
+  按住吸气、松开呼气，跟随动物的呼吸节奏。考验平静与专注。
+
+<b>&#x1F440; 凝视对视 (GAZE_LOCK)</b> — 大胆/神秘型
+  光标保持在视线范围内，谁先移开谁就输了信任。考验定力。</div>
+            </div>
+
+            <div class="rule-card">
+                <div class="rc-header"><span class="rc-icon">&#x1F3C6;</span><span class="rc-name">结果等级</span></div>
+                <div class="rc-desc">
+                    小游戏得分 0-100，根据得分判定四个结果等级：
+                </div>
+                <div class="rc-formula"><b>&#x1F31F; 大成功 (BIG_SUCCESS)</b> — 得分 &#x2265; 90
+  情绪：安全感+15、兴趣+12、压力-10、信任+18
+  <strong>直接触发可收养状态！</strong>
+
+<b>&#x2705; 成功 (SUCCESS)</b> — 得分 &#x2265; 55
+  情绪：安全感+8、兴趣+5、压力-3、信任+10
+
+<b>&#x26A0; 失败 (FAILURE)</b> — 得分 &#x2265; 25
+  情绪：安全感-3、兴趣-5、压力+8、信任-2
+
+<b>&#x1F480; 严重失败 (CRITICAL_FAILURE)</b> — 得分 &lt; 25
+  情绪：安全感-8、兴趣-10、压力+18、信任-5
+  <strong>可能直接触发逃跑！</strong></div>
+            </div>
+
+            <div class="rule-card">
+                <div class="rc-header"><span class="rc-icon">&#x1F43E;</span><span class="rc-name">同伴特性影响</span></div>
+                <div class="rc-desc">
+                    同行宠物的<strong>同伴特性</strong>和<strong>默契度</strong>会直接影响事件难度和参数：
+                </div>
+                <div class="rc-formula"><b>&#x1F436; 狗 (安心感)</b>：容错范围扩大25%，多一次失误机会
+<b>&#x1F98A; 狐狸 (试探)</b>：时间窗口扩大（随默契度增强）
+<b>&#x1F990; 树懒 (安静陪伴)</b>：速度-50%，时间窗口+30%
+<b>&#x1F428; 小熊猫 (慢慢来)</b>：速度-30%，时间窗口+15%
+<b>&#x1F428; 考拉 (放松)</b>：全体节奏减慢25%
+<b>&#x1F434; 斑马 (群体安心)</b>：多两次失误机会
+<b>&#x1F43F; 狗熊 (守护)</b>：容错一次，时间窗口略宽
+<b>&#x1F98B; 海豚 (共情)</b>：多一次机会，失误可补救
+<b>&#x1F997; 袋鼠 (节奏爆发)</b>：额外加成阶段，可获更高分
+<b>&#x1F919; 鱿鱼 (深海混沌)</b>：规则随机变化，保持警惕
+<b>&#x1F43B;&#x200D;&#x2744; 北极熊 (压制)</b>：难度增加但成功后效果翻倍！</div>
+            </div>
+
+            <div class="rule-card">
+                <div class="rc-header"><span class="rc-icon">&#x1F4A1;</span><span class="rc-name">策略小贴士</span></div>
+                <div class="rc-desc">
+                    &#x2022; 谨慎型动物需要耐心建立安全感，避免给压力<br>
+                    &#x2022; 玩伴型动物喜欢高兴趣值，多用「模仿」「玩耍」态度<br>
+                    &#x2022; 带高默契同伴可大幅降低事件难度<br>
+                    &#x2022; 大成功直接收养，是最快收服稀有动物的捷径<br>
+                    &#x2022; 如果压力已经很高，慎重触发事件——失败可能直接导致逃跑
+                </div>
+            </div>
+        </div>
+
         <!-- ==================== 玩法指南 ==================== -->
         <div class="help-section" id="help-gameplay">
             <div class="section-title">&#x1F3AE; 新手指南</div>
@@ -248,7 +352,8 @@
                     6种态度（等待/靠近/观察/投喂/模仿/后退）影响4个情绪维度（安全感/兴趣/压力/信任）。<br>
                     不同性格原型的动物对每种态度的反应不同 —— 没有唯一正确答案！<br>
                     <strong>满足捕捉条件后动物会跟随你</strong>——选择收服（全队+默契）或放归自然（全队+亲密度）。<br>
-                    <strong>&#x26A0; 压力超过20可能触发逃跑预警</strong>，下回合未缓解则逃跑。压力越高概率越大。「后退」或「等待」可降低压力。
+                    <strong>&#x26A0; 压力超过20可能触发逃跑预警</strong>，下回合未缓解则逃跑。压力越高概率越大。「后退」或「等待」可降低压力。<br>
+                    <strong>&#x2728; 情绪条件满足时，动物可能发起「互动高潮事件」</strong>——即时操作小游戏，大成功直接收养！详见「互动事件」标签页。
                 </div>
             </div>
 

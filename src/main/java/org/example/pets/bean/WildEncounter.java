@@ -69,6 +69,12 @@ public class WildEncounter {
     // 同行宠物默契度（影响特性强度）
     private int companionBond;
 
+    // 互动高潮事件系统
+    private BondEvent pendingBondEvent;   // 当前待处理的bond事件
+    private boolean bondEventUsed;        // 本轮遭遇是否已触发过bond事件
+    private int bondEventsMax;            // 本轮最多可触发次数（基于稀有度）
+    private String speciesRarity;         // 物种稀有度标签
+
     // 失败条件
     private static final int PRESSURE_FLEE = 90;
     private static final int INTEREST_GONE = 5;
@@ -101,6 +107,18 @@ public class WildEncounter {
         this.bufferUsed = false;
         this.forcedChangeUsed = false;
         this.hiddenEmotionRevealed = false;
+
+        // 互动高潮事件初始化
+        this.pendingBondEvent = null;
+        this.bondEventUsed = false;
+        this.speciesRarity = species.getRarity();
+        // 稀有度决定bond事件次数: common=0~1, uncommon=1, rare=1~2
+        this.bondEventsMax = switch (speciesRarity) {
+            case "common" -> RAND.nextInt(2);      // 0 or 1
+            case "uncommon" -> 1;
+            case "rare" -> 1 + RAND.nextInt(2);    // 1 or 2
+            default -> RAND.nextInt(2);
+        };
 
         // 同行宠物特性初始化
         if (companion != null) {
@@ -1079,4 +1097,109 @@ public class WildEncounter {
             default -> null;
         };
     }
+
+    // ==================== 互动高潮事件系统 ====================
+
+    /**
+     * 检查是否应该触发 Bond 事件。
+     * 在每次态度使用后调用。只在未使用过且还有配额时检查。
+     * @return BondEvent 如果应该触发，否则 null
+     */
+    public BondEvent checkBondEvent() {
+        // 已触发过且配额已用完
+        if (bondEventsMax <= 0) return null;
+        // 交锋中进行bond事件才有效（至少1回合后）
+        if (roundsUsed < 1) return null;
+        // 已结束的不触发
+        if (isOver()) return null;
+        // 检查情绪阈值
+        if (!BondEvent.shouldTrigger(this)) return null;
+
+        // 特定态度更容易触发：观察、投喂、模仿
+        boolean softTrigger = roundsUsed >= 3;
+        double chance = softTrigger ? 0.45 : 0.25;
+        // 稀有度越高越容易触发
+        if ("rare".equals(speciesRarity)) chance += 0.15;
+        if ("uncommon".equals(speciesRarity)) chance += 0.08;
+
+        if (RAND.nextDouble() < chance) {
+            BondEvent.EventType eventType = BondEvent.selectFor(archetype, RAND);
+            int rarityTier = "rare".equals(speciesRarity) ? 3 : "uncommon".equals(speciesRarity) ? 2 : 1;
+            pendingBondEvent = new BondEvent(eventType, animalName, animalEmoji,
+                rarityTier, companionTrait, companionBond);
+            bondEventsMax--;
+            bondEventUsed = true;
+            return pendingBondEvent;
+        }
+        return null;
+    }
+
+    /**
+     * 应用 Bond 事件结果，更新情绪。
+     * @param score 玩家得分 0-100
+     * @return 结果反馈文本
+     */
+    public String applyBondEventResult(int score) {
+        if (pendingBondEvent == null) return "";
+        BondEvent.Result result = pendingBondEvent.calculateResult(score);
+        int[] delta = pendingBondEvent.getEmotionDelta(result);
+
+        // 北极熊「压制」：成功效果翻倍
+        if (companionTrait == CompanionTrait.POLAR_BEAR && (result == BondEvent.Result.BIG_SUCCESS || result == BondEvent.Result.SUCCESS)) {
+            delta[0] = (int)(delta[0] * 1.5);
+            delta[1] = (int)(delta[1] * 1.5);
+            delta[2] = (int)(delta[2] * 1.5);
+            delta[3] = (int)(delta[3] * 1.5);
+        }
+
+        security = clamp(security + delta[0]);
+        interest  = clamp(interest  + delta[1]);
+        pressure  = clamp(pressure  + delta[2]);
+        trust     = clamp(trust     + delta[3]);
+
+        StringBuilder fb = new StringBuilder();
+        fb.append(animalEmoji).append(" ");
+
+        switch (result) {
+            case BIG_SUCCESS -> {
+                fb.append(animalName).append("被你的真诚打动！它主动向你走来——这一刻，你们的心紧紧连在了一起。");
+                success = true;
+            }
+            case SUCCESS -> fb.append("太棒了！").append(animalName).append("的眼神柔和了下来，它对你敞开了心扉。");
+            case FAILURE -> {
+                fb.append(animalName).append("缩了缩身子……它有些紧张，但还没完全放弃你。");
+                if (pendingBondEvent.isFleeRisk(result) && pressure >= 60) {
+                    fleeWarning = true;
+                    fleeWarningThreshold = pressure;
+                    fb.append("\n⚠️ 它看起来受到了惊吓，可能会逃跑……");
+                }
+            }
+            case CRITICAL_FAILURE -> {
+                fb.append(animalName).append("被你吓到了！它后退了好几步，警惕地盯着你。");
+                if (pressure >= 50) {
+                    fleeWarning = true;
+                    fleeWarningThreshold = pressure;
+                    fb.append("\n⚠️ 严重失误！它随时可能逃跑！");
+                }
+            }
+        }
+        fb.append("\n").append(emotionChangeText(delta));
+
+        // 同伴特性加成
+        if (companionTrait != null && result == BondEvent.Result.BIG_SUCCESS) {
+            fb.append("\n🐾 ").append(companionEmoji).append(companionName)
+                .append("的「").append(companionTrait.getName()).append("」在这一刻发挥了关键作用！");
+        }
+
+        pendingBondEvent = null;
+        checkEndConditions();
+        return fb.toString();
+    }
+
+    // Bond event getters
+    public BondEvent getPendingBondEvent() { return pendingBondEvent; }
+    public boolean isBondEventUsed() { return bondEventUsed; }
+    public int getBondEventsMax() { return bondEventsMax; }
+    public int getBondEventsRemaining() { return bondEventsMax; }
+    public String getSpeciesRarity() { return speciesRarity; }
 }
