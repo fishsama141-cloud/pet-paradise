@@ -66,6 +66,9 @@ public class WildEncounter {
     private String revealedEmotionHint;    // 揭示的情绪提示
     private String traitSuggestion;        // 探测系同伴的态度建议
 
+    // 同行宠物默契度（影响特性强度）
+    private int companionBond;
+
     // 失败条件
     private static final int PRESSURE_FLEE = 90;
     private static final int INTEREST_GONE = 5;
@@ -104,6 +107,14 @@ public class WildEncounter {
             this.companionName = companion.getName();
             this.companionEmoji = companion.getEmoji();
             this.companionTrait = CompanionTrait.forPet(companion);
+            this.companionBond = companion.getBond();
+
+            // 亲密度加成：高亲密度同伴让野生动物初始更放松
+            int affBonus = companion.getAffinity() >= 80 ? 12 : companion.getAffinity() >= 50 ? 6 : companion.getAffinity() >= 30 ? 3 : 0;
+            if (affBonus > 0) {
+                this.trust = clamp(trust + affBonus);
+                this.security = clamp(security + affBonus / 2);
+            }
 
             if (companionTrait != null) {
                 // 美洲豹「压迫感」：初始信任降低
@@ -576,6 +587,15 @@ public class WildEncounter {
             if (p > 0) p = (int)(p * 0.7);
         }
 
+        // 默契度加成：高默契让同伴特性效果更强
+        double bondMulti = companionBond >= 80 ? 1.4 : companionBond >= 50 ? 1.2 : companionBond >= 30 ? 1.1 : 1.0;
+        if (bondMulti > 1.0) {
+            if (s > 0) s = (int)(s * bondMulti);
+            if (i > 0) i = (int)(i * bondMulti);
+            if (p < 0) p = (int)(p * bondMulti); // 压力降低更多
+            if (t > 0) t = (int)(t * bondMulti);
+        }
+
         return new int[]{s, i, p, t};
     }
 
@@ -957,15 +977,17 @@ public class WildEncounter {
 
     /** 计算逃跑概率（受同伴特性影响） */
     private double getEffectiveFleeChance() {
-        double base = (pressure - 25) / 100.0; // 压力50→25%, 70→45%, 90→65%
+        double base = (pressure - 25) / 100.0;
         if (companionTrait == null) return base;
-        return switch (companionTrait) {
-            case KOALA, BROWN_BEAR  -> base * 0.4;   // 放松/守护 大幅降低
-            case ZEBRA              -> base * 0.5;   // 群体安心 大幅降低
-            case ARCTIC_FOX         -> base * 0.6;   // 耐心试探 降低
-            case POLAR_BEAR         -> base * 0.7;   // 压制 降低
-            default                 -> base;
-        };
+        if (companionTrait == CompanionTrait.KOALA || companionTrait == CompanionTrait.BROWN_BEAR)
+            return base * 0.4;
+        if (companionTrait == CompanionTrait.ZEBRA)
+            return base * 0.5;
+        if (companionTrait == CompanionTrait.ARCTIC_FOX)
+            return base * 0.6;
+        if (companionTrait == CompanionTrait.POLAR_BEAR)
+            return base * 0.7;
+        return base;
     }
 
     private int clamp(int v) { return Math.max(0, Math.min(100, v)); }

@@ -53,6 +53,7 @@ public class Pet implements Serializable {
      * 喜欢：饱食+20 亲密度+5
      * 普通：饱食+10
      * 厌恶：饱食+5 亲密度-5
+     * 亲密度加成：亲密度越高，喂食恢复的饱食度越多（最高+50%）
      */
     public void feed(String foodName, String foodEmoji, String preference) {
         int hungerGain;
@@ -72,12 +73,16 @@ public class Pet implements Serializable {
                 reaction = foodEmoji + " " + foodName + "味道还行，" + name + "平静地吃完了。";
             }
         }
+        // 亲密度加成：80+=1.5x, 50+=1.3x, 30+=1.15x
+        double affBonus = affinity >= 80 ? 0.5 : affinity >= 50 ? 0.3 : affinity >= 30 ? 0.15 : 0;
+        hungerGain = (int)(hungerGain * (1 + affBonus));
         hunger = Math.min(100, hunger + hungerGain);
         affinity = Math.max(0, Math.min(100, affinity + affinityChange));
         mood = Math.min(100, mood + 3);
         lastInteraction = new Date();
+        String bonusText = affBonus > 0 ? "（亲密度加成+" + (int)(affBonus*100) + "%）" : "";
         String affix = affinityChange > 0 ? " 亲密度+" + affinityChange : affinityChange < 0 ? " 亲密度" + affinityChange : "";
-        addLog(reaction + " 饱食+" + hungerGain + affix);
+        addLog(reaction + " 饱食+" + hungerGain + bonusText + affix);
     }
 
     /** 玩耍：提升默契 */
@@ -122,6 +127,19 @@ public class Pet implements Serializable {
         if (diffHours > 0) {
             hunger = Math.max(0, hunger - (int)(diffHours * 5));
             mood = Math.max(0, mood - (int)(diffHours * 3));
+            // 惩罚机制：状态过低会降低亲密度
+            int affPenalty = 0;
+            if (hunger <= 15) {
+                affPenalty += (int)(diffHours * 2);
+                addLog("&#x1F356; 饥肠辘辘，" + name + "对你的疏忽感到失望……");
+            }
+            if (mood <= 20) {
+                affPenalty += (int)(diffHours * 2);
+                addLog("&#x1F61E; 心情低落，" + name + "觉得被冷落了……");
+            }
+            if (affPenalty > 0) {
+                affinity = Math.max(0, affinity - affPenalty);
+            }
         }
     }
 

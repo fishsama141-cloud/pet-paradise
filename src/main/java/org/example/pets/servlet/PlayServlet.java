@@ -308,9 +308,14 @@ public class PlayServlet extends HttpServlet {
     // --- Helpers ---
 
     private void applyRewards(Pet pet, int mood, int bond, int affinity) {
-        pet.setMood(Math.min(100, pet.getMood() + mood));
-        pet.setBond(Math.min(100, pet.getBond() + bond));
-        pet.setAffinity(Math.min(100, pet.getAffinity() + affinity));
+        // 心情加成：心情越高奖励越丰厚
+        double moodMulti = pet.getMood() >= 80 ? 1.3 : pet.getMood() >= 50 ? 1.0 : pet.getMood() >= 30 ? 0.8 : 0.6;
+        int adjMood = (int)(mood * moodMulti);
+        int adjBond = (int)(bond * moodMulti);
+        int adjAff = (int)(affinity * moodMulti);
+        pet.setMood(Math.min(100, pet.getMood() + adjMood));
+        pet.setBond(Math.min(100, pet.getBond() + adjBond));
+        pet.setAffinity(Math.min(100, pet.getAffinity() + adjAff));
         pet.setHunger(Math.max(0, pet.getHunger() - HUNGER_COST));
         pet.setLastInteraction(new Date());
     }

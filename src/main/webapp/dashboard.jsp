@@ -165,6 +165,7 @@
             <a href="<%= request.getContextPath() %>/dashboard" class="active">🏠 我的宠物</a>
             <a href="<%= request.getContextPath() %>/map">🗺️ 世界地图</a>
             <a href="<%= request.getContextPath() %>/encyclopedia">📖 图鉴</a>
+            <a href="<%= request.getContextPath() %>/help">❓ 帮助</a>
             <a href="<%= request.getContextPath() %>/auth?action=logout">🚪 退出</a>
         </div>
     </nav>

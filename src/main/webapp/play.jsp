@@ -170,6 +170,7 @@
         <a href="<%= request.getContextPath() %>/pet?action=interact&petId=<%= pet.getId() %>">← 返回互动</a>
         <span>&#x1F3AE; 游戏中心</span>
         <a href="<%= request.getContextPath() %>/dashboard">🏠 主页</a>
+        <a href="<%= request.getContextPath() %>/help">❓ 帮助</a>
     </div>
 
     <div class="container">

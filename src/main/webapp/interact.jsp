@@ -156,6 +156,7 @@
             <a href="<%= request.getContextPath() %>/dashboard">🏠 我的宠物</a>
             <a href="<%= request.getContextPath() %>/map">🗺️ 世界地图</a>
             <a href="<%= request.getContextPath() %>/encyclopedia">📖 图鉴</a>
+            <a href="<%= request.getContextPath() %>/help">❓ 帮助</a>
             <a href="<%= request.getContextPath() %>/auth?action=logout">🚪 退出</a>
         </div>
     </nav>
@@ -230,6 +231,27 @@
                         <div class="attr-val"><%= pet.getPersonality() %></div>
                         <div class="attr-name">性格</div>
                     </div>
+                </div>
+                <%
+                    // Stat mechanic hints
+                    String affHint = pet.getAffinity() >= 80 ? "深度信任 · 喂食+50% 饱食" :
+                        pet.getAffinity() >= 50 ? "亲密无间 · 喂食+30% 饱食" :
+                        pet.getAffinity() >= 30 ? "友好关系 · 喂食+15% 饱食" : "初次相识 · 喂食无加成";
+                    String moodHint = pet.getMood() >= 80 ? "兴高采烈 · 玩耍奖励x1.3" :
+                        pet.getMood() >= 50 ? "心情平稳 · 玩耍奖励x1.0" :
+                        pet.getMood() >= 30 ? "心情低落 · 玩耍奖励x0.8" : "心情沮丧 · 玩耍奖励x0.6";
+                    String bondHint = pet.getBond() >= 80 ? "心有灵犀 · 遭遇特性x1.4" :
+                        pet.getBond() >= 50 ? "配合默契 · 遭遇特性x1.2" :
+                        pet.getBond() >= 30 ? "初步磨合 · 遭遇特性x1.1" : "尚不熟悉 · 遭遇无加成";
+                %>
+                <div style="margin-top:12px; padding:10px 14px; background:#1a2a10; border-radius:10px; font-size:11px; color:#90a070; line-height:1.8;">
+                    <div>&#x1F4A1; <strong>属性效果</strong>（<a href="<%= request.getContextPath() %>/help" style="color:#c0d470;">查看完整说明</a>）</div>
+                    <div>&#x2764; <%= affHint %></div>
+                    <div>&#x1F60A; <%= moodHint %></div>
+                    <div>&#x1F91D; <%= bondHint %></div>
+                    <% if (pet.getHunger() <= 15 || pet.getMood() <= 20) { %>
+                    <div style="color:#e08060; margin-top:4px;">&#x26A0; 当前状态过低，正在持续损失亲密度！</div>
+                    <% } %>
                 </div>
             </div>
 
