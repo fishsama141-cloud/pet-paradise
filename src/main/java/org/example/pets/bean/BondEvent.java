@@ -20,8 +20,8 @@ public class BondEvent {
             "等它放松警惕的那一刻，把握时机递出食物！"),
         FOLLOW_MOVEMENT("跟随移动", "它开始慢慢移动，如果你跟得太远就会失去它的兴趣。",
             "移动光标保持与它的距离，不远不近刚刚好！"),
-        STEADY_BREATH("呼吸同步", "它停下来，呼吸变得缓慢。这是信任的邀请。",
-            "按住吸气、松开呼气，与它的呼吸节奏同步！"),
+        ECHO_CALL("回声呼唤", "它发出了一个有节奏的呼唤，仿佛在等你回应。",
+            "记住它的呼唤顺序，然后按相同顺序点击回应！"),
         GAZE_LOCK("凝视对视", "它的目光锁定了你。这一刻，谁先移开谁就输了信任。",
             "光标保持在它的视线范围内，不要移开目光！");
 
@@ -53,7 +53,7 @@ public class BondEvent {
     public static EventType selectFor(WildEncounter.Archetype arch, Random rng) {
         return switch (arch) {
             case CAUTIOUS -> rng.nextBoolean()
-                ? EventType.SLOW_APPROACH : EventType.STEADY_BREATH;
+                ? EventType.SLOW_APPROACH : EventType.ECHO_CALL;
             case CURIOUS -> rng.nextBoolean()
                 ? EventType.RHYTHM_SYNC : EventType.FOLLOW_MOVEMENT;
             case BOLD -> rng.nextBoolean()
@@ -66,7 +66,7 @@ public class BondEvent {
                 int r = rng.nextInt(3);
                 yield switch (r) {
                     case 0 -> EventType.GAZE_LOCK;
-                    case 1 -> EventType.STEADY_BREATH;
+                    case 1 -> EventType.ECHO_CALL;
                     default -> EventType.RHYTHM_SYNC;
                 };
             }
@@ -143,11 +143,11 @@ public class BondEvent {
                 this.speed = difficulty <= 1 ? 80 : difficulty == 2 ? 100 : 130;
                 this.zoneSize = difficulty <= 1 ? 100 : difficulty == 2 ? 75 : 55;
             }
-            case STEADY_BREATH -> {
-                this.phases = difficulty <= 1 ? 5 : difficulty == 2 ? 6 : 7;
-                this.timingWindow = difficulty <= 1 ? 450 : difficulty == 2 ? 320 : 240;
+            case ECHO_CALL -> {
+                this.phases = difficulty <= 1 ? 4 : difficulty == 2 ? 5 : 6;
+                this.timingWindow = difficulty <= 1 ? 2200 : difficulty == 2 ? 1600 : 1100;
                 this.maxMistakes = difficulty <= 1 ? 2 : difficulty == 2 ? 1 : 1;
-                this.speed = difficulty <= 1 ? 90 : difficulty == 2 ? 110 : 130;
+                this.speed = difficulty <= 1 ? 70 : difficulty == 2 ? 100 : 130;
                 this.zoneSize = 0;
             }
             case GAZE_LOCK -> {

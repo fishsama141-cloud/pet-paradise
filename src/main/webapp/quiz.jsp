@@ -165,43 +165,43 @@
                         <label class="option">
                             <input type="radio" name="environment" value="forest" required>
                             <span class="label">
-                                <span class="env-emoji">🌳</span>翠绿森林
-                                <span class="env-hint">东亚·竹林</span>
+                                <span class="env-emoji">🏯</span>东亚森林
+                                <span class="env-hint">小熊猫·丹顶鹤·金丝猴</span>
                             </span>
                         </label>
                         <label class="option">
                             <input type="radio" name="environment" value="rainforest">
                             <span class="label">
-                                <span class="env-emoji">🌴</span>热带雨林
-                                <span class="env-hint">亚马孙·丛林</span>
+                                <span class="env-emoji">🌴</span>亚马孙雨林
+                                <span class="env-hint">巨嘴鸟·树懒·美洲豹</span>
                             </span>
                         </label>
                         <label class="option">
                             <input type="radio" name="environment" value="grassland">
                             <span class="label">
-                                <span class="env-emoji">🌾</span>金色草原
-                                <span class="env-hint">非洲·稀树草原</span>
+                                <span class="env-emoji">🦁</span>非洲稀树草原
+                                <span class="env-hint">斑马·长颈鹿·非洲狮</span>
                             </span>
                         </label>
                         <label class="option">
                             <input type="radio" name="environment" value="outback">
                             <span class="label">
-                                <span class="env-emoji">🏜️</span>荒芜内陆
-                                <span class="env-hint">澳大利亚·红土</span>
+                                <span class="env-emoji">🦘</span>澳大利亚内陆
+                                <span class="env-hint">考拉·鸭嘴兽·红袋鼠</span>
                             </span>
                         </label>
                         <label class="option">
                             <input type="radio" name="environment" value="arctic">
                             <span class="label">
-                                <span class="env-emoji">❄️</span>极地冰原
-                                <span class="env-hint">北极·冰雪</span>
+                                <span class="env-emoji">🧊</span>北极冰原
+                                <span class="env-hint">雪鸮·北极狐·北极熊</span>
                             </span>
                         </label>
                         <label class="option">
                             <input type="radio" name="environment" value="ocean">
                             <span class="label">
-                                <span class="env-emoji">🌊</span>蔚蓝海洋
-                                <span class="env-hint">深海·珊瑚</span>
+                                <span class="env-emoji">🌊</span>深海世界
+                                <span class="env-hint">海龟·大王乌贼·蓝鲸</span>
                             </span>
                         </label>
                     </div>

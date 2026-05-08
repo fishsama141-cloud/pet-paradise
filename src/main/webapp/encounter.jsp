@@ -310,15 +310,17 @@
         .fm-player { position: absolute; width: 16px; height: 16px; border-radius: 50%; background: #f0c040; box-shadow: 0 0 12px rgba(240,194,64,0.5); pointer-events: none; transition: left 0.05s, top 0.05s; }
         .fm-score-text { text-align: center; font-size: 13px; color: #8a9a7a; margin-top: 8px; }
 
-        /* Steady Breath game */
-        .sb-visual { text-align: center; margin: 20px 0; }
-        .sb-circle { display: inline-block; width: 120px; height: 120px; border-radius: 50%; background: #1a2a3a; border: 3px solid #4a6a8a; transition: transform 0.1s; }
-        .sb-circle.inhale { transform: scale(1.3); border-color: #80c0e0; box-shadow: 0 0 30px rgba(128,192,224,0.3); }
-        .sb-circle.exhale { transform: scale(0.7); border-color: #406080; }
-        .sb-label { font-size: 16px; margin-top: 10px; font-weight: 700; }
-        .sb-target-zone { display: inline-block; border: 2px dashed #5a8a5a; border-radius: 50%; position: absolute; transition: all 0.1s; }
-        .sb-btn { display: block; width: 100%; padding: 20px; font-size: 20px; font-weight: 700; border: 2px solid #4a6a8a; border-radius: 14px; background: linear-gradient(135deg, #1a2a3a, #2a3a4a); color: #a0c0d0; cursor: pointer; font-family: inherit; }
-        .sb-btn:active, .sb-btn.holding { background: linear-gradient(135deg, #3a4a5a, #4a5a6a); border-color: #80c0e0; }
+        /* Echo Call game */
+        .ec-display { display: flex; justify-content: center; gap: 16px; margin: 20px 0; }
+        .ec-pad { width: 64px; height: 64px; border-radius: 16px; cursor: pointer; transition: all 0.12s; border: 2px solid #3a4a4a; }
+        .ec-pad.pad-0 { background: #c0392b; }
+        .ec-pad.pad-1 { background: #2980b9; }
+        .ec-pad.pad-2 { background: #27ae60; }
+        .ec-pad.pad-3 { background: #f39c12; }
+        .ec-pad.glow { transform: scale(1.25); box-shadow: 0 0 28px currentColor; border-color: #fff; filter: brightness(1.6); }
+        .ec-pad.wrong { animation: shake 0.4s; filter: grayscale(80%); }
+        @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 50% { transform: translateX(6px); } 75% { transform: translateX(-6px); } }
+        .ec-status { text-align: center; font-size: 16px; font-weight: 700; margin-top: 12px; min-height: 24px; color: #c0d0e0; }
 
         /* Gaze Lock game */
         .gl-scene { position: relative; height: 200px; cursor: none; background: radial-gradient(circle, #111820 60%, #0a1018 100%); border-radius: 16px; }
@@ -327,6 +329,23 @@
         .gl-cursor { position: absolute; width: 12px; height: 12px; border-radius: 50%; background: #f0c040; pointer-events: none; box-shadow: 0 0 12px rgba(240,194,64,0.6); }
         .gl-meter { height: 4px; background: #1a202a; border-radius: 2px; margin-top: 10px; overflow: hidden; }
         .gl-meter-fill { height: 100%; background: linear-gradient(90deg, #e04040, #f0c27a, #40c040); border-radius: 2px; transition: width 0.5s; }
+
+        /* Countdown overlay */
+        .countdown-overlay {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.7); border-radius: 16px; z-index: 10;
+        }
+        .countdown-num {
+            font-size: 80px; font-weight: 900; color: #f0c27a;
+            animation: countPop 0.8s ease;
+            text-shadow: 0 0 40px rgba(240,194,122,0.6);
+        }
+        @keyframes countPop {
+            0% { transform: scale(1.6); opacity: 0; }
+            50% { transform: scale(0.9); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
 
         .hidden { display: none !important; }
 
@@ -927,76 +946,103 @@
             setTimeout(function() { if (gameRunning) endGame(); }, bondCfg.timingWindow);
         }
 
-        // ==================== GAME 5: STEADY BREATH ====================
-        function startSteadyBreath() {
+        // ==================== GAME 5: ECHO CALL ====================
+        function startEchoCall() {
             initMistakeDots();
-            var totalPhases = bondCfg.phases + (bondCfg.bonusPhase ? 2 : 0);
+            var totalPhases = bondCfg.phases + (bondCfg.bonusPhase ? 1 : 0);
             gameArea.innerHTML =
-                '<div style="text-align:center;margin:20px 0;">' +
-                '<div id="sbCircle" style="display:inline-block;width:120px;height:120px;border-radius:50%;background:#1a2a3a;border:3px solid #4a6a8a;transition:transform 0.1s;"></div>' +
+                '<div style="text-align:center;font-size:14px;color:#a0b0c0;margin-bottom:8px;">&#x1F4E3; 记住' + bondCfg.animalName + '的呼唤顺序！</div>' +
+                '<div class="ec-display" id="ecPads">' +
+                '<div class="ec-pad pad-0" data-idx="0"></div>' +
+                '<div class="ec-pad pad-1" data-idx="1"></div>' +
+                '<div class="ec-pad pad-2" data-idx="2"></div>' +
+                '<div class="ec-pad pad-3" data-idx="3"></div>' +
                 '</div>' +
-                '<div id="sbLabel" style="text-align:center;font-size:16px;font-weight:700;margin:10px 0;">&#x1F4A8; 准备开始</div>' +
-                '<button id="sbBtn" style="display:block;width:100%;padding:20px;font-size:20px;font-weight:700;border:2px solid #4a6a8a;border-radius:14px;background:linear-gradient(135deg,#1a2a3a,#2a3a4a);color:#a0c0d0;cursor:pointer;font-family:inherit;">&#x1F33F; 按住吸气</button>' +
-                '<div style="text-align:center;margin-top:8px;font-size:12px;color:#8a9a7a;">第 <span id="sbPhaseNum">1</span> / ' + totalPhases + ' 次呼吸</div>';
+                '<div class="ec-status" id="ecStatus">&#x1F442; 注意看……</div>' +
+                '<div style="text-align:center;margin-top:8px;font-size:12px;color:#8a9a7a;">第 <span id="ecPhaseNum">1</span> / ' + totalPhases + ' 轮 · 长度 <span id="ecSeqLen">2</span></div>';
 
-            var sbCircle = document.getElementById('sbCircle');
-            var sbLabel = document.getElementById('sbLabel');
-            var sbBtn = document.getElementById('sbBtn');
-            var sbPhaseNum = document.getElementById('sbPhaseNum');
+            var pads = document.querySelectorAll('#ecPads .ec-pad');
+            var statusEl = document.getElementById('ecStatus');
+            var phaseNum = document.getElementById('ecPhaseNum');
+            var seqLen = document.getElementById('ecSeqLen');
+            var sequence = [];
+            var playerIdx = 0;
             var currentPhase = 0;
-            var isHolding = false;
-            var isInhaling = true;
-            var breathProgress = 0;
-            var breathSpeed = bondCfg.speed / 100;
+            var showingSequence = false;
+            var playerTurn = false;
+            var seqLength = 2;
 
-            function resetBreath() {
+            function showSequence() {
                 if (!gameRunning) return;
-                isInhaling = true;
-                breathProgress = 0;
-                sbCircle.style.transform = 'scale(0.7)';
-                sbCircle.style.borderColor = '#4a6a8a';
-                sbCircle.style.boxShadow = '';
-                sbLabel.innerHTML = '&#x1F4A8; 吸气……';
-                sbBtn.textContent = '\u{1F33F} 按住吸气';
+                showingSequence = true;
+                playerTurn = false;
+                playerIdx = 0;
+                sequence = [];
+                for (var i = 0; i < seqLength; i++) {
+                    sequence.push(Math.floor(Math.random() * 4));
+                }
+                statusEl.innerHTML = '&#x1F442; 记住呼唤顺序……';
+                pads.forEach(function(p) { p.style.pointerEvents = 'none'; });
+
+                var i = 0;
+                var showSpeed = Math.max(200, bondCfg.speed * 3);
+                var showInterval = setInterval(function() {
+                    if (!gameRunning || !showingSequence) { clearInterval(showInterval); return; }
+                    if (i > 0) { pads[sequence[i-1]].classList.remove('glow'); }
+                    if (i >= sequence.length) {
+                        clearInterval(showInterval);
+                        showingSequence = false;
+                        playerTurn = true;
+                        playerIdx = 0;
+                        statusEl.innerHTML = '&#x1F399; 轮到你了！按相同顺序回应！';
+                        pads.forEach(function(p) { p.style.pointerEvents = 'auto'; });
+                        return;
+                    }
+                    pads[sequence[i]].classList.add('glow');
+                    i++;
+                }, showSpeed);
             }
 
-            sbBtn.addEventListener('mousedown', function(e) { e.preventDefault(); isHolding = true; sbBtn.style.background = 'linear-gradient(135deg,#3a4a5a,#4a5a6a)'; sbBtn.style.borderColor = '#80c0e0'; });
-            sbBtn.addEventListener('mouseup', function(e) { e.preventDefault(); isHolding = false; sbBtn.style.background = ''; sbBtn.style.borderColor = ''; });
-            sbBtn.addEventListener('mouseleave', function(e) { isHolding = false; sbBtn.style.background = ''; sbBtn.style.borderColor = ''; });
-            sbBtn.addEventListener('touchstart', function(e) { e.preventDefault(); isHolding = true; sbBtn.style.background = 'linear-gradient(135deg,#3a4a5a,#4a5a6a)'; sbBtn.style.borderColor = '#80c0e0'; });
-            sbBtn.addEventListener('touchend', function(e) { e.preventDefault(); isHolding = false; sbBtn.style.background = ''; sbBtn.style.borderColor = ''; });
-
-            var breathInterval = setInterval(function() {
-                if (!gameRunning) { clearInterval(breathInterval); return; }
-                breathProgress += breathSpeed * 0.5;
-
-                if (isInhaling) {
-                    sbCircle.style.transform = 'scale(' + (0.7 + breathProgress * 0.6) + ')';
-                    sbCircle.style.borderColor = '#80c0e0';
-                    sbCircle.style.boxShadow = '0 0 30px rgba(128,192,224,0.3)';
-                    if (isHolding) updateScore(0.4);
-                    else updateScore(-0.15);
-                    if (breathProgress >= 1) {
-                        isInhaling = false; breathProgress = 0;
-                        sbLabel.innerHTML = '&#x1F4A8; 呼气……';
-                        sbBtn.textContent = '\u{1F33F} 松开呼气';
+            pads.forEach(function(pad) {
+                pad.addEventListener('click', function() {
+                    if (!gameRunning || !playerTurn) return;
+                    var idx = parseInt(pad.getAttribute('data-idx'));
+                    if (idx === sequence[playerIdx]) {
+                        pad.classList.add('glow');
+                        setTimeout(function() { pad.classList.remove('glow'); }, 200);
+                        playerIdx++;
+                        updateScore(3);
+                        if (playerIdx >= sequence.length) {
+                            currentPhase++;
+                            updateScore(12);
+                            phaseNum.textContent = currentPhase + 1;
+                            if (currentPhase >= totalPhases) {
+                                updateScore(10);
+                                statusEl.innerHTML = '&#x1F389; 完美的回声！';
+                                endGame();
+                            } else {
+                                seqLength = Math.min(8, seqLength + 1);
+                                seqLen.textContent = seqLength;
+                                statusEl.innerHTML = '&#x2705; 正确！准备下一轮……';
+                                playerTurn = false;
+                                pads.forEach(function(p) { p.style.pointerEvents = 'none'; });
+                                setTimeout(showSequence, 800);
+                            }
+                        }
+                    } else {
+                        pad.classList.add('wrong');
+                        setTimeout(function() { pad.classList.remove('wrong'); }, 400);
+                        addMistake();
+                        updateScore(-8);
+                        statusEl.innerHTML = '&#x274C; 顺序错了！重新听……';
+                        playerTurn = false;
+                        pads.forEach(function(p) { p.style.pointerEvents = 'none'; });
+                        if (gameRunning) setTimeout(showSequence, 600);
                     }
-                } else {
-                    sbCircle.style.transform = 'scale(' + (1.3 - breathProgress * 0.6) + ')';
-                    sbCircle.style.borderColor = '#406080';
-                    sbCircle.style.boxShadow = '';
-                    if (!isHolding) updateScore(0.4);
-                    else updateScore(-0.15);
-                    if (breathProgress >= 1) {
-                        currentPhase++; updateScore(6);
-                        sbPhaseNum.textContent = currentPhase + 1;
-                        if (currentPhase >= totalPhases) { updateScore(8); endGame(); }
-                        else resetBreath();
-                    }
-                }
-            }, 30);
+                });
+            });
 
-            resetBreath();
+            setTimeout(showSequence, 500);
             setTimeout(function() { if (gameRunning) endGame(); }, bondCfg.timingWindow * 5);
         }
 
@@ -1078,19 +1124,48 @@
             setTimeout(function() { if (gameRunning) endGame(); }, bondCfg.timingWindow);
         }
 
+        // ==================== 3-SECOND COUNTDOWN ====================
+        function showCountdown(callback) {
+            var overlay = document.createElement('div');
+            overlay.className = 'countdown-overlay';
+            overlay.id = 'countdownOverlay';
+            var num = document.createElement('div');
+            num.className = 'countdown-num';
+            overlay.appendChild(num);
+            gameArea.appendChild(overlay);
+
+            var count = 3;
+            function tick() {
+                if (count <= 0) {
+                    overlay.remove();
+                    callback();
+                    return;
+                }
+                num.textContent = count;
+                num.style.animation = 'none';
+                num.offsetHeight;
+                num.style.animation = 'countPop 0.8s ease';
+                count--;
+                setTimeout(tick, 800);
+            }
+            tick();
+        }
+
         // ==================== START ====================
         updateScore(0);
         initMistakeDots();
 
-        switch (bondCfg.type) {
-            case 'SLOW_APPROACH':   startSlowApproach(); break;
-            case 'RHYTHM_SYNC':     startRhythmSync(); break;
-            case 'GENTLE_OFFER':    startGentleOffer(); break;
-            case 'FOLLOW_MOVEMENT': startFollowMovement(); break;
-            case 'STEADY_BREATH':   startSteadyBreath(); break;
-            case 'GAZE_LOCK':       startGazeLock(); break;
-            default: endGame(); break;
-        }
+        showCountdown(function() {
+            switch (bondCfg.type) {
+                case 'SLOW_APPROACH':   startSlowApproach(); break;
+                case 'RHYTHM_SYNC':     startRhythmSync(); break;
+                case 'GENTLE_OFFER':    startGentleOffer(); break;
+                case 'FOLLOW_MOVEMENT': startFollowMovement(); break;
+                case 'ECHO_CALL':       startEchoCall(); break;
+                case 'GAZE_LOCK':       startGazeLock(); break;
+                default: endGame(); break;
+            }
+        });
     })();
     </script>
     <% } %>

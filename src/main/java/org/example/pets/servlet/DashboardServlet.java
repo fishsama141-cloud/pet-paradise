@@ -20,18 +20,18 @@ public class DashboardServlet extends HttpServlet {
                                int topPct, int leftPct, List<String> regionNames) {}
 
     public static final List<HabitatZone> ZONES = List.of(
-        new HabitatZone("forest", "翠绿森林", "🌳", "#4CAF50", 28, 70,
-            List.of("翠绿森林", "东亚森林", "亚马孙雨林")),
-        new HabitatZone("grassland", "金色草原", "🌾", "#F57C00", 45, 50,
-            List.of("阳光草原", "非洲稀树草原")),
-        new HabitatZone("ocean", "蔚蓝海洋", "🌊", "#1565C0", 65, 18,
-            List.of("蔚蓝海洋", "深海世界")),
-        new HabitatZone("mountain", "巍峨山脉", "⛰️", "#795548", 14, 55,
-            List.of("巍峨山脉")),
-        new HabitatZone("outback", "荒芜内陆", "🏜️", "#FF9800", 72, 75,
+        new HabitatZone("east_asia", "东亚森林", "🏯", "#4CAF50", 40, 72,
+            List.of("东亚森林")),
+        new HabitatZone("amazon", "亚马孙雨林", "🌴", "#2E7D32", 58, 28,
+            List.of("亚马孙雨林")),
+        new HabitatZone("africa", "非洲稀树草原", "🦁", "#F57C00", 50, 52,
+            List.of("非洲稀树草原")),
+        new HabitatZone("australia", "澳大利亚内陆", "🦘", "#FF9800", 72, 78,
             List.of("澳大利亚内陆")),
-        new HabitatZone("arctic", "极地冰原", "❄️", "#90CAF9", 10, 35,
-            List.of("北极冰原"))
+        new HabitatZone("arctic", "北极冰原", "🧊", "#90CAF9", 12, 48,
+            List.of("北极冰原")),
+        new HabitatZone("deep_ocean", "深海世界", "🌊", "#1565C0", 65, 10,
+            List.of("深海世界"))
     );
 
     @Override
@@ -103,11 +103,11 @@ public class DashboardServlet extends HttpServlet {
     }
 
     private String findZoneForRegion(String region) {
-        if (region == null) return "forest";
+        if (region == null) return "east_asia";
         for (HabitatZone zone : ZONES) {
             if (zone.regionNames().contains(region)) return zone.id();
         }
-        return "forest";
+        return "east_asia";
     }
 
     private String getRegionIdForName(String regionName) {
