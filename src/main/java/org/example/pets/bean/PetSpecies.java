@@ -85,6 +85,16 @@ public class PetSpecies {
     public int[] getDefenseRange() { return defenseRange; }
 
     public String getRequiredLevelDisplay() { return requiredLevel > 0 ? "Lv." + requiredLevel + "+" : "初始"; }
+    /** 返回动物图片路径 /assets/images/animals/xxx.png */
+    public String getImagePath() {
+        // starter_xxx 直接用完整id，其他去掉区域前缀
+        String[] knownRegions = {"east_asia_", "amazon_", "africa_", "australia_", "arctic_", "ocean_"};
+        for (String r : knownRegions) {
+            if (id.startsWith(r)) return id.substring(r.length()) + ".png";
+        }
+        return id + ".png";
+    }
+
     public String getRarityLabel() {
         return switch (rarity) {
             case "common" -> "⭐ 常见";

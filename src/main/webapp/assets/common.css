@@ -1,0 +1,250 @@
+/* ============================================
+   宠物乐园 — 共享设计系统（动物森友会风格）
+   ============================================ */
+
+:root {
+    /* 主色调：暖米色系 */
+    --bg: #FDF8F0;
+    --card-bg: #FFFEF9;
+    --card-hover: #FFF9F0;
+    --border: #E5DDD0;
+    --border-light: #F0EAE0;
+
+    /* 文字 */
+    --text: #5C4A3A;
+    --text-secondary: #8C7B6B;
+    --text-muted: #B5A898;
+
+    /* 强调色 */
+    --accent-green: #7B9E6D;
+    --accent-warm: #D4956A;
+    --accent-warm-hover: #C8855A;
+    --accent-red: #C05040;
+
+    /* 稀有度标签 */
+    --common: #8C9E7B;
+    --uncommon: #7B8EC0;
+    --rare: #C09060;
+
+    /* 圆角 */
+    --radius-sm: 6px;
+    --radius: 10px;
+    --radius-lg: 16px;
+
+    /* 阴影 */
+    --shadow-xs: 0 1px 3px rgba(60, 40, 20, 0.05);
+    --shadow: 0 2px 12px rgba(60, 40, 20, 0.06);
+    --shadow-lg: 0 4px 20px rgba(60, 40, 20, 0.10);
+
+    /* 动画 */
+    --transition: 0.2s ease;
+}
+
+/* ===== Reset ===== */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+}
+
+/* ===== 导航栏 ===== */
+.nav {
+    background: var(--card-bg);
+    padding: 0 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+.nav .brand {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.nav .brand img { width: 28px; height: 28px; object-fit: contain; }
+.nav-links { display: flex; gap: 4px; align-items: center; }
+.nav-links a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all var(--transition);
+}
+.nav-links a:hover { background: var(--bg); color: var(--text); }
+.nav-links a.active {
+    background: #F5EDE0;
+    color: var(--text);
+    font-weight: 600;
+}
+
+/* ===== 主容器 ===== */
+.main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 28px 20px 60px;
+}
+
+/* ===== 页面标题 ===== */
+.page-header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+.page-header h1 {
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: 2px;
+}
+.page-header p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+}
+
+/* ===== 卡片 ===== */
+.card {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    padding: 20px 24px;
+    box-shadow: var(--shadow-xs);
+    transition: all var(--transition);
+}
+.card:hover {
+    box-shadow: var(--shadow);
+    border-color: #D5C8B5;
+}
+
+/* ===== 按钮 ===== */
+.btn {
+    display: inline-block;
+    padding: 10px 24px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition);
+    font-family: inherit;
+    text-decoration: none;
+    text-align: center;
+    color: var(--text);
+    background: var(--card-bg);
+}
+.btn:hover {
+    border-color: #C5B8A0;
+    background: #FAF5EC;
+}
+.btn-primary {
+    background: var(--accent-warm);
+    color: #fff;
+    border-color: var(--accent-warm);
+    font-weight: 600;
+}
+.btn-primary:hover { background: var(--accent-warm-hover); border-color: var(--accent-warm-hover); }
+.btn-green {
+    background: var(--accent-green);
+    color: #fff;
+    border-color: var(--accent-green);
+    font-weight: 600;
+}
+.btn-green:hover { background: #6A8D5C; border-color: #6A8D5C; }
+.btn-sm { padding: 6px 16px; font-size: 13px; }
+.btn-lg { padding: 14px 32px; font-size: 16px; }
+
+/* ===== 标签 ===== */
+.tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+}
+.tag-common { background: #E8F0E0; color: #5A7A4A; }
+.tag-uncommon { background: #E0E8F5; color: #4A5A8A; }
+.tag-rare { background: #F5EDE0; color: #8A6A4A; }
+
+/* ===== 提示/警告 ===== */
+.alert {
+    padding: 14px 18px;
+    border-radius: var(--radius);
+    margin-bottom: 18px;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid transparent;
+}
+.alert-error { background: #FEF5F0; color: var(--accent-red); border-color: #F0D8C8; }
+.alert-success { background: #F0F5EC; color: #5A7A4A; border-color: #D0E0C8; }
+.alert-info { background: #F0F4F8; color: #4A6A8A; border-color: #C8D8E8; }
+
+/* ===== 进度条 ===== */
+.bar-outer {
+    height: 6px;
+    background: #F0EAE0;
+    border-radius: 3px;
+    overflow: hidden;
+}
+.bar-inner {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.4s ease;
+}
+
+/* ===== 动物图片 ===== */
+.animal-img {
+    object-fit: contain;
+    display: block;
+}
+.animal-img-sm { width: 40px; height: 40px; }
+.animal-img-md { width: 64px; height: 64px; }
+.animal-img-lg { width: 96px; height: 96px; }
+.animal-img-xl { width: 128px; height: 128px; }
+
+/* ===== 区域颜色映射 ===== */
+.region-east_asia { --region-color: #8C9E7B; }
+.region-amazon { --region-color: #6B8E6B; }
+.region-africa { --region-color: #D4A060; }
+.region-australia { --region-color: #E0A050; }
+.region-arctic { --region-color: #90B8D0; }
+.region-deep_ocean { --region-color: #6088B0; }
+
+/* ===== 工具类 ===== */
+.text-center { text-align: center; }
+.text-muted { color: var(--text-muted); }
+.text-secondary { color: var(--text-secondary); }
+.mt-sm { margin-top: 8px; }
+.mt { margin-top: 16px; }
+.mt-lg { margin-top: 24px; }
+.mb { margin-bottom: 16px; }
+.flex { display: flex; }
+.flex-center { display: flex; align-items: center; justify-content: center; }
+.gap-sm { gap: 8px; }
+.gap { gap: 16px; }
+
+/* ===== 动画（仅保留必要的） ===== */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== 响应式 ===== */
+@media (max-width: 768px) {
+    .nav { padding: 0 16px; }
+    .nav-links a { padding: 6px 10px; font-size: 13px; }
+    .main { padding: 20px 16px 60px; }
+    .page-header h1 { font-size: 22px; }
+}

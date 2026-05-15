@@ -15,8 +15,8 @@
     int hunger = pet.getHunger();
     int playsLeft = hunger / 8;
     boolean canPlay = hunger >= 8;
+    String petImg = pet.getImagePath();
 
-    // Memory card pairs (same emoji = a matching pair)
     String[][] cardPairs = {
         {"🐱","🐱"}, {"🐶","🐶"}, {"🐰","🐰"},
         {"🦊","🦊"}, {"🐼","🐼"}, {"🐨","🐨"}
@@ -30,93 +30,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>&#x1F3AE; 玩耍 - <%= pet.getName() %> - 宠物乐园</title>
+    <title>玩耍 - <%= pet.getName() %> - 宠物乐园</title>
+    <link rel="stylesheet" href="<%= request.getContextPath() %>/assets/common.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
-            background: linear-gradient(180deg, #FFF8E7 0%, #FFECB3 30%, #FFE0B2 100%);
-            min-height: 100vh; color: #5D4037;
-        }
-        .header { background: linear-gradient(135deg, #FF8C42, #FF6B6B); padding: 16px 28px;
-            display: flex; align-items: center; justify-content: space-between; color: white; }
-        .header a { color: white; text-decoration: none; font-weight: 600; font-size: 14px; }
-        .container { max-width: 620px; margin: 0 auto; padding: 20px; }
+        .back-link { display: inline-block; color: var(--text-muted); text-decoration: none; font-weight: 500; margin-bottom: 16px; font-size: 14px; }
+        .back-link:hover { color: var(--text-secondary); }
 
-        .pet-card { background: white; border-radius: 20px; padding: 20px; text-align: center;
-            box-shadow: 0 4px 20px rgba(255,140,66,0.15); margin-bottom: 16px; display: flex;
-            align-items: center; gap: 16px; justify-content: center; }
-        .pet-emoji { font-size: 60px; animation: bounce 1.5s ease-in-out infinite; }
-        @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
-        .pet-info { text-align: left; flex: 1; }
-        .pet-info h3 { font-size: 18px; margin-bottom: 4px; }
-        .pet-info .stats { font-size: 12px; color: #A1887F; margin-bottom: 6px; }
+        .pet-card {
+            background: var(--card-bg); border-radius: var(--radius-lg); padding: 20px;
+            border: 1px solid var(--border); box-shadow: var(--shadow-xs); margin-bottom: 16px;
+            display: flex; align-items: center; gap: 16px;
+        }
+        .pet-card img { width: 64px; height: 64px; object-fit: contain; }
+        .pet-card .pc-emoji { font-size: 52px; display: none; }
+        .pet-info { flex: 1; min-width: 0; }
+        .pet-info h3 { font-size: 18px; margin-bottom: 2px; color: var(--text); }
+        .pet-info .stats { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; }
 
         .hunger-row { display: flex; align-items: center; gap: 8px; }
-        .hunger-bar-wrap { flex: 1; height: 8px; background: #FFE0B2; border-radius: 4px; overflow: hidden; }
+        .hunger-bar-wrap { flex: 1; height: 8px; background: #EDE5D5; border-radius: 4px; overflow: hidden; }
         .hunger-bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s; }
-        .hunger-high { background: linear-gradient(90deg, #4CAF50, #66BB6A); }
-        .hunger-mid { background: linear-gradient(90deg, #FFC107, #FFB300); }
-        .hunger-low { background: linear-gradient(90deg, #FF6B6B, #FF5252); }
-        .hunger-text { font-size: 11px; color: #A1887F; white-space: nowrap; }
-        .plays-left { font-size: 11px; color: #FF8C42; font-weight: 600; }
+        .hunger-high { background: #8BAA7A; }
+        .hunger-mid { background: #D4B870; }
+        .hunger-low { background: #C08070; }
+        .hunger-text { font-size: 11px; color: var(--text-secondary); white-space: nowrap; }
+        .plays-left { font-size: 12px; color: var(--accent-warm); font-weight: 600; margin-top: 4px; }
 
-        /* Game tabs */
         .game-tabs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 18px; }
-        .game-tab { padding: 12px 6px; border-radius: 14px; border: 2px solid #FFE0B2;
-            background: white; cursor: pointer; text-align: center; font-size: 12px; font-weight: 600;
-            transition: all 0.3s; color: #5D4037; }
-        .game-tab:hover { border-color: #FF8C42; background: #FFF3E0; }
-        .game-tab.active { border-color: #FF8C42; background: #FFF3E0; color: #E65100;
-            box-shadow: 0 0 0 3px rgba(255,140,66,0.15); }
+        .game-tab {
+            padding: 14px 6px; border-radius: var(--radius); border: 1px solid var(--border-light);
+            background: var(--card-bg); cursor: pointer; text-align: center; font-size: 12px;
+            font-weight: 600; transition: all var(--transition); color: var(--text); font-family: inherit;
+        }
+        .game-tab:hover { border-color: #C5B8A0; background: #FAF7F0; }
+        .game-tab.active { border-color: var(--accent-warm); background: #FDF5EC; color: #B87050; }
         .game-tab .tab-emoji { font-size: 28px; display: block; margin-bottom: 2px; }
 
-        .game-panel { display: none; background: white; border-radius: 20px; padding: 24px;
-            box-shadow: 0 4px 20px rgba(255,140,66,0.15); margin-bottom: 16px; }
+        .game-panel { display: none; background: var(--card-bg); border-radius: var(--radius-lg); padding: 24px;
+            border: 1px solid var(--border); box-shadow: var(--shadow-xs); margin-bottom: 16px; }
         .game-panel.active { display: block; }
-        .game-panel h3 { text-align: center; margin-bottom: 4px; font-size: 18px; color: #E65100; }
-        .game-desc { text-align: center; font-size: 13px; color: #A1887F; margin-bottom: 16px; }
-        .hunger-warn { text-align: center; padding: 12px; background: #FFF8E1; border-radius: 12px;
-            margin-bottom: 16px; font-size: 13px; color: #E65100; }
+        .game-panel h3 { text-align: center; margin-bottom: 4px; font-size: 18px; color: var(--accent-warm); }
+        .game-desc { text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
+        .hunger-warn { text-align: center; padding: 12px; background: #FDF9F2; border-radius: var(--radius);
+            margin-bottom: 16px; font-size: 13px; color: var(--accent-warm); border: 1px solid var(--border-light); }
 
-        /* RPS */
         .rps-scoreboard { display: flex; align-items: center; justify-content: center; gap: 20px;
-            margin-bottom: 16px; padding: 12px; background: #FFF8F0; border-radius: 14px; }
+            margin-bottom: 16px; padding: 14px; background: #FDF9F2; border-radius: var(--radius); }
         .rps-score { text-align: center; }
-        .rps-score .rps-num { font-size: 32px; font-weight: 700; color: #E65100; }
-        .rps-score .rps-label { font-size: 11px; color: #A1887F; }
-        .rps-vs { font-size: 20px; color: #FF8C42; font-weight: 700; }
+        .rps-score .rps-num { font-size: 36px; font-weight: 700; color: var(--accent-warm); }
+        .rps-score .rps-label { font-size: 12px; color: var(--text-secondary); }
+        .rps-vs { font-size: 20px; color: var(--accent-warm); font-weight: 700; }
         .rps-history { margin-bottom: 16px; }
-        .rps-history .rh-item { padding: 4px 10px; font-size: 12px; color: #8D6E63; text-align: center; }
-        .rps-round-label { text-align: center; font-size: 13px; color: #FF8C42; font-weight: 600; margin-bottom: 8px; }
+        .rps-history .rh-item { padding: 4px 10px; font-size: 12px; color: var(--text-secondary); text-align: center; }
+        .rps-round-label { text-align: center; font-size: 14px; color: var(--accent-warm); font-weight: 600; margin-bottom: 10px; }
 
         .choice-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-        .choice-btn { flex: 1; min-width: 90px; padding: 18px 12px; border: 2px solid #FFE0B2;
-            border-radius: 16px; background: #FFFDF9; cursor: pointer; text-align: center;
-            font-size: 14px; font-weight: 700; transition: all 0.3s; color: #5D4037; }
-        .choice-btn:hover { border-color: #FF8C42; background: #FFF3E0; transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(255,140,66,0.2); }
+        .choice-btn { flex: 1; min-width: 90px; padding: 18px 12px; border: 1px solid var(--border-light);
+            border-radius: var(--radius); background: #FDFBF6; cursor: pointer; text-align: center;
+            font-size: 14px; font-weight: 600; transition: all var(--transition); color: var(--text); font-family: inherit; }
+        .choice-btn:hover { border-color: #C5B8A0; background: #FAF7F0; transform: translateY(-2px); }
         .choice-btn:disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
         .choice-btn .big-emoji { font-size: 40px; display: block; margin-bottom: 6px; }
 
-        /* Breakout */
         .breakout-wrap { position: relative; text-align: center; }
-        .breakout-wrap canvas { display: block; margin: 0 auto; border-radius: 12px;
-            background: #1a1a2e; cursor: none; touch-action: none; max-width: 100%; }
+        .breakout-wrap canvas { display: block; margin: 0 auto; border-radius: var(--radius);
+            background: #3A3228; cursor: none; touch-action: none; max-width: 100%; }
         .breakout-info { display: flex; justify-content: center; gap: 24px; margin: 10px 0 6px;
-            font-size: 13px; font-weight: 600; }
-        .breakout-submit { display: block; width: 100%; padding: 14px; border: none; border-radius: 14px;
-            background: linear-gradient(135deg, #4CAF50, #66BB6A); color: white; font-size: 16px;
-            font-weight: 700; cursor: pointer; transition: all 0.3s; margin-top: 12px; }
-        .breakout-submit:disabled { background: #BDBDBD; cursor: not-allowed; }
-        .breakout-submit:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(76,175,80,0.4); }
+            font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+        .breakout-submit { display: block; width: 100%; padding: 14px; border: none; border-radius: var(--radius);
+            background: var(--accent-green); color: #fff; font-size: 16px;
+            font-weight: 600; cursor: pointer; transition: all var(--transition); margin-top: 12px; font-family: inherit; }
+        .breakout-submit:disabled { background: #D5C8B5; cursor: not-allowed; }
+        .breakout-submit:not(:disabled):hover { opacity: 0.9; transform: translateY(-1px); }
         .breakout-start { text-align: center; padding: 40px 20px; }
-        .breakout-start .start-btn { display: inline-block; padding: 16px 40px; border: none; border-radius: 16px;
-            background: linear-gradient(135deg, #FF8C42, #FF6B6B); color: white; font-size: 18px;
-            font-weight: 700; cursor: pointer; transition: all 0.3s; }
-        .breakout-start .start-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(255,140,66,0.4); }
+        .breakout-start .start-btn { display: inline-block; padding: 16px 40px; border: none; border-radius: var(--radius);
+            background: var(--accent-warm); color: #fff; font-size: 18px;
+            font-weight: 600; cursor: pointer; transition: all var(--transition); font-family: inherit; }
+        .breakout-start .start-btn:hover { opacity: 0.9; transform: translateY(-2px); }
 
-        /* Memory */
         .memory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 360px; margin: 0 auto; }
         .memory-card { aspect-ratio: 1; perspective: 800px; cursor: pointer; }
         .memory-card .inner { position: relative; width: 100%; height: 100%; transition: transform 0.5s;
@@ -124,40 +115,35 @@
         .memory-card.flipped .inner { transform: rotateY(180deg); }
         .memory-card.matched .inner { transform: rotateY(180deg); }
         .memory-card .face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
-            border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 36px; }
-        .memory-card .front { background: linear-gradient(135deg, #FF8C42, #FF6B6B); color: white; }
-        .memory-card .back { background: #FFF8F0; border: 3px solid #FFE0B2; transform: rotateY(180deg); }
-        .memory-card.matched .back { border-color: #4CAF50; background: #E8F5E9; }
-        .memory-score { text-align: center; margin: 16px 0; font-size: 15px; font-weight: 600; }
-        .memory-submit { display: block; width: 100%; padding: 14px; border: none; border-radius: 14px;
-            background: linear-gradient(135deg, #4CAF50, #66BB6A); color: white; font-size: 16px;
-            font-weight: 700; cursor: pointer; transition: all 0.3s; margin-top: 12px; }
-        .memory-submit:disabled { background: #BDBDBD; cursor: not-allowed; }
-        .memory-submit:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(76,175,80,0.4); }
+            border-radius: var(--radius); display: flex; align-items: center; justify-content: center; font-size: 36px; }
+        .memory-card .front { background: #C5B090; color: #fff; }
+        .memory-card .back { background: #FDF9F2; border: 2px solid var(--border-light); transform: rotateY(180deg); }
+        .memory-card.matched .back { border-color: var(--accent-green); background: #F0F5EC; }
+        .memory-score { text-align: center; margin: 16px 0; font-size: 15px; font-weight: 600; color: var(--text); }
+        .memory-submit { display: block; width: 100%; padding: 14px; border: none; border-radius: var(--radius);
+            background: var(--accent-green); color: #fff; font-size: 16px;
+            font-weight: 600; cursor: pointer; transition: all var(--transition); margin-top: 12px; font-family: inherit; }
+        .memory-submit:disabled { background: #D5C8B5; cursor: not-allowed; }
 
-        /* Result overlay */
         .result-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; }
+            background: rgba(60,40,20,0.4); z-index: 100; align-items: center; justify-content: center; }
         .result-overlay.show { display: flex; }
-        .result-card { background: white; border-radius: 24px; padding: 32px 24px; max-width: 400px;
-            width: 90%; text-align: center; animation: popIn 0.4s ease; }
+        .result-card { background: var(--card-bg); border-radius: 20px; padding: 32px 24px; max-width: 400px;
+            width: 90%; text-align: center; animation: popIn 0.4s ease; box-shadow: var(--shadow-lg); }
         @keyframes popIn { from { opacity:0; transform:scale(0.8); } to { opacity:1; transform:scale(1); } }
         .result-tier { font-size: 48px; display: block; margin-bottom: 8px; }
-        .result-msg { font-size: 16px; margin-bottom: 16px; color: #5D4037; line-height: 1.6; }
+        .result-msg { font-size: 16px; margin-bottom: 16px; color: var(--text); line-height: 1.6; }
         .result-vs { display: flex; align-items: center; justify-content: center; gap: 16px; margin: 16px 0; }
         .result-vs .vs-side { text-align: center; }
         .result-vs .vs-side .vs-emoji { font-size: 36px; display: block; }
-        .result-vs .vs-side .vs-label { font-size: 12px; color: #A1887F; margin-top: 4px; }
-        .result-vs .vs-mid { font-size: 20px; font-weight: 700; color: #FF8C42; }
+        .result-vs .vs-side .vs-label { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+        .result-vs .vs-mid { font-size: 20px; font-weight: 700; color: var(--accent-warm); }
         .result-rewards { display: flex; gap: 12px; justify-content: center; margin: 16px 0; flex-wrap: wrap; }
-        .reward-badge { background: #FFF3E0; padding: 8px 16px; border-radius: 12px; font-size: 13px; font-weight: 600; }
-        .result-close { display: inline-block; padding: 12px 32px; border-radius: 14px;
-            background: linear-gradient(135deg, #FF8C42, #FF6B6B); color: white; font-weight: 700;
-            border: none; cursor: pointer; font-size: 16px; transition: all 0.3s; text-decoration: none; }
-        .result-close:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,140,66,0.4); }
-
-        .msg { padding: 10px 16px; border-radius: 12px; margin-bottom: 16px; font-size: 13px; text-align: center; }
-        .msg-error { background: #FFF0F0; color: #C62828; }
+        .reward-badge { background: #FDF9F2; padding: 8px 16px; border-radius: var(--radius); font-size: 13px; font-weight: 600; color: var(--text); border: 1px solid var(--border-light); }
+        .result-close { display: inline-block; padding: 12px 32px; border-radius: var(--radius);
+            background: var(--accent-warm); color: #fff; font-weight: 600;
+            border: none; cursor: pointer; font-size: 16px; transition: all var(--transition); text-decoration: none; font-family: inherit; }
+        .result-close:hover { opacity: 0.9; transform: translateY(-1px); }
 
         @media (max-width: 400px) {
             .game-tabs { grid-template-columns: 1fr 1fr; }
@@ -166,24 +152,35 @@
     </style>
 </head>
 <body>
-    <div class="header">
-        <a href="<%= request.getContextPath() %>/pet?action=interact&petId=<%= pet.getId() %>">← 返回互动</a>
-        <span>&#x1F3AE; 游戏中心</span>
-        <a href="<%= request.getContextPath() %>/dashboard">🏠 主页</a>
-        <a href="<%= request.getContextPath() %>/help">❓ 帮助</a>
-    </div>
+    <nav class="nav">
+        <a href="<%= request.getContextPath() %>/dashboard" class="brand">
+            <img src="<%= request.getContextPath() %>/assets/images/ui/logo.png" alt="logo" onerror="this.style.display='none'">
+            宠物乐园
+        </a>
+        <div class="nav-links">
+            <a href="<%= request.getContextPath() %>/dashboard">我的宠物</a>
+            <a href="<%= request.getContextPath() %>/map">世界地图</a>
+            <a href="<%= request.getContextPath() %>/encyclopedia">图鉴</a>
+            <a href="<%= request.getContextPath() %>/help">帮助</a>
+            <a href="<%= request.getContextPath() %>/auth?action=logout">退出</a>
+        </div>
+    </nav>
 
-    <div class="container">
-        <% if (error != null) { %><div class="msg msg-error"><%= error %></div><% } %>
+    <div class="main">
+        <a href="<%= request.getContextPath() %>/pet?action=interact&petId=<%= pet.getId() %>" class="back-link">← 返回互动</a>
 
-        <!-- Pet card -->
+        <% if (error != null) { %><div class="alert alert-error"><%= error %></div><% } %>
+
         <div class="pet-card">
-            <span class="pet-emoji"><%= pet.getEmoji() %></span>
+            <img src="<%= request.getContextPath() %>/assets/images/animals/<%= petImg != null ? petImg : "" %>"
+                 alt="<%= pet.getName() %>"
+                 onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+            <span class="pc-emoji"><%= pet.getEmoji() %></span>
             <div class="pet-info">
-                <h3><%= pet.getName() %> <small>Lv.<%= pet.getLevel() %></small></h3>
-                <div class="stats">&#x2764;<%= pet.getAffinity() %> &#x1F91D;<%= pet.getBond() %> &#x263A;<%= pet.getMood() %>%</div>
+                <h3><%= pet.getName() %> · Lv.<%= pet.getLevel() %></h3>
+                <div class="stats">❤<%= pet.getAffinity() %> · 🤝<%= pet.getBond() %> · 😊<%= pet.getMood() %>%</div>
                 <div class="hunger-row">
-                    <span style="font-size:12px;">&#x1F356;</span>
+                    <span style="font-size:12px;">饱食</span>
                     <div class="hunger-bar-wrap">
                         <div class="hunger-bar-fill <%= hunger >= 50 ? "hunger-high" : hunger >= 20 ? "hunger-mid" : "hunger-low" %>"
                              style="width:<%= hunger %>%;"></div>
@@ -192,41 +189,40 @@
                 </div>
                 <div class="plays-left">
                     <% if (canPlay) { %>
-                    ⚡ 还能玩 <strong><%= playsLeft %></strong> 次（每次消耗 8 饱食度）
+                    还能玩 <strong><%= playsLeft %></strong> 次（每次消耗 8 饱食度）
                     <% } else { %>
-                    &#x26A0;&#xFE0F; 饱食度不足，无法玩耍！快去喂食吧~
+                    饱食度不足，无法玩耍！快去喂食吧~
                     <% } %>
                 </div>
             </div>
         </div>
 
-        <!-- Game tabs -->
         <div class="game-tabs">
             <div class="game-tab active" onclick="switchGame('rps')">
-                <span class="tab-emoji">&#x1FAA8;</span>猜拳对决
+                <span class="tab-emoji">✊</span>猜拳对决
             </div>
             <div class="game-tab" onclick="switchGame('breakout')">
-                <span class="tab-emoji">&#x1F9F1;</span>打砖块
+                <span class="tab-emoji">🧱</span>打砖块
             </div>
             <div class="game-tab" onclick="switchGame('memory')">
-                <span class="tab-emoji">&#x1F9E0;</span>翻牌对对碰
+                <span class="tab-emoji">🃏</span>翻牌对对碰
             </div>
         </div>
 
         <% if (!canPlay) { %>
-        <div class="hunger-warn">&#x1F356; 饱食度仅剩 <%= hunger %> 点，每次玩耍需要 8 点。请先喂食后再来玩~</div>
+        <div class="hunger-warn">饱食度仅剩 <%= hunger %> 点，每次玩耍需要 8 点。请先喂食后再来玩~</div>
         <% } %>
 
         <!-- Game 1: RPS -->
         <div class="game-panel active" id="panel-rps">
-            <h3>&#x1FAA8; 猜拳对决 · 三局两胜</h3>
+            <h3>猜拳对决 · 三局两胜</h3>
             <p class="game-desc">和<%= pet.getName() %>来一场三局两胜的猜拳对决！</p>
 
             <% if (result != null && "rps".equals(result.game) && result.rpsHistory != null && !result.isComplete) { %>
             <div class="rps-scoreboard">
                 <div class="rps-score">
                     <div class="rps-num"><%= result.rpsPlayerWins %></div>
-                    <div class="rps-label">&#x1F60A; 你</div>
+                    <div class="rps-label">你</div>
                 </div>
                 <div class="rps-vs">VS</div>
                 <div class="rps-score">
@@ -239,7 +235,7 @@
                 <div class="rh-item"><%= h %></div>
                 <% } %>
             </div>
-            <div class="rps-round-label">📍 第 <%= result.rpsRound + 1 %> 局，请出拳！</div>
+            <div class="rps-round-label">第 <%= result.rpsRound + 1 %> 局，请出拳！</div>
             <% } %>
 
             <form method="post" action="<%= request.getContextPath() %>/play">
@@ -247,13 +243,13 @@
                 <input type="hidden" name="game" value="rps">
                 <div class="choice-row">
                     <button type="submit" name="choice" value="rock" class="choice-btn" <%= canPlay ? "" : "disabled" %>>
-                        <span class="big-emoji">&#x1FAA8;</span>石头
+                        <span class="big-emoji">✊</span>石头
                     </button>
                     <button type="submit" name="choice" value="scissors" class="choice-btn" <%= canPlay ? "" : "disabled" %>>
-                        <span class="big-emoji">✂️</span>剪刀
+                        <span class="big-emoji">✌</span>剪刀
                     </button>
                     <button type="submit" name="choice" value="paper" class="choice-btn" <%= canPlay ? "" : "disabled" %>>
-                        <span class="big-emoji">&#x1F4C4;</span>布
+                        <span class="big-emoji">🖐</span>布
                     </button>
                 </div>
             </form>
@@ -261,17 +257,17 @@
 
         <!-- Game 2: Breakout -->
         <div class="game-panel" id="panel-breakout">
-            <h3>&#x1F9F1; 打砖块</h3>
+            <h3>打砖块</h3>
             <p class="game-desc">限时 <strong>60 秒</strong>，移动鼠标控制挡板击碎更多砖块！（30块）<br>3条命，掉球扣命，命用完则结束</p>
             <div class="breakout-info">
-                <span>&#x23F1;&#xFE0F; <span id="bkTimer" style="color:#4CAF50;">60</span> 秒</span>
-                <span>&#x2764;&#xFE0F; <span id="bkLives" style="color:#FF5252;">&#x2764;&#x2764;&#x2764;</span></span>
-                <span>&#x1F9F1; <span id="brickCount">0</span>/30</span>
+                <span>⏱ <span id="bkTimer" style="color:var(--accent-green);">60</span> 秒</span>
+                <span>❤ <span id="bkLives" style="color:#C08070;">❤❤❤</span></span>
+                <span>🧱 <span id="brickCount">0</span>/30</span>
             </div>
             <div class="breakout-wrap">
                 <canvas id="breakoutCanvas" width="360" height="400"></canvas>
                 <div class="breakout-start" id="breakoutStart">
-                    <button class="start-btn" id="breakoutStartBtn" onclick="startBreakout()" <%= canPlay ? "" : "disabled" %>>&#x1F3AE; 开始游戏</button>
+                    <button class="start-btn" id="breakoutStartBtn" onclick="startBreakout()" <%= canPlay ? "" : "disabled" %>>开始游戏</button>
                 </div>
             </div>
             <form id="breakoutForm" method="post" action="<%= request.getContextPath() %>/play">
@@ -283,10 +279,10 @@
 
         <!-- Game 3: Memory -->
         <div class="game-panel" id="panel-memory">
-            <h3>&#x1F9E0; 翻牌对对碰</h3>
+            <h3>翻牌对对碰</h3>
             <p class="game-desc">限时 <strong>60 秒</strong>，尽可能多地配对相同的宠物！（共6对）</p>
             <div class="memory-score">
-                &#x23F1;&#xFE0F; 剩余 <span id="timerDisplay" style="color:#4CAF50; font-size:18px;">60</span> 秒 ·
+                剩余 <span id="timerDisplay" style="color:var(--accent-green); font-size:18px;">60</span> 秒 ·
                 已配对：<span id="matchCount">0</span> / 6
             </div>
             <div class="memory-grid" id="memoryGrid"></div>
@@ -305,7 +301,7 @@
             <div class="result-msg" id="resultMsg"></div>
             <div class="result-vs" id="resultVS"></div>
             <div class="result-rewards" id="resultRewards"></div>
-            <a href="<%= request.getContextPath() %>/play?petId=<%= pet.getId() %>" class="result-close">&#x1F3AE; 再玩一次</a>
+            <a href="<%= request.getContextPath() %>/play?petId=<%= pet.getId() %>" class="result-close">再玩一次</a>
         </div>
     </div>
 
@@ -319,18 +315,17 @@
             if (panel) panel.classList.add('active');
         }
 
-        // ==================== Breakout Game (Timer-based) ====================
         var breakoutRunning = false, breakoutOver = false;
         var canvas, ctx, animationId;
         var paddle, ball, bricks, brickCount, bkLives;
         var brickRows = 5, brickCols = 6, totalBricks = brickRows * brickCols;
-        var brickColors = ['#FF6B6B','#FF8C42','#FFD93D','#6BCB77','#4D96FF'];
+        var brickColors = ['#D4956A','#C5B090','#D4B870','#8BAA7A','#7B9E8D'];
         var bkTimeLeft = 60, bkTimerInterval;
 
         function updateBkTimer() {
             var el = document.getElementById('bkTimer');
             el.textContent = bkTimeLeft;
-            el.style.color = bkTimeLeft <= 10 ? '#FF5252' : bkTimeLeft <= 30 ? '#FF8C42' : '#4CAF50';
+            el.style.color = bkTimeLeft <= 10 ? '#C08070' : bkTimeLeft <= 30 ? '#D4956A' : '#7B9E6D';
         }
 
         function startBreakout() {
@@ -340,7 +335,7 @@
             paddle = { x: canvas.width/2 - 40, y: canvas.height - 30, w: 80, h: 10 };
             ball = { x: canvas.width/2, y: canvas.height - 50, r: 6, dx: 3, dy: -3 };
             brickCount = 0; bkTimeLeft = 60; bkLives = 3;
-            document.getElementById('bkLives').innerHTML = '&#x2764;&#x2764;&#x2764;';
+            document.getElementById('bkLives').innerHTML = '❤❤❤';
             bricks = [];
             var bw = (canvas.width - 20) / brickCols, bh = 18;
             for (var r = 0; r < brickRows; r++) {
@@ -366,32 +361,26 @@
         function loop() {
             if (!breakoutRunning) return;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
             for (var r = 0; r < brickRows; r++) {
                 for (var c = 0; c < brickCols; c++) {
                     var b = bricks[r][c];
                     if (!b.alive) continue;
                     ctx.fillStyle = b.color;
                     ctx.fillRect(b.x, b.y, b.w, b.h);
-                    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+                    ctx.strokeStyle = 'rgba(255,255,255,0.2)';
                     ctx.strokeRect(b.x, b.y, b.w, b.h);
                 }
             }
-
-            ctx.fillStyle = '#FF8C42';
+            ctx.fillStyle = '#D4956A';
             ctx.fillRect(paddle.x, paddle.y, paddle.w, paddle.h);
-            ctx.fillStyle = '#FFAB91';
+            ctx.fillStyle = '#E0B890';
             ctx.fillRect(paddle.x + 4, paddle.y + 2, paddle.w - 8, paddle.h - 4);
-
             ctx.beginPath();
             ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI*2);
-            ctx.fillStyle = '#FFF'; ctx.fill(); ctx.closePath();
-
+            ctx.fillStyle = '#FFFEF9'; ctx.fill(); ctx.closePath();
             ball.x += ball.dx; ball.y += ball.dy;
-
             if (ball.x - ball.r <= 0 || ball.x + ball.r >= canvas.width) ball.dx = -ball.dx;
             if (ball.y - ball.r <= 0) ball.dy = -ball.dy;
-
             if (ball.y + ball.r >= paddle.y && ball.y - ball.r <= paddle.y + paddle.h &&
                 ball.x >= paddle.x && ball.x <= paddle.x + paddle.w) {
                 var hitPos = (ball.x - paddle.x) / paddle.w;
@@ -401,7 +390,6 @@
                 ball.dy = -speed * Math.cos(angle);
                 ball.y = paddle.y - ball.r;
             }
-
             for (var r = 0; r < brickRows; r++) {
                 for (var c = 0; c < brickCols; c++) {
                     var b = bricks[r][c];
@@ -416,18 +404,15 @@
                     }
                 }
             }
-
             if (ball.y - ball.r > canvas.height) {
                 bkLives--;
-                var hearts = ''; for (var i = 0; i < 3; i++) hearts += i < bkLives ? '&#x2764;' : '&#x1F5A4;';
+                var hearts = ''; for (var i = 0; i < 3; i++) hearts += i < bkLives ? '❤' : '♡';
                 document.getElementById('bkLives').innerHTML = hearts;
                 if (bkLives <= 0) { endBreakout(); return; }
-                // Respawn at bricks center
                 var brickAreaCenterY = 30 + brickRows * (18 + 4) / 2;
                 ball.x = canvas.width/2; ball.y = brickAreaCenterY;
                 ball.dx = (Math.random() > 0.5 ? 3 : -3); ball.dy = 3;
             }
-
             animationId = requestAnimationFrame(loop);
         }
 
@@ -459,16 +444,14 @@
             }, {passive: false});
         })();
 
-        // ==================== Memory Game with Timer ====================
         (function() {
             var cardEmojis = [<% for (int i = 0; i < cards.size(); i++) { %>"<%= cards.get(i) %>"<%= i < cards.size()-1 ? "," : "" %><% } %>];
             var flipped = [], matched = [], locked = false, matchCount = 0;
-            var timeLeft = 60, totalTime = 60, timerStarted = false, timerInterval;
+            var timeLeft = 60, timerStarted = false, timerInterval;
             var grid = document.getElementById('memoryGrid');
             var timerEl = document.getElementById('timerDisplay');
             var matchEl = document.getElementById('matchCount');
             var pairsInput = document.getElementById('memoryPairs');
-            var submitBtn = document.getElementById('memorySubmit');
 
             cardEmojis.forEach(function(emoji, idx) {
                 var card = document.createElement('div');
@@ -504,13 +487,7 @@
 
             function updateTimerDisplay() {
                 timerEl.textContent = timeLeft;
-                if (timeLeft <= 10) {
-                    timerEl.style.color = '#FF5252';
-                } else if (timeLeft <= 30) {
-                    timerEl.style.color = '#FF8C42';
-                } else {
-                    timerEl.style.color = '#4CAF50';
-                }
+                timerEl.style.color = timeLeft <= 10 ? '#C08070' : timeLeft <= 30 ? '#D4956A' : '#7B9E6D';
             }
 
             function checkAllDone() {
@@ -550,18 +527,17 @@
             }
         })();
 
-        // Show result overlay
         <%
         if (result != null && result.isComplete) {
         %>
             document.getElementById('resultOverlay').style.display = 'flex';
-            document.getElementById('resultTier').innerHTML = '<%= result.tier.equals("win") ? "&#x1F389;" : result.tier.equals("tie") ? "&#x1F91D;" : "&#x1F605;" %>';
+            document.getElementById('resultTier').innerHTML = '<%= result.tier.equals("win") ? "🎉" : result.tier.equals("tie") ? "🤝" : "😅" %>';
             document.getElementById('resultMsg').textContent = '<%= result.message.replace("'", "\\'") %>';
-            document.getElementById('resultVS').innerHTML = '<div class="vs-side"><span class="vs-emoji">&#x1F60A;</span><span class="vs-label">你</span></div><div class="vs-mid">VS</div><div class="vs-side"><span class="vs-emoji"><%= pet.getEmoji() %></span><span class="vs-label"><%= pet.getName() %></span></div>';
-            var rewardsHtml = '<div class="reward-badge">&#x1F60A; 心情 +<%= result.mood %></div>' +
-                '<div class="reward-badge">&#x1F91D; 默契 +<%= result.bond %></div>';
+            document.getElementById('resultVS').innerHTML = '<div class="vs-side"><span class="vs-emoji">😊</span><span class="vs-label">你</span></div><div class="vs-mid">VS</div><div class="vs-side"><span class="vs-emoji"><%= pet.getEmoji() %></span><span class="vs-label"><%= pet.getName() %></span></div>';
+            var rewardsHtml = '<div class="reward-badge">😊 心情 +<%= result.mood %></div>' +
+                '<div class="reward-badge">🤝 默契 +<%= result.bond %></div>';
             <% if (result.affinity > 0) { %>
-            rewardsHtml += '<div class="reward-badge">&#x2764; 亲密度 +<%= result.affinity %></div>';
+            rewardsHtml += '<div class="reward-badge">❤ 亲密度 +<%= result.affinity %></div>';
             <% } %>
             document.getElementById('resultRewards').innerHTML = rewardsHtml;
             switchGame('<%= currentGame != null ? currentGame : "rps" %>');

@@ -11,339 +11,269 @@
 
     CompanionTrait trait = enc.getCompanionTrait();
     WildEncounter.Archetype arch = enc.getArchetype();
+    String animalImg = species.getImagePath();
 %>
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>&#x1F43E; 与<%= enc.getAnimalName() %>互动 - 宠物乐园</title>
+    <title>与<%= enc.getAnimalName() %>互动 - 宠物乐园</title>
+    <link rel="stylesheet" href="<%= request.getContextPath() %>/assets/common.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
-            background: linear-gradient(180deg, #1a2a1a 0%, #0d1d10 40%, #1a2a1a 100%);
-            min-height: 100vh; color: #e0d5c1;
-        }
-        .container { max-width: 580px; margin: 0 auto; padding: 20px; }
-        .header { text-align: center; margin-bottom: 10px; }
-        .header .location { font-size: 13px; color: #8a9a7a; margin-bottom: 2px; }
-        .header h1 { font-size: 22px; color: #f0c27a; }
+        .container { max-width: 560px; margin: 0 auto; padding: 20px; }
 
-        /* Scene description */
+        /* 场景文本 */
         .scene-desc {
-            background: linear-gradient(135deg, #1a2518, #1e2d15);
-            border-radius: 14px; padding: 16px 18px; margin-bottom: 14px;
-            border-left: 3px solid #5a7a4a; font-size: 14px; line-height: 1.7;
-            color: #b0c0a0; font-style: italic;
+            background: #FDF9F2; border-radius: var(--radius);
+            padding: 14px 18px; margin-bottom: 16px;
+            border-left: 3px solid #C5B8A0; font-size: 14px; line-height: 1.7;
+            color: var(--text-secondary); font-style: italic;
         }
 
-        /* Animal display */
-        .animal-card {
-            background: linear-gradient(135deg, #2d2410, #3d2f18);
-            border-radius: 20px; padding: 20px; text-align: center;
-            margin-bottom: 14px; border: 2px solid #4a3a20;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+        /* 动物展示 */
+        .animal-showcase {
+            text-align: center; margin-bottom: 16px;
         }
-        .animal-card .emoji {
-            font-size: 72px; display: block;
-            animation: float 3s ease-in-out infinite;
+        .animal-showcase img {
+            width: 120px; height: 120px; object-fit: contain;
+            display: block; margin: 0 auto;
         }
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+        .animal-showcase .an-name {
+            font-size: 20px; font-weight: 600; color: var(--text);
+            margin-top: 4px;
         }
-        .animal-card .name { font-size: 22px; font-weight: 700; color: #f0c27a; margin-top: 4px; }
-        .animal-card .arch-tag {
-            display: inline-block; margin-top: 6px; padding: 4px 14px;
+        .arch-tag {
+            display: inline-block; margin-top: 4px; padding: 4px 14px;
             border-radius: 12px; font-size: 12px; font-weight: 600;
         }
-        .arch-CAUTIOUS { background: #3a3020; color: #d4a060; }
-        .arch-CURIOUS { background: #2a3a20; color: #b0d060; }
-        .arch-BOLD { background: #3a2020; color: #e08060; }
-        .arch-GENTLE { background: #2a3a3a; color: #80c0c0; }
-        .arch-PLAYFUL { background: #3a2a20; color: #e0b040; }
-        .arch-MYSTERIOUS { background: #2a2040; color: #b080e0; }
+        .arch-CAUTIOUS { background: #F5F0E8; color: #8A7A5A; }
+        .arch-CURIOUS { background: #F0F5EC; color: #6A8A5A; }
+        .arch-BOLD { background: #FEF0E8; color: #B07050; }
+        .arch-GENTLE { background: #F0F4F5; color: #5A8A8A; }
+        .arch-PLAYFUL { background: #FDF5E8; color: #B08040; }
+        .arch-MYSTERIOUS { background: #F2EDF8; color: #8060A0; }
 
-        /* Capture requirements */
+        /* 捕捉条件 */
         .capture-req {
-            background: linear-gradient(135deg, #1a2218, #222a15);
-            border-radius: 12px; padding: 12px 16px; margin-bottom: 14px;
-            border: 1px solid #4a5a30;
+            background: #FDFBF6; border-radius: var(--radius); padding: 12px 16px;
+            margin-bottom: 16px; border: 1px solid var(--border-light);
         }
-        .capture-req .cr-title {
-            font-size: 13px; font-weight: 700; color: #c0d470;
-            margin-bottom: 8px;
-        }
-        .capture-req .cr-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
-        }
+        .capture-req .cr-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+        .capture-req .cr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
         .capture-req .cr-item {
-            font-size: 12px; padding: 6px 10px; border-radius: 8px;
-            font-weight: 600; text-align: center;
+            font-size: 12px; padding: 6px 10px; border-radius: 4px;
+            font-weight: 500; text-align: center;
         }
-        .cr-security { background: #1a301a; color: #80c080; }
-        .cr-interest { background: #1a2a30; color: #80b0d0; }
-        .cr-pressure { background: #301a1a; color: #e08080; }
-        .cr-trust { background: #2a2a1a; color: #e0c060; }
+        .cr-security { background: #F0F5EC; color: #6A8A5A; }
+        .cr-interest { background: #F0F4F8; color: #5A7A9A; }
+        .cr-pressure { background: #FEF5F0; color: #B06040; }
+        .cr-trust { background: #FDF5EC; color: #B08040; }
 
-        /* Companion info */
+        /* 同行宠物 */
         .companion-bar {
-            background: #1e2d1e; border-radius: 12px; padding: 10px 16px;
-            margin-bottom: 14px; display: flex; align-items: center; gap: 10px;
-            border: 1px solid #3a5a3a; font-size: 13px; color: #b0c090;
+            background: #FDFBF6; border-radius: var(--radius); padding: 10px 16px;
+            margin-bottom: 16px; display: flex; align-items: center; gap: 10px;
+            border: 1px solid var(--border-light); font-size: 13px; color: var(--text-secondary);
         }
         .companion-bar .trait-badge {
-            margin-left: auto; background: #3a5a2a; color: #c0e080;
-            padding: 4px 12px; border-radius: 10px; font-weight: 600; font-size: 12px;
+            margin-left: auto; background: #F0EDE0; color: var(--text-secondary);
+            padding: 4px 12px; border-radius: 10px; font-weight: 500; font-size: 12px;
             white-space: nowrap;
         }
 
-        /* 4 Emotion bars */
-        .emotion-bars {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;
+        /* 情绪条 */
+        .emotion-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;
         }
         .emo-bar {
-            background: #1a2a1a; border-radius: 12px; padding: 12px;
-            border: 1px solid #2a3a2a;
+            background: var(--card-bg); border-radius: var(--radius);
+            padding: 10px 14px; border: 1px solid var(--border-light);
         }
         .emo-bar .eb-label {
-            font-size: 12px; color: #8a9a7a; margin-bottom: 4px;
-            display: flex; justify-content: space-between;
+            font-size: 12px; color: var(--text-secondary);
+            display: flex; justify-content: space-between; margin-bottom: 4px;
         }
-        .emo-bar .eb-val { font-weight: 700; font-size: 14px; }
-        .emo-bar .bar-outer { height: 8px; background: #111; border-radius: 4px; overflow: hidden; }
-        .emo-bar .bar-inner { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+        .emo-bar .eb-val { font-weight: 600; font-size: 14px; }
 
-        /* Hidden emotion hint (detection traits) */
-        .hidden-hint {
-            background: linear-gradient(135deg, #2a2040, #3a2a50);
-            border-radius: 12px; padding: 12px 16px; margin-bottom: 14px;
-            border: 1px solid #5a3a7a; text-align: center; animation: fadeIn 0.4s;
+        /* 各类提示 */
+        .hint-box {
+            padding: 12px 16px; border-radius: var(--radius); margin-bottom: 14px;
+            font-size: 13px; line-height: 1.6; animation: fadeIn 0.3s ease;
         }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
-        .hidden-hint .hh-label { font-size: 11px; color: #a090c0; }
-        .hidden-hint .hh-text { font-size: 15px; font-weight: 700; color: #d0b0ff; margin-top: 2px; }
-
-        /* Pacing hint */
-        .pacing-hint {
-            background: #2a3a10; border: 1px dashed #8bc34a; border-radius: 12px;
-            padding: 10px 16px; text-align: center; margin-bottom: 14px;
-            color: #c0d470; font-size: 13px;
+        .hint-detection { background: #F5F0F8; border: 1px solid #D8C8E8; color: #5A4080; }
+        .hint-rhythm { background: #FDF5E8; border: 1px dashed #D0C0A0; color: var(--text-secondary); }
+        .hint-flee {
+            background: #FEF5F0; border: 1px solid #F0C0A0; color: #B05030;
+            display: flex; gap: 10px; align-items: center;
+        }
+        .hint-flee .fw-icon { font-size: 22px; flex-shrink: 0; }
+        .hint-suggestion {
+            background: #F0F4F8; border: 1px solid #C0D0E0; color: #4A6070;
+            display: flex; gap: 10px; align-items: flex-start;
         }
 
-        /* Flee warning */
-        .flee-warning {
-            background: linear-gradient(135deg, #3a1010, #5a1a1a);
-            border: 2px solid #e04040; border-radius: 14px;
-            padding: 14px 18px; margin-bottom: 14px;
-            display: flex; gap: 12px; align-items: center;
-            animation: pulse 1.5s ease-in-out infinite;
+        /* 反馈 */
+        .feedback {
+            background: #FDFBF6; border-radius: var(--radius); padding: 14px 16px;
+            margin-bottom: 14px; border-left: 3px solid #C5B8A0;
+            font-size: 14px; line-height: 1.8; color: var(--text-secondary);
+            white-space: pre-line; animation: fadeIn 0.3s ease;
         }
-        @keyframes pulse {
-            0%, 100% { box-shadow: 0 0 8px rgba(255,80,80,0.3); }
-            50% { box-shadow: 0 0 20px rgba(255,80,80,0.6); }
-        }
-        .flee-warning .fw-icon { font-size: 28px; flex-shrink: 0; }
-        .flee-warning .fw-text { font-size: 13px; color: #f0c0c0; line-height: 1.6; }
-        .flee-warning .fw-text strong { color: #ff8080; }
 
-        /* Trait suggestion */
-        .trait-suggestion {
-            background: linear-gradient(135deg, #1a2a3a, #253545);
-            border: 1px solid #4a7a9a; border-radius: 12px;
-            padding: 14px 18px; margin-bottom: 14px; display: flex;
-            gap: 12px; align-items: flex-start; animation: fadeIn 0.4s;
+        /* 回合 */
+        .rounds-info {
+            text-align: center; font-size: 13px; color: var(--text-muted);
+            margin-bottom: 14px;
         }
-        .trait-suggestion .ts-icon { font-size: 22px; flex-shrink: 0; }
-        .trait-suggestion .ts-text { font-size: 14px; color: #b0d0e0; line-height: 1.6; font-weight: 600; }
+        .rounds-info span { color: var(--text); font-weight: 600; }
 
-        /* Attitude buttons */
+        /* 态度按钮 */
         .attitudes-title {
-            font-size: 14px; color: #8a9a7a; margin-bottom: 10px; text-align: center;
+            font-size: 13px; color: var(--text-muted); margin-bottom: 10px;
+            text-align: center;
         }
         .attitude-grid {
             display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
             margin-bottom: 14px;
         }
         .att-btn {
-            background: linear-gradient(135deg, #2d2418, #3d2f1f);
-            border: 2px solid #4a3a20; border-radius: 14px;
-            padding: 14px 8px; cursor: pointer; transition: all 0.3s;
-            text-align: center; color: #e0d5c1; font-family: inherit;
+            background: var(--card-bg); border: 1px solid var(--border-light);
+            border-radius: var(--radius); padding: 14px 6px;
+            cursor: pointer; transition: all var(--transition);
+            text-align: center; font-family: inherit; color: var(--text);
         }
         .att-btn:hover {
-            border-color: #f0c27a; transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(240,194,122,0.2);
-            background: linear-gradient(135deg, #3d2f1f, #5a3e28);
+            border-color: #C5B8A0; background: #FAF7F0;
+            transform: translateY(-1px); box-shadow: var(--shadow-xs);
         }
-        .att-btn.cooldown {
-            opacity: 0.4; cursor: not-allowed; filter: grayscale(60%);
-        }
-        .att-btn.bypass {
-            border-color: #f0c27a; background: linear-gradient(135deg, #3d2f10, #5a4e18);
-            box-shadow: 0 0 12px rgba(240,194,122,0.3);
-        }
-        .att-btn.bypass:hover {
-            border-color: #FFD700; box-shadow: 0 0 16px rgba(255,215,0,0.5);
-        }
-        .att-btn .att-emoji { font-size: 36px; display: block; margin-bottom: 6px; }
-        .att-btn .att-name { font-size: 18px; font-weight: 700; }
-        .att-btn .att-desc { font-size: 13px; color: #8a7a6a; margin-top: 3px; }
+        .att-btn.cooldown { opacity: 0.45; cursor: not-allowed; filter: grayscale(40%); }
+        .att-btn.bypass { border-color: var(--accent-warm); background: #FDF5EC; }
+        .att-btn .att-emoji { font-size: 28px; display: block; margin-bottom: 4px; }
+        .att-btn .att-name { font-size: 15px; font-weight: 600; }
+        .att-btn .att-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
-        /* Feedback */
-        .feedback {
-            background: #1e2d1e; border-radius: 14px; padding: 16px 18px;
-            margin-bottom: 14px; border-left: 3px solid #f0c27a;
-            font-size: 14px; line-height: 1.8; color: #c4b5a0;
-            white-space: pre-line; animation: fadeIn 0.3s ease;
+        .back-link {
+            display: block; text-align: center; padding: 8px;
+            color: var(--text-muted); text-decoration: none; font-size: 13px;
         }
+        .back-link:hover { color: var(--text-secondary); }
 
-        /* Round counter */
-        .rounds {
-            text-align: center; font-size: 13px; color: #6a7a5a; margin-bottom: 14px;
-        }
-        .rounds span { color: #f0c27a; font-weight: 700; }
-
-        .btn-back {
-            display: block; text-align: center; padding: 10px;
-            color: #8a7a6a; text-decoration: none; font-size: 14px;
-        }
-        .btn-back:hover { color: #c0b090; }
-
-        /* Bond Event Modal Overlay */
+        /* ========== Bond Event Modal (light theme) ========== */
         .bond-modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.80); z-index: 9999;
+            background: rgba(60,40,20,0.4); z-index: 9999;
             display: flex; align-items: center; justify-content: center;
-            animation: fadeIn 0.3s ease;
-            backdrop-filter: blur(4px);
+            animation: fadeIn 0.2s ease;
         }
         .bond-modal {
-            background: linear-gradient(135deg, #1a2230, #1d2a38);
-            border: 2px solid #f0c27a; border-radius: 20px;
-            padding: 24px; width: 92%; max-width: 520px; max-height: 90vh;
+            background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: var(--radius-lg); padding: 24px;
+            width: 92%; max-width: 500px; max-height: 90vh;
             overflow-y: auto; position: relative;
-            animation: bondModalIn 0.5s ease;
-            box-shadow: 0 0 60px rgba(240,194,122,0.25);
-        }
-        @keyframes bondModalIn {
-            from { opacity: 0; transform: scale(0.9) translateY(20px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
+            animation: fadeIn 0.3s ease; box-shadow: var(--shadow-lg);
         }
         .bond-modal .be-header { text-align: center; margin-bottom: 14px; }
         .bond-modal .be-title {
-            font-size: 22px; font-weight: 700; color: #f0c27a; margin-bottom: 4px;
+            font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 6px;
         }
         .bond-modal .be-scene {
-            font-size: 15px; color: #c0d0e0; line-height: 1.7; margin-bottom: 12px;
+            font-size: 14px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 10px;
             font-style: italic;
         }
         .bond-modal .be-instruction {
-            font-size: 14px; color: #a0b0c0; margin-bottom: 16px;
-            padding: 10px 16px; background: rgba(240,194,122,0.1);
-            border-radius: 10px;
+            font-size: 13px; color: var(--text-secondary); margin-bottom: 14px;
+            padding: 10px 16px; background: #FDF9F2; border-radius: var(--radius-sm);
         }
         .bond-modal .be-game-area {
-            background: #111820; border-radius: 16px;
+            background: #F5F0E8; border-radius: var(--radius);
             padding: 20px; min-height: 200px; position: relative;
             overflow: hidden; user-select: none; cursor: default;
-            border: 1px solid #2a3a4a;
+            border: 1px solid var(--border-light);
         }
         .bond-modal .be-trait-hint {
-            margin-top: 14px; font-size: 13px; color: #90b090;
+            margin-top: 14px; font-size: 12px; color: var(--text-secondary);
             text-align: center; padding: 6px 14px;
-            background: rgba(120,200,120,0.08); border-radius: 10px;
+            background: #FDF9F2; border-radius: var(--radius-sm);
         }
         .bond-modal .be-score-bar {
-            height: 6px; background: #1a202a; border-radius: 3px;
+            height: 6px; background: #F0EAE0; border-radius: 3px;
             margin-top: 14px; overflow: hidden;
         }
         .bond-modal .be-score-fill {
-            height: 100%; background: linear-gradient(90deg, #e04040, #f0c040, #40c040);
-            border-radius: 3px; transition: width 0.3s;
+            height: 100%; background: #C5B090; border-radius: 3px; transition: width 0.3s;
         }
         .bond-modal .be-mistakes {
-            text-align: center; margin-top: 8px; font-size: 12px; color: #e08060;
+            text-align: center; margin-top: 8px; font-size: 12px; color: var(--accent-red);
         }
-        .bond-modal .be-mistakes .dot { color: #f04040; }
 
         /* Bond result */
         .bond-result {
-            background: #1e2d1e; border-radius: 14px; padding: 16px 18px;
-            margin-bottom: 14px; border-left: 3px solid #f0c27a;
-            font-size: 14px; line-height: 1.8; color: #c4b5a0;
-            white-space: pre-line; animation: fadeIn 0.5s ease;
+            background: #FDFBF6; border-radius: var(--radius); padding: 14px 16px;
+            margin-bottom: 14px; border-left: 3px solid #C5B8A0;
+            font-size: 14px; line-height: 1.8; color: var(--text-secondary);
+            white-space: pre-line; animation: fadeIn 0.3s ease;
         }
-        .bond-result.big-success { border-left-color: #FFD700; background: #2a3018; }
-        .bond-result.crit-fail { border-left-color: #e04040; background: #2a1818; }
 
-        /* Slow Approach game */
+        /* --- Mini-game sub-styles --- */
         .sa-track { position: relative; height: 160px; margin: 10px 0; }
         .sa-animal { position: absolute; top: 0; left: 50%; transform: translateX(-50%); font-size: 48px; transition: transform 0.1s; }
-        .sa-animal.alert { transform: translateX(-50%) scale(1.15); filter: brightness(1.3) drop-shadow(0 0 8px #ff6040); }
+        .sa-animal.alert { transform: translateX(-50%) scale(1.15); filter: brightness(1.2) drop-shadow(0 0 6px #D04030); }
         .sa-player { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); font-size: 28px; transition: bottom 0.05s; }
-        .sa-progress { position: absolute; left: 55%; top: 60px; bottom: 60px; width: 8px; background: #2a3a2a; border-radius: 4px; }
-        .sa-progress-fill { width: 100%; background: linear-gradient(0deg, #40c040, #f0c040, #e04040); border-radius: 4px; transition: height 0.05s; position: absolute; bottom: 0; }
-        .sa-btn { display: block; width: 100%; padding: 16px; font-size: 18px; font-weight: 700; border: 2px solid #5a7a4a; border-radius: 14px; background: linear-gradient(135deg, #2d3d1f, #3d4d2f); color: #c0d0a0; cursor: pointer; font-family: inherit; transition: all 0.2s; }
-        .sa-btn:active, .sa-btn.holding { background: linear-gradient(135deg, #4d5d3f, #5d6d4f); border-color: #f0c040; }
+        .sa-progress { position: absolute; left: 55%; top: 60px; bottom: 60px; width: 8px; background: #E8E0D0; border-radius: 4px; }
+        .sa-progress-fill { width: 100%; background: #C5B090; border-radius: 4px; transition: height 0.05s; position: absolute; bottom: 0; }
+        .sa-btn { display: block; width: 100%; padding: 16px; font-size: 16px; font-weight: 600; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card-bg); color: var(--text); cursor: pointer; font-family: inherit; transition: all 0.15s; }
+        .sa-btn:active, .sa-btn.holding { background: #EDE5D8; border-color: #C5B090; }
 
-        /* Rhythm Sync game */
-        .rs-circles { display: flex; justify-content: center; gap: 20px; margin: 30px 0; }
-        .rs-circle { width: 70px; height: 70px; border-radius: 50%; background: #1a2a1a; border: 3px solid #3a5a3a; transition: all 0.15s; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 28px; }
-        .rs-circle.active { background: #f0c27a; border-color: #FFD700; box-shadow: 0 0 24px rgba(240,194,122,0.6); transform: scale(1.1); }
-        .rs-circle.hit { background: #40c040; border-color: #80ff80; box-shadow: 0 0 16px rgba(64,255,64,0.4); }
-        .rs-circle.miss { background: #c04040; border-color: #ff4040; box-shadow: 0 0 16px rgba(255,64,64,0.4); }
-        .rs-judgment { text-align: center; font-size: 16px; font-weight: 700; min-height: 24px; margin-top: 12px; }
+        .rs-circles { display: flex; justify-content: center; gap: 16px; margin: 30px 0; }
+        .rs-circle { width: 64px; height: 64px; border-radius: 50%; background: #F0EAE0; border: 2px solid #D5C8B5; transition: all 0.12s; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .rs-circle.active { background: #D0C0A0; border-color: #B09878; box-shadow: 0 0 16px rgba(180,150,120,0.4); transform: scale(1.08); }
+        .rs-circle.hit { background: #80B080; border-color: #6A9A6A; box-shadow: 0 0 12px rgba(100,160,100,0.3); }
+        .rs-circle.miss { background: #D08080; border-color: #C06060; box-shadow: 0 0 12px rgba(200,100,100,0.3); }
+        .rs-judgment { text-align: center; font-size: 15px; font-weight: 600; min-height: 22px; margin-top: 12px; }
 
-        /* Gentle Offer game */
         .go-scene { position: relative; height: 150px; margin: 10px 0; }
         .go-hand { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); font-size: 44px; }
         .go-animal { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); font-size: 44px; transition: right 0.1s linear; }
         .go-nervous { position: absolute; right: 80px; top: 30px; font-size: 14px; transition: color 0.3s; }
-        .go-btn { display: block; width: 100%; padding: 16px; font-size: 18px; font-weight: 700; border: 2px solid #5a7a4a; border-radius: 14px; background: linear-gradient(135deg, #2d3d1f, #3d4d2f); color: #c0d0a0; cursor: pointer; font-family: inherit; }
+        .go-btn { display: block; width: 100%; padding: 16px; font-size: 16px; font-weight: 600; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card-bg); color: var(--text); cursor: pointer; font-family: inherit; }
 
-        /* Follow Movement game */
-        .fm-zone { width: 100%; height: 200px; background: radial-gradient(ellipse at center, #1a2a2a, #0d1515); border-radius: 16px; position: relative; overflow: hidden; cursor: none; }
+        .fm-zone { width: 100%; height: 200px; background: #F0EAE0; border-radius: var(--radius); position: relative; overflow: hidden; cursor: none; }
         .fm-animal { position: absolute; font-size: 36px; transition: left 0.05s linear, top 0.05s linear; }
-        .fm-comfort { position: absolute; border: 2px dashed rgba(100,200,100,0.4); border-radius: 50%; pointer-events: none; }
-        .fm-player { position: absolute; width: 16px; height: 16px; border-radius: 50%; background: #f0c040; box-shadow: 0 0 12px rgba(240,194,64,0.5); pointer-events: none; transition: left 0.05s, top 0.05s; }
-        .fm-score-text { text-align: center; font-size: 13px; color: #8a9a7a; margin-top: 8px; }
+        .fm-comfort { position: absolute; border: 2px dashed rgba(180,150,120,0.5); border-radius: 50%; pointer-events: none; }
+        .fm-player { position: absolute; width: 14px; height: 14px; border-radius: 50%; background: #C5A080; box-shadow: 0 0 8px rgba(180,150,120,0.4); pointer-events: none; transition: left 0.05s, top 0.05s; }
+        .fm-score-text { text-align: center; font-size: 12px; color: var(--text-muted); margin-top: 8px; }
 
-        /* Echo Call game */
-        .ec-display { display: flex; justify-content: center; gap: 16px; margin: 20px 0; }
-        .ec-pad { width: 64px; height: 64px; border-radius: 16px; cursor: pointer; transition: all 0.12s; border: 2px solid #3a4a4a; }
-        .ec-pad.pad-0 { background: #c0392b; }
-        .ec-pad.pad-1 { background: #2980b9; }
-        .ec-pad.pad-2 { background: #27ae60; }
-        .ec-pad.pad-3 { background: #f39c12; }
-        .ec-pad.glow { transform: scale(1.25); box-shadow: 0 0 28px currentColor; border-color: #fff; filter: brightness(1.6); }
-        .ec-pad.wrong { animation: shake 0.4s; filter: grayscale(80%); }
-        @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 50% { transform: translateX(6px); } 75% { transform: translateX(-6px); } }
-        .ec-status { text-align: center; font-size: 16px; font-weight: 700; margin-top: 12px; min-height: 24px; color: #c0d0e0; }
+        .ec-display { display: flex; justify-content: center; gap: 12px; margin: 20px 0; }
+        .ec-pad { width: 56px; height: 56px; border-radius: 12px; cursor: pointer; transition: all 0.1s; }
+        .ec-pad.pad-0 { background: #C08070; }
+        .ec-pad.pad-1 { background: #7090B0; }
+        .ec-pad.pad-2 { background: #80A080; }
+        .ec-pad.pad-3 { background: #D0B070; }
+        .ec-pad.glow { transform: scale(1.2); box-shadow: 0 0 20px rgba(0,0,0,0.2); border: 2px solid #fff; filter: brightness(1.3); }
+        .ec-pad.wrong { animation: shake 0.4s; filter: grayscale(70%); }
+        @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } }
+        .ec-status { text-align: center; font-size: 15px; font-weight: 600; margin-top: 12px; min-height: 22px; color: var(--text-secondary); }
 
-        /* Gaze Lock game */
-        .gl-scene { position: relative; height: 200px; cursor: none; background: radial-gradient(circle, #111820 60%, #0a1018 100%); border-radius: 16px; }
+        .gl-scene { position: relative; height: 200px; cursor: none; background: #ECEAE0; border-radius: var(--radius); }
         .gl-eyes { position: absolute; font-size: 60px; top: 50%; left: 50%; transform: translate(-50%,-50%); transition: left 0.5s ease-in-out, top 0.5s ease-in-out; }
-        .gl-zone { position: absolute; border: 2px solid rgba(240,194,64,0.3); border-radius: 50%; pointer-events: none; }
-        .gl-cursor { position: absolute; width: 12px; height: 12px; border-radius: 50%; background: #f0c040; pointer-events: none; box-shadow: 0 0 12px rgba(240,194,64,0.6); }
-        .gl-meter { height: 4px; background: #1a202a; border-radius: 2px; margin-top: 10px; overflow: hidden; }
-        .gl-meter-fill { height: 100%; background: linear-gradient(90deg, #e04040, #f0c27a, #40c040); border-radius: 2px; transition: width 0.5s; }
+        .gl-zone { position: absolute; border: 2px solid rgba(180,150,120,0.4); border-radius: 50%; pointer-events: none; }
+        .gl-cursor { position: absolute; width: 10px; height: 10px; border-radius: 50%; background: #C5A080; pointer-events: none; box-shadow: 0 0 8px rgba(180,150,120,0.5); }
+        .gl-meter { height: 4px; background: #F0EAE0; border-radius: 2px; margin-top: 10px; overflow: hidden; }
+        .gl-meter-fill { height: 100%; background: #C5B090; border-radius: 2px; transition: width 0.5s; }
 
-        /* Countdown overlay */
         .countdown-overlay {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             display: flex; align-items: center; justify-content: center;
-            background: rgba(0,0,0,0.7); border-radius: 16px; z-index: 10;
+            background: rgba(245,240,232,0.85); border-radius: var(--radius); z-index: 10;
         }
         .countdown-num {
-            font-size: 80px; font-weight: 900; color: #f0c27a;
-            animation: countPop 0.8s ease;
-            text-shadow: 0 0 40px rgba(240,194,122,0.6);
+            font-size: 72px; font-weight: 700; color: var(--text);
+            animation: countPop 0.7s ease;
         }
         @keyframes countPop {
-            0% { transform: scale(1.6); opacity: 0; }
-            50% { transform: scale(0.9); opacity: 1; }
+            0% { transform: scale(1.5); opacity: 0; }
+            50% { transform: scale(0.92); opacity: 1; }
             100% { transform: scale(1); opacity: 1; }
         }
 
@@ -351,122 +281,123 @@
 
         @media (max-width: 500px) {
             .attitude-grid { grid-template-columns: repeat(2, 1fr); }
-            .emotion-bars { grid-template-columns: 1fr; }
-            .rs-circles { gap: 12px; }
-            .rs-circle { width: 55px; height: 55px; font-size: 22px; }
-            .sa-animal { font-size: 36px; }
-            .sa-player { font-size: 22px; }
-            .go-hand, .go-animal { font-size: 34px; }
+            .emotion-grid { grid-template-columns: 1fr; }
+            .rs-circles { gap: 10px; }
+            .rs-circle { width: 52px; height: 52px; font-size: 20px; }
+            .ec-pad { width: 46px; height: 46px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <div class="location">&#x1F4CD; <%= regionName %></div>
-            <h1>&#x1F43E; 与野生动物互动</h1>
+        <div style="text-align:center;margin-bottom:6px;">
+            <span style="font-size:13px;color:var(--text-muted);"><%= regionName %></span>
+            <h1 style="font-size:20px;font-weight:600;color:var(--text);">与野生动物互动</h1>
         </div>
 
-        <!-- Scene description -->
+        <!-- 场景描述 -->
         <div class="scene-desc"><%= enc.getSceneDesc() %></div>
 
-        <!-- Animal display -->
-        <div class="animal-card">
-            <span class="emoji"><%= enc.getAnimalEmoji() %></span>
-            <div class="name"><%= enc.getAnimalName() %></div>
+        <!-- 动物展示 -->
+        <div class="animal-showcase">
+            <img src="<%= request.getContextPath() %>/assets/images/animals/<%= animalImg %>"
+                 alt="<%= enc.getAnimalName() %>"
+                 onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+            <span style="display:none;font-size:80px;"><%= enc.getAnimalEmoji() %></span>
+            <div class="an-name"><%= enc.getAnimalName() %></div>
             <div class="arch-tag arch-<%= arch.name() %>">
                 <%
-                    String archLabel = "";
-                    switch (arch) {
-                        case CAUTIOUS: archLabel = "&#x1F440; 谨慎型"; break;
-                        case CURIOUS: archLabel = "&#x1F50D; 好奇型"; break;
-                        case BOLD: archLabel = "&#x1F4AA; 大胆型"; break;
-                        case GENTLE: archLabel = "&#x1F33F; 温柔型"; break;
-                        case PLAYFUL: archLabel = "&#x1F3BE; 活泼型"; break;
-                        case MYSTERIOUS: archLabel = "&#x2728; 神秘型"; break;
-                    }
+                    String archLabel = switch (arch) {
+                        case CAUTIOUS -> "谨慎型";
+                        case CURIOUS -> "好奇型";
+                        case BOLD -> "大胆型";
+                        case GENTLE -> "温柔型";
+                        case PLAYFUL -> "活泼型";
+                        case MYSTERIOUS -> "神秘型";
+                    };
                 %>
                 <%= archLabel %>
             </div>
         </div>
 
-        <!-- Capture requirements -->
+        <!-- 捕捉条件 -->
         <div class="capture-req">
-            <div class="cr-title">&#x1F3AF; 捕捉条件</div>
+            <div class="cr-title">捕捉条件</div>
             <div class="cr-grid">
-                <span class="cr-item cr-security">&#x1F6E1; 安全感≥<%= enc.getRequiredSecurity() %></span>
-                <span class="cr-item cr-interest">&#x1F4A1; 兴趣≥<%= enc.getRequiredInterest() %></span>
-                <span class="cr-item cr-pressure">&#x26A0; 压力≤<%= enc.getMaxPressure() %></span>
-                <span class="cr-item cr-trust">&#x1F91D; 信任≥<%= enc.getRequiredTrust() %></span>
+                <span class="cr-item cr-security">安全感≥<%= enc.getRequiredSecurity() %></span>
+                <span class="cr-item cr-interest">兴趣≥<%= enc.getRequiredInterest() %></span>
+                <span class="cr-item cr-pressure">压力≤<%= enc.getMaxPressure() %></span>
+                <span class="cr-item cr-trust">信任≥<%= enc.getRequiredTrust() %></span>
             </div>
         </div>
 
-        <!-- Companion trait -->
+        <!-- 同行宠物 -->
         <% if (trait != null) { %>
         <div class="companion-bar">
             <span><%= enc.getCompanionEmoji() %> <%= enc.getCompanionName() %></span>
-            <span style="color:#8a9a7a;">与你同行</span>
-            <span class="trait-badge">&#x2B50; <%= trait.getName() %></span>
+            <span style="color:var(--text-muted);">与你同行</span>
+            <span class="trait-badge">⭐ <%= trait.getName() %></span>
         </div>
         <% } %>
 
-        <!-- 4 Emotion bars -->
-        <div class="emotion-bars">
+        <!-- 情绪条 -->
+        <div class="emotion-grid">
             <div class="emo-bar">
-                <div class="eb-label"><span>&#x1F6E1; 安全感</span><span class="eb-val" style="color:<%= enc.getSecurityColor() %>;"><%= enc.getSecurity() %></span></div>
+                <div class="eb-label"><span>安全感</span><span class="eb-val" style="color:<%= enc.getSecurityColor() %>;"><%= enc.getSecurity() %></span></div>
                 <div class="bar-outer"><div class="bar-inner" style="width:<%= enc.getSecurity() %>%; background:<%= enc.getSecurityColor() %>;"></div></div>
             </div>
             <div class="emo-bar">
-                <div class="eb-label"><span>&#x1F4A1; 兴趣</span><span class="eb-val" style="color:<%= enc.getInterestColor() %>;"><%= enc.getInterest() %></span></div>
+                <div class="eb-label"><span>兴趣</span><span class="eb-val" style="color:<%= enc.getInterestColor() %>;"><%= enc.getInterest() %></span></div>
                 <div class="bar-outer"><div class="bar-inner" style="width:<%= enc.getInterest() %>%; background:<%= enc.getInterestColor() %>;"></div></div>
             </div>
             <div class="emo-bar">
-                <div class="eb-label"><span>&#x26A0; 压力</span><span class="eb-val" style="color:<%= enc.getPressureColor() %>;"><%= enc.getPressure() %></span></div>
+                <div class="eb-label"><span>压力</span><span class="eb-val" style="color:<%= enc.getPressureColor() %>;"><%= enc.getPressure() %></span></div>
                 <div class="bar-outer"><div class="bar-inner" style="width:<%= enc.getPressure() %>%; background:<%= enc.getPressureColor() %>;"></div></div>
             </div>
             <div class="emo-bar">
-                <div class="eb-label"><span>&#x1F91D; 信任</span><span class="eb-val" style="color:<%= enc.getTrustColor() %>;"><%= enc.getTrust() %></span></div>
+                <div class="eb-label"><span>信任</span><span class="eb-val" style="color:<%= enc.getTrustColor() %>;"><%= enc.getTrust() %></span></div>
                 <div class="bar-outer"><div class="bar-inner" style="width:<%= enc.getTrust() %>%; background:<%= enc.getTrustColor() %>;"></div></div>
             </div>
         </div>
 
-        <!-- Hidden emotion hint (detection traits) -->
+        <!-- 探测系提示 -->
         <% if (enc.isHiddenEmotionRevealed() && enc.getRevealedEmotionHint() != null) { %>
-        <div class="hidden-hint">
-            <div class="hh-label">&#x1F50D; 同行伙伴的洞察</div>
-            <div class="hh-text"><%= enc.getRevealedEmotionHint() %></div>
+        <div class="hint-box hint-detection">
+            <div style="font-weight:600;font-size:12px;margin-bottom:2px;">同行伙伴的洞察</div>
+            <div><%= enc.getRevealedEmotionHint() %></div>
         </div>
         <% } %>
 
-        <!-- Round counter -->
-        <div class="rounds">回合：<span><%= enc.getRoundsUsed() %> / <%= enc.getMaxRounds() %></span>
+        <!-- 回合数 -->
+        <div class="rounds-info">
+            回合：<span><%= enc.getRoundsUsed() %> / <%= enc.getMaxRounds() %></span>
         <% if (enc.getRoundsUsed() >= enc.getMaxRounds() - 3 && enc.getMaxRounds() > 12) { %>
-            <br><small style="color:#f0c27a;">&#x1F49B; 同伴特性延长了相遇时间</small>
+            <br><small style="color:#6A8A5A;">同伴特性延长了相遇时间</small>
         <% } else if (enc.getRoundsUsed() >= enc.getMaxRounds() - 3) { %>
-            <br><small style="color:#e08060;">&#x23F3; 时间不多了……</small>
+            <br><small style="color:var(--accent-red);">时间不多了……</small>
         <% } %>
         </div>
 
-        <!-- Flee warning banner -->
+        <!-- 逃跑预警 -->
         <% if (enc.isFleeWarning()) { %>
-        <div class="flee-warning">
-            <div class="fw-icon">&#x26A0;&#xFE0F;</div>
-            <div class="fw-text">
+        <div class="hint-box hint-flee">
+            <div class="fw-icon">!</div>
+            <div>
                 <strong><%= enc.getAnimalEmoji() %><%= enc.getAnimalName() %></strong> 焦躁不安，下回合可能<strong>逃跑</strong>！
-                <br><small>压力越高逃跑概率越大，快用「后退」或「等待」降低压力吧</small>
+                <br><small>快用「后退」或「等待」降低压力</small>
             </div>
         </div>
         <% } %>
 
-        <!-- Pacing hint -->
+        <!-- 节奏提示 -->
         <%
             String pacingHint = enc.getPacingHint(enc.getLastAttitudeUsed());
             if (pacingHint != null) {
         %>
-        <div class="pacing-hint">&#x1F4A1; <%= pacingHint %></div>
+        <div class="hint-box hint-rhythm"><%= pacingHint %></div>
         <% } %>
 
-        <!-- Last feedback -->
+        <!-- 反馈 -->
         <%
             String fb = enc.getLastFeedback();
             String traitHint = enc.getTraitHint();
@@ -474,21 +405,21 @@
         %>
         <div class="feedback"><%= fb %></div>
         <% } else if (traitHint != null && !traitHint.isEmpty()) { %>
-        <div class="feedback">&#x1F4A1; <%= traitHint %></div>
+        <div class="feedback"><%= traitHint %></div>
         <% } %>
 
-        <!-- Trait suggestion (detection/empathy companions) -->
+        <!-- 同伴建议 -->
         <%
             String ts = enc.getTraitSuggestion();
             if (ts != null && !ts.isEmpty()) {
         %>
-        <div class="trait-suggestion">
-            <div class="ts-icon">&#x1F4AC;</div>
-            <div class="ts-text"><%= ts %></div>
+        <div class="hint-box hint-suggestion">
+            <div style="font-size:20px;flex-shrink:0;">💬</div>
+            <div><%= ts %></div>
         </div>
         <% } %>
 
-        <!-- Bond result (after mini-game finishes) -->
+        <!-- Bond 结果 -->
         <%
             String bondResult = (String) request.getAttribute("bondResult");
             if (bondResult != null && !bondResult.isEmpty()) {
@@ -496,7 +427,7 @@
         <div class="bond-result"><%= bondResult %></div>
         <% } %>
 
-        <!-- Bond Event Modal -->
+        <!-- ===== Bond Event Modal ===== -->
         <%
             BondEvent bondEvent = (BondEvent) request.getAttribute("bondEvent");
         %>
@@ -504,19 +435,19 @@
         <div class="bond-modal-overlay" id="bondModalOverlay">
             <div class="bond-modal" id="bondEvent">
                 <div class="be-header">
-                    <div class="be-title">&#x2728; <%= bondEvent.getAnimalEmoji() %> <%= bondEvent.getAnimalName() %>对你产生了兴趣</div>
+                    <div class="be-title"><%= bondEvent.getAnimalEmoji() %> <%= bondEvent.getAnimalName() %>对你产生了兴趣</div>
                     <div class="be-scene"><%= bondEvent.getType().scene %></div>
-                    <div class="be-instruction">&#x1F3AE; <%= bondEvent.getType().instruction %></div>
+                    <div class="be-instruction"><%= bondEvent.getType().instruction %></div>
                 </div>
                 <div class="be-game-area" id="gameArea">
-                    <div style="text-align:center;padding:60px 20px;color:#8a9a7a;">
-                        &#x1F3AE; 小游戏加载中……
+                    <div style="text-align:center;padding:60px 20px;color:var(--text-muted);">
+                        小游戏加载中……
                     </div>
                 </div>
                 <div class="be-score-bar"><div class="be-score-fill" id="scoreFill" style="width:50%"></div></div>
                 <div class="be-mistakes" id="mistakeDots"></div>
                 <% if (bondEvent.getTraitModifierText() != null && !bondEvent.getTraitModifierText().isEmpty()) { %>
-                <div class="be-trait-hint">&#x1F31F; <%= bondEvent.getTraitModifierText() %></div>
+                <div class="be-trait-hint"><%= bondEvent.getTraitModifierText() %></div>
                 <% } %>
                 <form method="post" action="<%= request.getContextPath() %>/map" id="bondForm">
                     <input type="hidden" name="action" value="bond_event">
@@ -526,9 +457,9 @@
         </div>
         <% } %>
 
-        <!-- Attitude buttons (hidden during bond event) -->
+        <!-- 态度按钮 -->
         <div id="attitudeSection">
-        <div class="attitudes-title">选择你的态度：</div>
+        <div class="attitudes-title">选择你的态度</div>
         <form method="post" action="<%= request.getContextPath() %>/map" id="attitudeForm">
             <input type="hidden" name="action" value="attitude">
             <div class="attitude-grid">
@@ -536,8 +467,9 @@
                     boolean onCooldown = enc.isOnCooldown(a);
                     String bypassHint = enc.getCooldownBypassHint(a);
                 %>
-                <button type="submit" name="attitude" value="<%= a.name() %>" class="att-btn<%= onCooldown ? " cooldown" : (bypassHint != null ? " bypass" : "") %>"
-                    <%= onCooldown ? "disabled title=\"冷却中——下回合可用\"" : (bypassHint != null ? "title=\"" + bypassHint + "\"" : "") %>>
+                <button type="submit" name="attitude" value="<%= a.name() %>"
+                    class="att-btn<%= onCooldown ? " cooldown" : (bypassHint != null ? " bypass" : "") %>"
+                    <%= onCooldown ? "disabled" : "" %>>
                     <span class="att-emoji"><%= a.emoji %></span>
                     <span class="att-name"><%= a.label %><%= bypassHint != null ? " ⭐" : "" %></span>
                     <span class="att-desc"><%= onCooldown ? "冷却中" : (bypassHint != null ? bypassHint : a.desc) %></span>
@@ -547,10 +479,10 @@
         </form>
         </div>
 
-        <a href="<%= request.getContextPath() %>/map" class="btn-back">&#x1F5FA; 放弃本次遭遇，返回地图</a>
+        <a href="<%= request.getContextPath() %>/map" class="back-link">放弃本次遭遇，返回地图</a>
     </div>
 
-    <!-- Bond Event Mini-Games JS -->
+    <!-- ===== Bond Event Mini-Games JS (功能代码保持) ===== -->
     <% if (bondEvent != null) { %>
     <script>
     (function() {
@@ -586,9 +518,8 @@
             mistakes++;
             var dots = mistakeDots.querySelectorAll('span');
             if (dots.length >= mistakes) {
-                var target = dots[mistakes - 1];
-                target.style.color = '#e04040';
-                target.innerHTML = '&#x1F494;';
+                dots[mistakes - 1].style.color = '#C05040';
+                dots[mistakes - 1].innerHTML = '&#x1F494;';
             }
             if (mistakes >= bondCfg.maxMistakes) {
                 updateScore(-15);
@@ -601,8 +532,8 @@
             gameRunning = false;
             bondScore.value = Math.round(score);
             var msg = document.createElement('div');
-            msg.style.cssText = 'text-align:center;padding:20px;color:#f0c27a;font-size:18px;font-weight:700;animation:fadeIn 0.5s;';
-            msg.textContent = score >= 90 ? '\u{1F31F} 完美！' : score >= 55 ? '\u{1F44D} 不错！' : score >= 25 ? '\u{1F614} 差一点……' : '\u{1F625} 失败了……';
+            msg.style.cssText = 'text-align:center;padding:20px;color:var(--text);font-size:16px;font-weight:600;animation:fadeIn 0.3s;';
+            msg.textContent = score >= 90 ? '完美！' : score >= 55 ? '不错！' : score >= 25 ? '差一点……' : '失败了……';
             gameArea.appendChild(msg);
             setTimeout(function() { bondForm.submit(); }, 800);
         }
@@ -610,24 +541,24 @@
         function initMistakeDots() {
             var html = '';
             for (var i = 0; i < bondCfg.maxMistakes; i++) {
-                html += '<span style="color:#40c040;">&#x2764;&#xFE0F;</span> ';
+                html += '<span style="color:#80A080;">&#x2764;&#xFE0F;</span> ';
             }
             mistakeDots.innerHTML = html;
         }
 
-        // ==================== GAME 1: SLOW APPROACH ====================
+        // ==================== SLOW APPROACH ====================
         function startSlowApproach() {
             initMistakeDots();
             var totalPhases = bondCfg.phases + (bondCfg.bonusPhase ? 1 : 0);
             gameArea.innerHTML =
                 '<div style="position:relative;height:160px;margin:10px 0;">' +
                 '<div id="saAnimal" style="position:absolute;top:0;left:50%;transform:translateX(-50%);font-size:48px;transition:transform 0.1s;">' + bondCfg.animalEmoji + '</div>' +
-                '<div id="saProg" style="position:absolute;left:55%;top:60px;bottom:60px;width:8px;background:#2a3a2a;border-radius:4px;">' +
-                '<div id="saProgFill" style="width:100%;background:linear-gradient(0deg,#40c040,#f0c040);border-radius:4px;position:absolute;bottom:0;height:0%;transition:height 0.05s;"></div></div>' +
+                '<div id="saProg" style="position:absolute;left:55%;top:60px;bottom:60px;width:8px;background:#E8E0D0;border-radius:4px;">' +
+                '<div id="saProgFill" style="width:100%;background:#C5B090;border-radius:4px;position:absolute;bottom:0;height:0%;transition:height 0.05s;"></div></div>' +
                 '<div id="saPlayer" style="position:absolute;bottom:5%;left:50%;transform:translateX(-50%);font-size:28px;transition:bottom 0.05s;">&#x1F9D1;</div>' +
                 '</div>' +
-                '<button class="sa-btn" id="saBtn" style="display:block;width:100%;padding:16px;font-size:18px;font-weight:700;border:2px solid #5a7a4a;border-radius:14px;background:linear-gradient(135deg,#2d3d1f,#3d4d2f);color:#c0d0a0;cursor:pointer;font-family:inherit;">&#x1F422; 按住前进</button>' +
-                '<div style="text-align:center;margin-top:8px;font-size:12px;color:#8a9a7a;">' + bondCfg.animalName + '回头时立刻松手！第 <span id="saPhaseNum">1</span>/' + totalPhases + ' 阶段</div>';
+                '<button class="sa-btn" id="saBtn">按住前进</button>' +
+                '<div style="text-align:center;margin-top:6px;font-size:12px;color:var(--text-muted);">' + bondCfg.animalName + '回头时立刻松手！第 <span id="saPhaseNum">1</span>/' + totalPhases + ' 阶段</div>';
 
             var animal = document.getElementById('saAnimal');
             var player = document.getElementById('saPlayer');
@@ -644,7 +575,7 @@
                 if (!gameRunning) return;
                 isLooking = true;
                 animal.style.transform = 'translateX(-50%) scale(1.15)';
-                animal.style.filter = 'brightness(1.3) drop-shadow(0 0 8px #ff6040)';
+                animal.style.filter = 'brightness(1.2) drop-shadow(0 0 6px #D04030)';
                 if (isHolding) {
                     addMistake();
                     updateScore(-8);
@@ -667,11 +598,11 @@
                 lookTimeout = setTimeout(animalLook, delay);
             }
 
-            btn.addEventListener('mousedown', function(e) { e.preventDefault(); isHolding = true; btn.style.background = 'linear-gradient(135deg,#4d5d3f,#5d6d4f)'; btn.style.borderColor = '#f0c040'; });
-            btn.addEventListener('mouseup', function(e) { e.preventDefault(); isHolding = false; btn.style.background = ''; btn.style.borderColor = ''; });
-            btn.addEventListener('mouseleave', function(e) { isHolding = false; btn.style.background = ''; btn.style.borderColor = ''; });
-            btn.addEventListener('touchstart', function(e) { e.preventDefault(); isHolding = true; btn.style.background = 'linear-gradient(135deg,#4d5d3f,#5d6d4f)'; btn.style.borderColor = '#f0c040'; });
-            btn.addEventListener('touchend', function(e) { e.preventDefault(); isHolding = false; btn.style.background = ''; btn.style.borderColor = ''; });
+            btn.addEventListener('mousedown', function(e) { e.preventDefault(); isHolding = true; btn.classList.add('holding'); });
+            btn.addEventListener('mouseup', function(e) { e.preventDefault(); isHolding = false; btn.classList.remove('holding'); });
+            btn.addEventListener('mouseleave', function(e) { isHolding = false; btn.classList.remove('holding'); });
+            btn.addEventListener('touchstart', function(e) { e.preventDefault(); isHolding = true; btn.classList.add('holding'); });
+            btn.addEventListener('touchend', function(e) { e.preventDefault(); isHolding = false; btn.classList.remove('holding'); });
 
             var advanceInterval = setInterval(function() {
                 if (!gameRunning) { clearInterval(advanceInterval); return; }
@@ -702,21 +633,21 @@
             setTimeout(function() { if (gameRunning) endGame(); }, bondCfg.timingWindow * 8);
         }
 
-        // ==================== GAME 2: RHYTHM SYNC ====================
+        // ==================== RHYTHM SYNC ====================
         function startRhythmSync() {
             initMistakeDots();
             var totalPhases = bondCfg.phases + (bondCfg.bonusPhase ? 1 : 0);
             gameArea.innerHTML =
-                '<div style="display:flex;justify-content:center;gap:20px;margin:30px 0;" id="rsCircles">' +
-                '<div class="rs-circle" data-idx="0" style="width:70px;height:70px;border-radius:50%;background:#1a2a1a;border:3px solid #3a5a3a;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:28px;transition:all 0.15s;">&#x1F3B5;</div>' +
-                '<div class="rs-circle" data-idx="1" style="width:70px;height:70px;border-radius:50%;background:#1a2a1a;border:3px solid #3a5a3a;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:28px;transition:all 0.15s;">&#x1F3B6;</div>' +
-                '<div class="rs-circle" data-idx="2" style="width:70px;height:70px;border-radius:50%;background:#1a2a1a;border:3px solid #3a5a3a;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:28px;transition:all 0.15s;">&#x1F3B7;</div>' +
-                '<div class="rs-circle" data-idx="3" style="width:70px;height:70px;border-radius:50%;background:#1a2a1a;border:3px solid #3a5a3a;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:28px;transition:all 0.15s;">&#x1F3B8;</div>' +
+                '<div style="display:flex;justify-content:center;gap:16px;margin:30px 0;" id="rsCircles">' +
+                '<div class="rs-circle" data-idx="0">&#x1F3B5;</div>' +
+                '<div class="rs-circle" data-idx="1">&#x1F3B6;</div>' +
+                '<div class="rs-circle" data-idx="2">&#x1F3B7;</div>' +
+                '<div class="rs-circle" data-idx="3">&#x1F3B8;</div>' +
                 '</div>' +
-                '<div id="rsJudgment" style="text-align:center;font-size:16px;font-weight:700;min-height:24px;margin-top:12px;"></div>' +
-                '<div style="text-align:center;margin-top:8px;font-size:12px;color:#8a9a7a;">第 <span id="rsPhaseNum">1</span> / ' + totalPhases + ' 轮</div>';
+                '<div id="rsJudgment" style="text-align:center;font-size:15px;font-weight:600;min-height:22px;margin-top:12px;"></div>' +
+                '<div style="text-align:center;margin-top:6px;font-size:12px;color:var(--text-muted);">第 <span id="rsPhaseNum">1</span> / ' + totalPhases + ' 轮</div>';
 
-            var circles = document.querySelectorAll('#rsCircles > div');
+            var circles = document.querySelectorAll('#rsCircles .rs-circle');
             var judgment = document.getElementById('rsJudgment');
             var phaseNum = document.getElementById('rsPhaseNum');
             var currentPhase = 0;
@@ -726,23 +657,23 @@
                 if (!gameRunning) return;
                 activeIdx = Math.floor(Math.random() * 4);
                 circles.forEach(function(c) {
-                    c.style.background = '#1a2a1a'; c.style.borderColor = '#3a5a3a';
+                    c.style.background = '#F0EAE0'; c.style.borderColor = '#D5C8B5';
                     c.style.boxShadow = ''; c.style.transform = '';
                 });
-                circles[activeIdx].style.background = '#f0c27a';
-                circles[activeIdx].style.borderColor = '#FFD700';
-                circles[activeIdx].style.boxShadow = '0 0 24px rgba(240,194,122,0.6)';
-                circles[activeIdx].style.transform = 'scale(1.1)';
+                circles[activeIdx].style.background = '#D0C0A0';
+                circles[activeIdx].style.borderColor = '#B09878';
+                circles[activeIdx].style.boxShadow = '0 0 16px rgba(180,150,120,0.4)';
+                circles[activeIdx].style.transform = 'scale(1.08)';
                 judgment.textContent = '';
 
                 var windowMs = bondCfg.timingWindow * (1 - currentPhase * 0.12);
                 var timeout = setTimeout(function() {
                     if (activeIdx >= 0 && gameRunning) {
-                        circles[activeIdx].style.background = '#c04040';
-                        circles[activeIdx].style.borderColor = '#ff4040';
-                        circles[activeIdx].style.boxShadow = '0 0 16px rgba(255,64,64,0.4)';
+                        circles[activeIdx].style.background = '#D08080';
+                        circles[activeIdx].style.borderColor = '#C06060';
+                        circles[activeIdx].style.boxShadow = '0 0 12px rgba(200,100,100,0.3)';
                         circles[activeIdx].style.transform = '';
-                        judgment.innerHTML = '&#x1F615; 慢了……';
+                        judgment.innerHTML = '慢了……';
                         addMistake();
                         updateScore(-6);
                         activeIdx = -1;
@@ -755,16 +686,16 @@
                         var idx = parseInt(c.getAttribute('data-idx'));
                         if (idx === activeIdx) {
                             clearTimeout(timeout);
-                            c.style.background = '#40c040'; c.style.borderColor = '#80ff80';
-                            c.style.boxShadow = '0 0 16px rgba(64,255,64,0.4)'; c.style.transform = '';
-                            judgment.innerHTML = ['&#x1F44D; 漂亮！','&#x2728; 完美！','&#x1F389; 节奏感满分！'][Math.floor(Math.random()*3)];
+                            c.style.background = '#80B080'; c.style.borderColor = '#6A9A6A';
+                            c.style.boxShadow = '0 0 12px rgba(100,160,100,0.3)'; c.style.transform = '';
+                            judgment.innerHTML = '完美！';
                             updateScore(10);
                             activeIdx = -1;
                             currentPhase++;
                             if (currentPhase >= totalPhases) { updateScore(10); endGame(); }
                             else { phaseNum.textContent = currentPhase + 1; setTimeout(lightUp, 500 + Math.random() * 400); }
                         } else if (activeIdx >= 0) {
-                            judgment.innerHTML = '&#x1F937; 按错了……';
+                            judgment.innerHTML = '按错了……';
                             updateScore(-3);
                         }
                     };
@@ -775,7 +706,7 @@
             setTimeout(function() { if (gameRunning) endGame(); }, bondCfg.timingWindow * 6);
         }
 
-        // ==================== GAME 3: GENTLE OFFER ====================
+        // ==================== GENTLE OFFER ====================
         function startGentleOffer() {
             initMistakeDots();
             var attempts = Math.max(1, bondCfg.maxMistakes);
@@ -785,8 +716,8 @@
                 '<div id="goNervous" style="position:absolute;right:80px;top:30px;font-size:14px;transition:color 0.3s;"></div>' +
                 '<div id="goAnimal" style="position:absolute;right:20px;top:50%;transform:translateY(-50%);font-size:44px;transition:right 0.1s linear;">' + bondCfg.animalEmoji + '</div>' +
                 '</div>' +
-                '<button class="go-btn" id="goBtn" style="display:block;width:100%;padding:16px;font-size:18px;font-weight:700;border:2px solid #5a7a4a;border-radius:14px;background:linear-gradient(135deg,#2d3d1f,#3d4d2f);color:#c0d0a0;cursor:pointer;font-family:inherit;">&#x2728; 把握时机！</button>' +
-                '<div style="text-align:center;margin-top:8px;font-size:12px;color:#8a9a7a;">还剩 <span id="goAttempts">' + attempts + '</span> 次机会</div>';
+                '<button class="go-btn" id="goBtn">把握时机！</button>' +
+                '<div style="text-align:center;margin-top:6px;font-size:12px;color:var(--text-muted);">还剩 <span id="goAttempts">' + attempts + '</span> 次机会</div>';
 
             var goAnimal = document.getElementById('goAnimal');
             var goNervous = document.getElementById('goNervous');
@@ -804,30 +735,26 @@
                 goNervous.textContent = '';
                 goAnimal.style.right = animalDist + 'px';
                 goAnimal.style.opacity = '1';
-                goBtn.textContent = '\u{2728} 把握时机！';
-                goBtn.style.background = 'linear-gradient(135deg,#2d3d1f,#3d4d2f)';
-                goBtn.style.borderColor = '#5a7a4a';
+                goBtn.textContent = '把握时机！';
 
                 var windowMs = bondCfg.timingWindow;
                 var greenTime = 500 + Math.random() * (windowMs * 0.5);
-
                 readyTimeout = setTimeout(function() {
                     if (!gameRunning) return;
                     readyMoment = true;
                     goNervous.innerHTML = '&#x1F7E2;';
-                    goNervous.style.color = '#40c040';
-                    goBtn.textContent = '\u{2728} 就是现在！';
-                    goBtn.style.background = 'linear-gradient(135deg,#3a5a2a,#5a7a3a)';
-                    goBtn.style.borderColor = '#80c040';
-
+                    goNervous.style.color = '#6A8A5A';
+                    goBtn.textContent = '就是现在！';
+                    goBtn.style.background = '#F0F5EC';
+                    goBtn.style.borderColor = '#80A080';
                     setTimeout(function() {
                         if (readyMoment && gameRunning) {
                             readyMoment = false;
-                            goNervous.innerHTML = '&#x1F614; 它等不及了……';
-                            goNervous.style.color = '#e0a040';
-                            goBtn.textContent = '\u{2728} 把握时机！';
-                            goBtn.style.background = 'linear-gradient(135deg,#2d3d1f,#3d4d2f)';
-                            goBtn.style.borderColor = '#5a7a4a';
+                            goNervous.innerHTML = '它等不及了……';
+                            goNervous.style.color = '#B08040';
+                            goBtn.textContent = '把握时机！';
+                            goBtn.style.background = '';
+                            goBtn.style.borderColor = '';
                             updateScore(-8);
                             currentAttempt--;
                             goAttempts.textContent = currentAttempt;
@@ -843,15 +770,15 @@
                 clearTimeout(readyTimeout);
                 if (readyMoment) {
                     updateScore(35);
-                    goNervous.innerHTML = '&#x1F60A; 太好了！';
-                    goNervous.style.color = '#80c080';
+                    goNervous.innerHTML = '太好了！';
+                    goNervous.style.color = '#6A8A5A';
                     goAnimal.style.right = '60px';
                     setTimeout(function() { endGame(); }, 500);
                 } else {
                     updateScore(-10);
                     addMistake();
-                    goNervous.innerHTML = '&#x1F628; 太早了！它被吓到了……';
-                    goNervous.style.color = '#e04040';
+                    goNervous.innerHTML = '太早了！它被吓到了……';
+                    goNervous.style.color = '#C05040';
                     goAnimal.style.right = Math.min(450, animalDist + 120) + 'px';
                     currentAttempt--;
                     goAttempts.textContent = currentAttempt;
@@ -865,16 +792,16 @@
             setTimeout(function() { if (gameRunning) endGame(); }, bondCfg.timingWindow * 5);
         }
 
-        // ==================== GAME 4: FOLLOW MOVEMENT ====================
+        // ==================== FOLLOW MOVEMENT ====================
         function startFollowMovement() {
             initMistakeDots();
             gameArea.innerHTML =
-                '<div id="fmZone" style="width:100%;height:200px;background:radial-gradient(ellipse at center,#1a2a2a,#0d1515);border-radius:16px;position:relative;overflow:hidden;cursor:none;">' +
+                '<div id="fmZone" style="width:100%;height:200px;background:#F0EAE0;border-radius:var(--radius);position:relative;overflow:hidden;cursor:none;">' +
                 '<div id="fmAnimal" style="position:absolute;font-size:36px;transition:left 0.05s linear,top 0.05s linear;">' + bondCfg.animalEmoji + '</div>' +
-                '<div id="fmComfort" style="position:absolute;border:2px dashed rgba(100,200,100,0.4);border-radius:50%;pointer-events:none;"></div>' +
-                '<div id="fmPlayer" style="position:absolute;width:16px;height:16px;border-radius:50%;background:#f0c040;box-shadow:0 0 12px rgba(240,194,64,0.5);pointer-events:none;transition:left 0.05s,top 0.05s;"></div>' +
+                '<div id="fmComfort" style="position:absolute;border:2px dashed rgba(180,150,120,0.5);border-radius:50%;pointer-events:none;"></div>' +
+                '<div id="fmPlayer" style="position:absolute;width:14px;height:14px;border-radius:50%;background:#C5A080;box-shadow:0 0 8px rgba(180,150,120,0.4);pointer-events:none;transition:left 0.05s,top 0.05s;"></div>' +
                 '</div>' +
-                '<div style="text-align:center;margin-top:8px;font-size:12px;color:#8a9a7a;">&#x1F3AF; 保持光标在' + bondCfg.animalName + '的舒适圈内</div>';
+                '<div style="text-align:center;margin-top:6px;font-size:12px;color:var(--text-muted);">保持光标在' + bondCfg.animalName + '的舒适圈内</div>';
 
             var fmZone = document.getElementById('fmZone');
             var fmAnimal = document.getElementById('fmAnimal');
@@ -914,7 +841,6 @@
                 fmPlayer.style.left = playerX + 'px';
                 fmPlayer.style.top = playerY + 'px';
             });
-
             fmZone.addEventListener('touchmove', function(e) {
                 e.preventDefault();
                 if (!gameRunning) return;
@@ -946,20 +872,20 @@
             setTimeout(function() { if (gameRunning) endGame(); }, bondCfg.timingWindow);
         }
 
-        // ==================== GAME 5: ECHO CALL ====================
+        // ==================== ECHO CALL ====================
         function startEchoCall() {
             initMistakeDots();
             var totalPhases = bondCfg.phases + (bondCfg.bonusPhase ? 1 : 0);
             gameArea.innerHTML =
-                '<div style="text-align:center;font-size:14px;color:#a0b0c0;margin-bottom:8px;">&#x1F4E3; 记住' + bondCfg.animalName + '的呼唤顺序！</div>' +
+                '<div style="text-align:center;font-size:13px;color:var(--text-secondary);margin-bottom:6px;">记住' + bondCfg.animalName + '的呼唤顺序</div>' +
                 '<div class="ec-display" id="ecPads">' +
                 '<div class="ec-pad pad-0" data-idx="0"></div>' +
                 '<div class="ec-pad pad-1" data-idx="1"></div>' +
                 '<div class="ec-pad pad-2" data-idx="2"></div>' +
                 '<div class="ec-pad pad-3" data-idx="3"></div>' +
                 '</div>' +
-                '<div class="ec-status" id="ecStatus">&#x1F442; 注意看……</div>' +
-                '<div style="text-align:center;margin-top:8px;font-size:12px;color:#8a9a7a;">第 <span id="ecPhaseNum">1</span> / ' + totalPhases + ' 轮 · 长度 <span id="ecSeqLen">2</span></div>';
+                '<div class="ec-status" id="ecStatus">注意看……</div>' +
+                '<div style="text-align:center;margin-top:6px;font-size:12px;color:var(--text-muted);">第 <span id="ecPhaseNum">1</span> / ' + totalPhases + ' 轮 · 长度 <span id="ecSeqLen">2</span></div>';
 
             var pads = document.querySelectorAll('#ecPads .ec-pad');
             var statusEl = document.getElementById('ecStatus');
@@ -974,27 +900,20 @@
 
             function showSequence() {
                 if (!gameRunning) return;
-                showingSequence = true;
-                playerTurn = false;
-                playerIdx = 0;
+                showingSequence = true; playerTurn = false; playerIdx = 0;
                 sequence = [];
-                for (var i = 0; i < seqLength; i++) {
-                    sequence.push(Math.floor(Math.random() * 4));
-                }
-                statusEl.innerHTML = '&#x1F442; 记住呼唤顺序……';
+                for (var i = 0; i < seqLength; i++) sequence.push(Math.floor(Math.random() * 4));
+                statusEl.innerHTML = '记住呼唤顺序……';
                 pads.forEach(function(p) { p.style.pointerEvents = 'none'; });
-
                 var i = 0;
                 var showSpeed = Math.max(200, bondCfg.speed * 3);
                 var showInterval = setInterval(function() {
                     if (!gameRunning || !showingSequence) { clearInterval(showInterval); return; }
-                    if (i > 0) { pads[sequence[i-1]].classList.remove('glow'); }
+                    if (i > 0) pads[sequence[i-1]].classList.remove('glow');
                     if (i >= sequence.length) {
                         clearInterval(showInterval);
-                        showingSequence = false;
-                        playerTurn = true;
-                        playerIdx = 0;
-                        statusEl.innerHTML = '&#x1F399; 轮到你了！按相同顺序回应！';
+                        showingSequence = false; playerTurn = true; playerIdx = 0;
+                        statusEl.innerHTML = '轮到你了！按相同顺序回应';
                         pads.forEach(function(p) { p.style.pointerEvents = 'auto'; });
                         return;
                     }
@@ -1018,12 +937,12 @@
                             phaseNum.textContent = currentPhase + 1;
                             if (currentPhase >= totalPhases) {
                                 updateScore(10);
-                                statusEl.innerHTML = '&#x1F389; 完美的回声！';
+                                statusEl.innerHTML = '完美的回声！';
                                 endGame();
                             } else {
                                 seqLength = Math.min(8, seqLength + 1);
                                 seqLen.textContent = seqLength;
-                                statusEl.innerHTML = '&#x2705; 正确！准备下一轮……';
+                                statusEl.innerHTML = '正确！准备下一轮……';
                                 playerTurn = false;
                                 pads.forEach(function(p) { p.style.pointerEvents = 'none'; });
                                 setTimeout(showSequence, 800);
@@ -1034,7 +953,7 @@
                         setTimeout(function() { pad.classList.remove('wrong'); }, 400);
                         addMistake();
                         updateScore(-8);
-                        statusEl.innerHTML = '&#x274C; 顺序错了！重新听……';
+                        statusEl.innerHTML = '顺序错了！重新听……';
                         playerTurn = false;
                         pads.forEach(function(p) { p.style.pointerEvents = 'none'; });
                         if (gameRunning) setTimeout(showSequence, 600);
@@ -1046,18 +965,18 @@
             setTimeout(function() { if (gameRunning) endGame(); }, bondCfg.timingWindow * 5);
         }
 
-        // ==================== GAME 6: GAZE LOCK ====================
+        // ==================== GAZE LOCK ====================
         function startGazeLock() {
             initMistakeDots();
             gameArea.innerHTML =
-                '<div id="glScene" style="position:relative;height:200px;cursor:none;background:radial-gradient(circle,#111820 60%,#0a1018 100%);border-radius:16px;">' +
+                '<div id="glScene" style="position:relative;height:200px;cursor:none;background:#ECEAE0;border-radius:var(--radius);">' +
                 '<div id="glEyes" style="position:absolute;font-size:60px;transition:left 0.5s ease-in-out,top 0.5s ease-in-out;">&#x1F440;</div>' +
-                '<div id="glZone" style="position:absolute;border:2px solid rgba(240,194,64,0.3);border-radius:50%;pointer-events:none;"></div>' +
-                '<div id="glCursor" style="position:absolute;width:12px;height:12px;border-radius:50%;background:#f0c040;pointer-events:none;box-shadow:0 0 12px rgba(240,194,64,0.6);"></div>' +
+                '<div id="glZone" style="position:absolute;border:2px solid rgba(180,150,120,0.4);border-radius:50%;pointer-events:none;"></div>' +
+                '<div id="glCursor" style="position:absolute;width:10px;height:10px;border-radius:50%;background:#C5A080;pointer-events:none;box-shadow:0 0 8px rgba(180,150,120,0.5);"></div>' +
                 '</div>' +
-                '<div style="height:4px;background:#1a202a;border-radius:2px;margin-top:10px;overflow:hidden;">' +
-                '<div id="glMeterFill" style="height:100%;width:50%;background:linear-gradient(90deg,#e04040,#f0c27a,#40c040);border-radius:2px;transition:width 0.5s;"></div></div>' +
-                '<div style="text-align:center;margin-top:8px;font-size:12px;color:#8a9a7a;">保持光标在它的视线里，不要移开目光</div>';
+                '<div style="height:4px;background:#F0EAE0;border-radius:2px;margin-top:10px;overflow:hidden;">' +
+                '<div id="glMeterFill" style="height:100%;width:50%;background:#C5B090;border-radius:2px;transition:width 0.5s;"></div></div>' +
+                '<div style="text-align:center;margin-top:6px;font-size:12px;color:var(--text-muted);">保持光标在它的视线里，不要移开目光</div>';
 
             var glScene = document.getElementById('glScene');
             var glEyes = document.getElementById('glEyes');
@@ -1073,13 +992,11 @@
 
             glZone.style.width = (zoneRadius * 2) + 'px';
             glZone.style.height = (zoneRadius * 2) + 'px';
-            glEyes.style.left = cx + 'px';
-            glEyes.style.top = cy + 'px';
+            glEyes.style.left = cx + 'px'; glEyes.style.top = cy + 'px';
             glEyes.style.transform = 'translate(-50%,-50%)';
             glZone.style.left = (cx - zoneRadius) + 'px';
             glZone.style.top = (cy - zoneRadius) + 'px';
-            glCursor.style.left = playerX + 'px';
-            glCursor.style.top = playerY + 'px';
+            glCursor.style.left = playerX + 'px'; glCursor.style.top = playerY + 'px';
 
             glScene.addEventListener('mousemove', function(e) {
                 if (!gameRunning) return;
@@ -1096,11 +1013,9 @@
                 var sp = bondCfg.speed / 300;
                 cx = sceneRect.width/2 + Math.sin(time * sp * 1.7) * (sceneRect.width * 0.25);
                 cy = sceneRect.height/2 + Math.cos(time * sp * 1.1) * (sceneRect.height * 0.2);
-                glEyes.style.left = cx + 'px';
-                glEyes.style.top = cy + 'px';
+                glEyes.style.left = cx + 'px'; glEyes.style.top = cy + 'px';
                 glZone.style.left = (cx - zoneRadius) + 'px';
                 glZone.style.top = (cy - zoneRadius) + 'px';
-
                 var dist = Math.sqrt((playerX - cx) ** 2 + (playerY - cy) ** 2);
                 if (dist <= zoneRadius) {
                     gazeMeter = Math.min(100, gazeMeter + 0.8);
@@ -1110,11 +1025,9 @@
                     if (gazeMeter <= 5) { addMistake(); updateScore(-10); gazeMeter = 25; }
                 }
                 glMeterFill.style.width = gazeMeter + '%';
-
                 zoneRadius = bondCfg.zoneSize * (0.8 + 0.2 * Math.sin(time * 0.5));
                 glZone.style.width = (zoneRadius * 2) + 'px';
                 glZone.style.height = (zoneRadius * 2) + 'px';
-
                 if (Math.random() < 0.02) {
                     glEyes.style.opacity = '0.1';
                     setTimeout(function() { glEyes.style.opacity = '1'; }, 150);
@@ -1124,27 +1037,21 @@
             setTimeout(function() { if (gameRunning) endGame(); }, bondCfg.timingWindow);
         }
 
-        // ==================== 3-SECOND COUNTDOWN ====================
+        // ==================== 3秒倒计时 ====================
         function showCountdown(callback) {
             var overlay = document.createElement('div');
             overlay.className = 'countdown-overlay';
-            overlay.id = 'countdownOverlay';
             var num = document.createElement('div');
             num.className = 'countdown-num';
             overlay.appendChild(num);
             gameArea.appendChild(overlay);
-
             var count = 3;
             function tick() {
-                if (count <= 0) {
-                    overlay.remove();
-                    callback();
-                    return;
-                }
+                if (count <= 0) { overlay.remove(); callback(); return; }
                 num.textContent = count;
                 num.style.animation = 'none';
                 num.offsetHeight;
-                num.style.animation = 'countPop 0.8s ease';
+                num.style.animation = 'countPop 0.7s ease';
                 count--;
                 setTimeout(tick, 800);
             }
@@ -1154,7 +1061,6 @@
         // ==================== START ====================
         updateScore(0);
         initMistakeDots();
-
         showCountdown(function() {
             switch (bondCfg.type) {
                 case 'SLOW_APPROACH':   startSlowApproach(); break;
