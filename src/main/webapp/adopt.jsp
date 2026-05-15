@@ -36,11 +36,7 @@
             border-radius: 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary);
             margin-bottom: 12px;
         }
-        .adopt-header img {
-            width: 100px; height: 100px; object-fit: contain;
-            display: block; margin: 0 auto;
-        }
-        .adopt-header .an-emoji { font-size: 72px; display: none; }
+        .adopt-header .an-emoji { font-size: 72px; }
         .adopt-header .an-name { font-size: 24px; font-weight: 600; color: var(--text); margin-top: 8px; }
         .adopt-header .an-sub { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
         .adopt-body { padding: 20px 24px; }
@@ -75,9 +71,6 @@
     <div class="adopt-card">
         <div class="adopt-header">
             <span class="location-tag"><%= regionName %></span>
-            <img src="<%= request.getContextPath() %>/assets/images/animals/<%= species.getImagePath() %>"
-                 alt="<%= species.getName() %>"
-                 onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
             <span class="an-emoji"><%= species.getEmoji() %></span>
             <div class="an-name"><%= species.getName() %></div>
             <div class="an-sub">互动成功！它愿意跟你走了</div>

@@ -112,7 +112,7 @@
         }
         .modal .pet-option:hover { border-color: #C5B8A0; background: #FAF7F0; }
         .modal .pet-option.selected { border-color: var(--accent-warm); background: #FDF5EC; }
-        .modal .pet-option .po-img { width: 44px; height: 44px; object-fit: contain; flex-shrink: 0; background: #F5F0E8; border-radius: 6px; }
+        .modal .pet-option .po-emoji { width: 44px; height: 44px; flex-shrink: 0; background: #F5F0E8; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 28px; }
         .modal .pet-option .po-info { flex:1; min-width:0; }
         .modal .pet-option .po-name { font-size: 14px; font-weight: 600; color: var(--text); }
         .modal .pet-option .po-meta { font-size: 11px; color: var(--text-secondary); margin-top: 1px; }
@@ -222,8 +222,6 @@
                     <div class="ranimals">
                         <% for (PetSpecies sp : regionSpecies) { %>
                         <span class="achip">
-                            <img src="<%= request.getContextPath() %>/assets/images/animals/<%= sp.getImagePath() %>"
-                                 alt="<%= sp.getName() %>" onerror="this.style.display='none'">
                             <%= sp.getName() %> <small>(<%= sp.getRarityLabel() %>)</small>
                         </span>
                         <% } %>
@@ -273,7 +271,6 @@
             <div class="modal-sub" id="modalRegionLabel">探索区域</div>
             <div class="pet-list" id="petList">
                 <% for (Pet p : userPets) {
-                    String imgPath = p.getImagePath();
                     CompanionTrait ct = CompanionTrait.forPet(p);
                     String traitData = ct != null ?
                         ct.getName() + "|" + ct.getDescription() + "|" + ct.getType().label + "|" +
@@ -286,11 +283,7 @@
                      data-species="<%= p.getSpecies() %>"
                      data-attr="❤<%= p.getAffinity() %> 🤝<%= p.getBond() %> Lv.<%= p.getLevel() %>"
                      onclick="selectPet(this)">
-                    <img class="po-img"
-                         src="<%= request.getContextPath() %>/assets/images/animals/<%= imgPath != null ? imgPath : "" %>"
-                         alt="<%= p.getName() %>"
-                         onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-                    <span style="display:none;width:44px;height:44px;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;"><%= p.getEmoji() %></span>
+                    <span class="po-emoji"><%= p.getEmoji() %></span>
                     <div class="po-info">
                         <div class="po-name"><%= p.getName() %></div>
                         <div class="po-meta"><%= p.getSpecies() %> · <%= p.getPersonality() %> · ❤<%= p.getAffinity() %> 🤝<%= p.getBond() %></div>

@@ -200,16 +200,6 @@ public class Pet implements Serializable {
     public String getPersonality() { return personality; }
     public void setPersonality(String personality) { this.personality = personality; }
 
-    /** 返回宠物图片路径，从 PetSpecies 查找 */
-    public String getImagePath() {
-        for (PetSpecies sp : PetSpecies.ALL) {
-            if (sp.getName().equals(this.species)) {
-                return sp.getImagePath();
-            }
-        }
-        return null;
-    }
-
     public String getRarity() { return rarity; }
     public void setRarity(String rarity) { this.rarity = rarity; }
 

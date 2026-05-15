@@ -15,7 +15,6 @@
     int hunger = pet.getHunger();
     int playsLeft = hunger / 8;
     boolean canPlay = hunger >= 8;
-    String petImg = pet.getImagePath();
 
     String[][] cardPairs = {
         {"🐱","🐱"}, {"🐶","🐶"}, {"🐰","🐰"},
@@ -41,8 +40,7 @@
             border: 1px solid var(--border); box-shadow: var(--shadow-xs); margin-bottom: 16px;
             display: flex; align-items: center; gap: 16px;
         }
-        .pet-card img { width: 64px; height: 64px; object-fit: contain; }
-        .pet-card .pc-emoji { font-size: 52px; display: none; }
+        .pet-card .pc-emoji { font-size: 52px; }
         .pet-info { flex: 1; min-width: 0; }
         .pet-info h3 { font-size: 18px; margin-bottom: 2px; color: var(--text); }
         .pet-info .stats { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; }
@@ -172,9 +170,6 @@
         <% if (error != null) { %><div class="alert alert-error"><%= error %></div><% } %>
 
         <div class="pet-card">
-            <img src="<%= request.getContextPath() %>/assets/images/animals/<%= petImg != null ? petImg : "" %>"
-                 alt="<%= pet.getName() %>"
-                 onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
             <span class="pc-emoji"><%= pet.getEmoji() %></span>
             <div class="pet-info">
                 <h3><%= pet.getName() %> · Lv.<%= pet.getLevel() %></h3>

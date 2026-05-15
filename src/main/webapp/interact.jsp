@@ -15,7 +15,6 @@
     String favFood = (String) request.getAttribute("favFood");
     String disFood = (String) request.getAttribute("disFood");
     boolean hasFood = !foodInventory.isEmpty();
-    String petImg = pet.getImagePath();
 %>
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -31,8 +30,7 @@
             background: var(--card-bg); border-radius: var(--radius-lg); padding: 28px; margin-bottom: 20px;
             border: 1px solid var(--border); box-shadow: var(--shadow-xs); text-align: center;
         }
-        .pet-hero img { width: 110px; height: 110px; object-fit: contain; display: block; margin: 0 auto; }
-        .pet-hero .ph-emoji { font-size: 80px; display: none; }
+        .pet-hero .ph-emoji { font-size: 80px; display: block; }
         .pet-hero .ph-name { font-size: 26px; font-weight: 600; color: var(--text); margin-top: 8px; }
         .pet-hero .ph-species { font-size: 14px; color: var(--text-secondary); }
         .ph-trait-box {
@@ -125,9 +123,6 @@
 
         <!-- 宠物展示 -->
         <div class="pet-hero">
-            <img src="<%= request.getContextPath() %>/assets/images/animals/<%= petImg != null ? petImg : "" %>"
-                 alt="<%= pet.getName() %>"
-                 onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
             <span class="ph-emoji"><%= pet.getEmoji() %></span>
             <div class="ph-name"><%= pet.getName() %></div>
             <div class="ph-species"><%= pet.getSpecies() %> · <%= pet.getRegion() %> · Lv.<%= pet.getLevel() %></div>

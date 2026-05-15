@@ -115,12 +115,13 @@
             transform: translateY(-1px);
             box-shadow: var(--shadow-xs);
         }
-        .pet-card .pc-img {
+        .pet-card .pc-emoji {
             width: 56px; height: 56px;
             border-radius: var(--radius-sm);
-            object-fit: contain;
             flex-shrink: 0;
             background: #F5F0E8;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 32px;
         }
         .pet-card .pc-info { flex: 1; min-width: 0; }
         .pet-card .pc-name { font-size: 15px; font-weight: 600; color: var(--text); }
@@ -182,20 +183,11 @@
             <% for (HabitatZone z : zones) {
                 List<Pet> zp = zonePets.get(z.id());
                 int cnt = zp != null ? zp.size() : 0;
-                // 取该区域第一只宠物的图片作为区域图标
-                String zoneImg = null;
-                if (zp != null && !zp.isEmpty()) {
-                    zoneImg = zp.get(0).getImagePath();
-                }
             %>
             <a href="#zone-<%= z.id() %>" class="zone-node <%= cnt == 0 ? "empty" : "" %>"
                style="top:<%= z.topPct() %>%; left:<%= z.leftPct() %>%;">
                 <div class="zone-icon" style="background:<%= z.color() %>20;">
-                    <% if (zoneImg != null) { %>
-                    <img src="<%= request.getContextPath() %>/assets/images/animals/<%= zoneImg %>" alt="<%= z.name() %>">
-                    <% } else { %>
                     <span style="font-size:28px;"><%= z.emoji() %></span>
-                    <% } %>
                 </div>
                 <span class="zone-name"><%= z.name() %></span>
                 <span class="zone-count"><%= cnt %></span>
@@ -222,15 +214,10 @@
             <% } else { %>
             <div class="pet-card-grid">
                 <% for (Pet p : zp) {
-                    String imgPath = p.getImagePath();
                     CompanionTrait ct = CompanionTrait.forPet(p);
                 %>
                 <a href="<%= request.getContextPath() %>/pet?action=interact&petId=<%= p.getId() %>" class="pet-card">
-                    <img class="pc-img"
-                         src="<%= request.getContextPath() %>/assets/images/animals/<%= imgPath != null ? imgPath : "" %>"
-                         alt="<%= p.getName() %>"
-                         onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-                    <span style="display:none;width:56px;height:56px;align-items:center;justify-content:center;font-size:32px;flex-shrink:0;"><%= p.getEmoji() %></span>
+                    <span class="pc-emoji"><%= p.getEmoji() %></span>
                     <div class="pc-info">
                         <div class="pc-name"><%= p.getName() %></div>
                         <div class="pc-species"><%= p.getSpecies() %></div>

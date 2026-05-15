@@ -11,7 +11,6 @@
 
     CompanionTrait trait = enc.getCompanionTrait();
     WildEncounter.Archetype arch = enc.getArchetype();
-    String animalImg = species.getImagePath();
 %>
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -34,10 +33,6 @@
         /* 动物展示 */
         .animal-showcase {
             text-align: center; margin-bottom: 16px;
-        }
-        .animal-showcase img {
-            width: 120px; height: 120px; object-fit: contain;
-            display: block; margin: 0 auto;
         }
         .animal-showcase .an-name {
             font-size: 20px; font-weight: 600; color: var(--text);
@@ -300,23 +295,19 @@
 
         <!-- 动物展示 -->
         <div class="animal-showcase">
-            <img src="<%= request.getContextPath() %>/assets/images/animals/<%= animalImg %>"
-                 alt="<%= enc.getAnimalName() %>"
-                 onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
-            <span style="display:none;font-size:80px;"><%= enc.getAnimalEmoji() %></span>
+            <span style="font-size:80px;"><%= enc.getAnimalEmoji() %></span>
             <div class="an-name"><%= enc.getAnimalName() %></div>
             <div class="arch-tag arch-<%= arch.name() %>">
                 <%
-                    String archLabel = switch (arch) {
-                        case CAUTIOUS -> "谨慎型";
-                        case CURIOUS -> "好奇型";
-                        case BOLD -> "大胆型";
-                        case GENTLE -> "温柔型";
-                        case PLAYFUL -> "活泼型";
-                        case MYSTERIOUS -> "神秘型";
-                    };
+                    String archLabel2;
+                    if (arch == Archetype.CAUTIOUS) archLabel2 = "谨慎型";
+                    else if (arch == Archetype.CURIOUS) archLabel2 = "好奇型";
+                    else if (arch == Archetype.BOLD) archLabel2 = "大胆型";
+                    else if (arch == Archetype.GENTLE) archLabel2 = "温柔型";
+                    else if (arch == Archetype.PLAYFUL) archLabel2 = "活泼型";
+                    else archLabel2 = "神秘型";
                 %>
-                <%= archLabel %>
+                <%= archLabel2 %>
             </div>
         </div>
 
