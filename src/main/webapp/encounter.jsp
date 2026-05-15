@@ -300,11 +300,11 @@
             <div class="arch-tag arch-<%= arch.name() %>">
                 <%
                     String archLabel2;
-                    if (arch == Archetype.CAUTIOUS) archLabel2 = "谨慎型";
-                    else if (arch == Archetype.CURIOUS) archLabel2 = "好奇型";
-                    else if (arch == Archetype.BOLD) archLabel2 = "大胆型";
-                    else if (arch == Archetype.GENTLE) archLabel2 = "温柔型";
-                    else if (arch == Archetype.PLAYFUL) archLabel2 = "活泼型";
+                    if (arch == WildEncounter.Archetype.CAUTIOUS) archLabel2 = "谨慎型";
+                    else if (arch == WildEncounter.Archetype.CURIOUS) archLabel2 = "好奇型";
+                    else if (arch == WildEncounter.Archetype.BOLD) archLabel2 = "大胆型";
+                    else if (arch == WildEncounter.Archetype.GENTLE) archLabel2 = "温柔型";
+                    else if (arch == WildEncounter.Archetype.PLAYFUL) archLabel2 = "活泼型";
                     else archLabel2 = "神秘型";
                 %>
                 <%= archLabel2 %>
