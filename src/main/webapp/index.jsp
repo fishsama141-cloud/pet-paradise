@@ -319,6 +319,8 @@
             letter-spacing: 0.5px;
         }
 
+        .hidden { display: none !important; }
+
         /* ---- footer ---- */
         .footer-deco {
             text-align: center;
