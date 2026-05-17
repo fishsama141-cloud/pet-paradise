@@ -8,9 +8,13 @@ import org.example.pets.dao.UserDAO;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Base64;
 
 @WebServlet("/auth")
 public class AuthServlet extends HttpServlet {
+
+    private static final String COOKIE_NAME = "pets_auto_login";
+    private static final int COOKIE_MAX_AGE = 30 * 24 * 60 * 60; // 30 days
 
     private UserDAO userDAO;
 
@@ -24,7 +28,9 @@ public class AuthServlet extends HttpServlet {
             throws ServletException, IOException {
         String action = req.getParameter("action");
         if ("logout".equals(action)) {
-            req.getSession().invalidate();
+            HttpSession session = req.getSession(false);
+            if (session != null) session.invalidate();
+            clearAutoLoginCookie(resp);
             resp.sendRedirect(req.getContextPath() + "/index.jsp");
         } else {
             resp.sendRedirect(req.getContextPath() + "/index.jsp");
@@ -62,6 +68,12 @@ public class AuthServlet extends HttpServlet {
         User user = userDAO.login(username, password);
         if (user != null) {
             req.getSession().setAttribute("user", user);
+
+            String remember = req.getParameter("remember");
+            if ("on".equals(remember) || "true".equals(remember)) {
+                setAutoLoginCookie(resp, username, password);
+            }
+
             resp.sendRedirect(req.getContextPath() + "/dashboard");
         } else {
             req.setAttribute("error", "用户名或密码错误");
@@ -82,5 +94,22 @@ public class AuthServlet extends HttpServlet {
         User user = userDAO.register(username, password, email != null ? email : "");
         req.getSession().setAttribute("user", user);
         resp.sendRedirect(req.getContextPath() + "/quiz");
+    }
+
+    private void setAutoLoginCookie(HttpServletResponse resp, String username, String password) {
+        String value = Base64.getEncoder().encodeToString((username + ":" + password).getBytes());
+        Cookie cookie = new Cookie(COOKIE_NAME, value);
+        cookie.setMaxAge(COOKIE_MAX_AGE);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        resp.addCookie(cookie);
+    }
+
+    private void clearAutoLoginCookie(HttpServletResponse resp) {
+        Cookie cookie = new Cookie(COOKIE_NAME, "");
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        resp.addCookie(cookie);
     }
 }

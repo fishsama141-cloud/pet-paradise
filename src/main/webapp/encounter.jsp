@@ -20,186 +20,225 @@
     <title>与<%= enc.getAnimalName() %>互动 - 宠物乐园</title>
     <link rel="stylesheet" href="<%= request.getContextPath() %>/assets/common.css">
     <style>
-        .container { max-width: 560px; margin: 0 auto; padding: 20px; }
+        .container { max-width: 580px; margin: 0 auto; padding: 20px; }
+
+        .enc-header {
+            text-align: center; margin-bottom: 10px;
+        }
+        .enc-header .region-label {
+            font-size: 12px; color: var(--text-muted); font-weight: 500;
+            letter-spacing: 1px;
+        }
+        .enc-header h1 {
+            font-size: 22px; font-weight: 700; color: var(--text);
+            letter-spacing: 1px; margin-top: 2px;
+        }
 
         /* 场景文本 */
         .scene-desc {
-            background: #FDF9F2; border-radius: var(--radius);
-            padding: 14px 18px; margin-bottom: 16px;
-            border-left: 3px solid #C5B8A0; font-size: 14px; line-height: 1.7;
+            background: linear-gradient(135deg, #FDF9F2, #FAF5E8);
+            border-radius: var(--radius); padding: 16px 20px; margin-bottom: 18px;
+            border-left: 4px solid var(--accent-warm);
+            font-size: 14px; line-height: 1.8;
             color: var(--text-secondary); font-style: italic;
         }
 
         /* 动物展示 */
         .animal-showcase {
-            text-align: center; margin-bottom: 16px;
+            text-align: center; margin-bottom: 18px;
+        }
+        .animal-showcase .an-emoji {
+            font-size: 88px; display: block;
+            filter: drop-shadow(0 4px 12px rgba(120,80,40,0.15));
+            animation: pulse 3s ease-in-out infinite;
         }
         .animal-showcase .an-name {
-            font-size: 20px; font-weight: 600; color: var(--text);
-            margin-top: 4px;
+            font-size: 22px; font-weight: 700; color: var(--text);
+            margin-top: 6px; letter-spacing: 1px;
         }
         .arch-tag {
-            display: inline-block; margin-top: 4px; padding: 4px 14px;
-            border-radius: 12px; font-size: 12px; font-weight: 600;
+            display: inline-block; margin-top: 6px; padding: 5px 16px;
+            border-radius: 14px; font-size: 12px; font-weight: 700;
+            letter-spacing: 0.5px;
         }
-        .arch-CAUTIOUS { background: #F5F0E8; color: #8A7A5A; }
-        .arch-CURIOUS { background: #F0F5EC; color: #6A8A5A; }
-        .arch-BOLD { background: #FEF0E8; color: #B07050; }
-        .arch-GENTLE { background: #F0F4F5; color: #5A8A8A; }
-        .arch-PLAYFUL { background: #FDF5E8; color: #B08040; }
-        .arch-MYSTERIOUS { background: #F2EDF8; color: #8060A0; }
+        .arch-CAUTIOUS { background: #F5F0E8; color: #8A7A5A; border: 1px solid #E0D5C0; }
+        .arch-CURIOUS { background: #F0F5EC; color: #6A8A5A; border: 1px solid #C8D8C0; }
+        .arch-BOLD { background: #FEF2E8; color: #B06848; border: 1px solid #F0D0C0; }
+        .arch-GENTLE { background: #F0F4F6; color: #5A8A8A; border: 1px solid #C8D8E0; }
+        .arch-PLAYFUL { background: #FDF6E8; color: #B08040; border: 1px solid #E8D8C0; }
+        .arch-MYSTERIOUS { background: #F2EEF8; color: #8058A0; border: 1px solid #D8D0E8; }
 
         /* 捕捉条件 */
         .capture-req {
-            background: #FDFBF6; border-radius: var(--radius); padding: 12px 16px;
-            margin-bottom: 16px; border: 1px solid var(--border-light);
+            background: linear-gradient(135deg, #FDFBF6, #FAF7F0);
+            border-radius: var(--radius); padding: 14px 18px;
+            margin-bottom: 18px; border: 2px solid var(--border-light);
         }
-        .capture-req .cr-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
-        .capture-req .cr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .capture-req .cr-title {
+            font-size: 13px; font-weight: 700; color: var(--text);
+            margin-bottom: 10px; letter-spacing: 1px;
+        }
+        .capture-req .cr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .capture-req .cr-item {
-            font-size: 12px; padding: 6px 10px; border-radius: 4px;
-            font-weight: 500; text-align: center;
+            font-size: 12px; padding: 8px 12px; border-radius: 8px;
+            font-weight: 600; text-align: center; letter-spacing: 0.5px;
         }
-        .cr-security { background: #F0F5EC; color: #6A8A5A; }
-        .cr-interest { background: #F0F4F8; color: #5A7A9A; }
-        .cr-pressure { background: #FEF5F0; color: #B06040; }
-        .cr-trust { background: #FDF5EC; color: #B08040; }
+        .cr-security { background: #F0F6EC; color: #5A8A4A; }
+        .cr-interest { background: #F0F5FA; color: #4A7098; }
+        .cr-pressure { background: #FEF5F0; color: #B05840; }
+        .cr-trust { background: #FDF6EC; color: #B08040; }
 
         /* 同行宠物 */
         .companion-bar {
-            background: #FDFBF6; border-radius: var(--radius); padding: 10px 16px;
-            margin-bottom: 16px; display: flex; align-items: center; gap: 10px;
-            border: 1px solid var(--border-light); font-size: 13px; color: var(--text-secondary);
+            background: linear-gradient(135deg, #FDFBF6, #FAF7F0);
+            border-radius: var(--radius); padding: 12px 18px;
+            margin-bottom: 18px; display: flex; align-items: center; gap: 10px;
+            border: 2px solid var(--border-light); font-size: 13px; color: var(--text-secondary);
+            font-weight: 500;
         }
         .companion-bar .trait-badge {
-            margin-left: auto; background: #F0EDE0; color: var(--text-secondary);
-            padding: 4px 12px; border-radius: 10px; font-weight: 500; font-size: 12px;
-            white-space: nowrap;
+            margin-left: auto; background: #F2EDE0; color: var(--text-secondary);
+            padding: 5px 14px; border-radius: 12px; font-weight: 700; font-size: 12px;
+            white-space: nowrap; letter-spacing: 0.5px;
         }
 
         /* 情绪条 */
         .emotion-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px;
         }
         .emo-bar {
             background: var(--card-bg); border-radius: var(--radius);
-            padding: 10px 14px; border: 1px solid var(--border-light);
+            padding: 12px 16px; border: 1px solid var(--border-light);
+            transition: box-shadow 0.3s;
         }
+        .emo-bar:hover { box-shadow: var(--shadow-xs); }
         .emo-bar .eb-label {
-            font-size: 12px; color: var(--text-secondary);
-            display: flex; justify-content: space-between; margin-bottom: 4px;
+            font-size: 12px; color: var(--text-secondary); font-weight: 500;
+            display: flex; justify-content: space-between; margin-bottom: 6px;
         }
-        .emo-bar .eb-val { font-weight: 600; font-size: 14px; }
+        .emo-bar .eb-val { font-weight: 700; font-size: 15px; }
 
         /* 各类提示 */
         .hint-box {
-            padding: 12px 16px; border-radius: var(--radius); margin-bottom: 14px;
-            font-size: 13px; line-height: 1.6; animation: fadeIn 0.3s ease;
+            padding: 14px 18px; border-radius: var(--radius); margin-bottom: 16px;
+            font-size: 13px; line-height: 1.7; animation: fadeIn 0.3s ease;
+            font-weight: 500;
         }
-        .hint-detection { background: #F5F0F8; border: 1px solid #D8C8E8; color: #5A4080; }
-        .hint-rhythm { background: #FDF5E8; border: 1px dashed #D0C0A0; color: var(--text-secondary); }
+        .hint-detection { background: #F5F0F8; border: 1px solid #D8C8E8; color: #5A4080; border-left: 4px solid #8B6AAA; }
+        .hint-rhythm { background: #FDF6E8; border: 2px dashed #D5C5A5; color: var(--text-secondary); }
         .hint-flee {
-            background: #FEF5F0; border: 1px solid #F0C0A0; color: #B05030;
-            display: flex; gap: 10px; align-items: center;
+            background: #FEF5F0; border: 1px solid #F0C0A0; color: #B04830;
+            display: flex; gap: 12px; align-items: center; border-left: 4px solid var(--accent-red);
         }
-        .hint-flee .fw-icon { font-size: 22px; flex-shrink: 0; }
+        .hint-flee .fw-icon { font-size: 24px; flex-shrink: 0; }
         .hint-suggestion {
-            background: #F0F4F8; border: 1px solid #C0D0E0; color: #4A6070;
-            display: flex; gap: 10px; align-items: flex-start;
+            background: #F0F5FA; border: 1px solid #C0D4E8; color: #4A6070;
+            display: flex; gap: 12px; align-items: flex-start; border-left: 4px solid var(--accent-blue);
         }
 
         /* 反馈 */
         .feedback {
-            background: #FDFBF6; border-radius: var(--radius); padding: 14px 16px;
-            margin-bottom: 14px; border-left: 3px solid #C5B8A0;
-            font-size: 14px; line-height: 1.8; color: var(--text-secondary);
+            background: linear-gradient(135deg, #FDFBF6, #FAF7F0);
+            border-radius: var(--radius); padding: 16px 18px;
+            margin-bottom: 16px; border-left: 4px solid var(--accent-warm);
+            font-size: 14px; line-height: 1.9; color: var(--text-secondary);
             white-space: pre-line; animation: fadeIn 0.3s ease;
         }
 
         /* 回合 */
         .rounds-info {
             text-align: center; font-size: 13px; color: var(--text-muted);
-            margin-bottom: 14px;
+            margin-bottom: 16px; font-weight: 500;
         }
-        .rounds-info span { color: var(--text); font-weight: 600; }
+        .rounds-info span { color: var(--text); font-weight: 700; }
 
         /* 态度按钮 */
         .attitudes-title {
-            font-size: 13px; color: var(--text-muted); margin-bottom: 10px;
-            text-align: center;
+            font-size: 13px; color: var(--text-muted); margin-bottom: 12px;
+            text-align: center; font-weight: 500; letter-spacing: 1px;
         }
         .attitude-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
-            margin-bottom: 14px;
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+            margin-bottom: 16px;
         }
         .att-btn {
-            background: var(--card-bg); border: 1px solid var(--border-light);
-            border-radius: var(--radius); padding: 14px 6px;
+            background: var(--card-bg); border: 2px solid var(--border-light);
+            border-radius: var(--radius); padding: 16px 6px;
             cursor: pointer; transition: all var(--transition);
             text-align: center; font-family: inherit; color: var(--text);
         }
         .att-btn:hover {
-            border-color: #C5B8A0; background: #FAF7F0;
-            transform: translateY(-1px); box-shadow: var(--shadow-xs);
+            border-color: var(--border-warm); background: #FAF7F0;
+            transform: translateY(-2px); box-shadow: var(--shadow-sm);
         }
-        .att-btn.cooldown { opacity: 0.45; cursor: not-allowed; filter: grayscale(40%); }
-        .att-btn.bypass { border-color: var(--accent-warm); background: #FDF5EC; }
-        .att-btn .att-emoji { font-size: 28px; display: block; margin-bottom: 4px; }
-        .att-btn .att-name { font-size: 15px; font-weight: 600; }
-        .att-btn .att-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+        .att-btn:active { transform: translateY(0); }
+        .att-btn.cooldown { opacity: 0.4; cursor: not-allowed; filter: grayscale(50%); }
+        .att-btn.cooldown:hover { transform: none; box-shadow: none; }
+        .att-btn.bypass { border-color: var(--accent-warm); background: linear-gradient(135deg, #FDF5EC, #FDF0E0); box-shadow: 0 0 0 3px rgba(212,149,106,0.12); }
+        .att-btn .att-emoji { font-size: 30px; display: block; margin-bottom: 4px; }
+        .att-btn .att-name { font-size: 14px; font-weight: 700; }
+        .att-btn .att-desc { font-size: 11px; color: var(--text-muted); margin-top: 3px; font-weight: 500; }
 
         .back-link {
-            display: block; text-align: center; padding: 8px;
+            display: block; text-align: center; padding: 10px;
             color: var(--text-muted); text-decoration: none; font-size: 13px;
+            font-weight: 500; transition: color 0.2s;
         }
         .back-link:hover { color: var(--text-secondary); }
 
-        /* ========== Bond Event Modal (light theme) ========== */
+        /* ========== Bond Event Modal ========== */
         .bond-modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(60,40,20,0.4); z-index: 9999;
+            background: rgba(50,30,15,0.5); z-index: 9999;
             display: flex; align-items: center; justify-content: center;
             animation: fadeIn 0.2s ease;
+            backdrop-filter: blur(3px);
         }
         .bond-modal {
             background: var(--card-bg); border: 1px solid var(--border);
-            border-radius: var(--radius-lg); padding: 24px;
-            width: 92%; max-width: 500px; max-height: 90vh;
+            border-radius: var(--radius-xl); padding: 28px;
+            width: 94%; max-width: 520px; max-height: 92vh;
             overflow-y: auto; position: relative;
-            animation: fadeIn 0.3s ease; box-shadow: var(--shadow-lg);
+            animation: fadeInScale 0.3s ease; box-shadow: var(--shadow-xl);
         }
-        .bond-modal .be-header { text-align: center; margin-bottom: 14px; }
+        .bond-modal .be-header { text-align: center; margin-bottom: 16px; }
         .bond-modal .be-title {
-            font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 6px;
+            font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 8px;
+            letter-spacing: 1px;
         }
         .bond-modal .be-scene {
-            font-size: 14px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 10px;
+            font-size: 14px; color: var(--text-secondary); line-height: 1.8; margin-bottom: 12px;
             font-style: italic;
         }
         .bond-modal .be-instruction {
-            font-size: 13px; color: var(--text-secondary); margin-bottom: 14px;
-            padding: 10px 16px; background: #FDF9F2; border-radius: var(--radius-sm);
+            font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;
+            padding: 12px 18px; background: linear-gradient(135deg, #FDF9F2, #FAF5E8);
+            border-radius: var(--radius-sm); font-weight: 500;
         }
         .bond-modal .be-game-area {
-            background: #F5F0E8; border-radius: var(--radius);
-            padding: 20px; min-height: 200px; position: relative;
-            overflow: hidden; user-select: none; cursor: default;
-            border: 1px solid var(--border-light);
+            background: linear-gradient(135deg, #F5F0E8, #EDE5D5);
+            border-radius: var(--radius); padding: 20px; min-height: 200px;
+            position: relative; overflow: hidden; user-select: none; cursor: default;
+            border: 2px solid var(--border-light);
         }
         .bond-modal .be-trait-hint {
-            margin-top: 14px; font-size: 12px; color: var(--text-secondary);
-            text-align: center; padding: 6px 14px;
-            background: #FDF9F2; border-radius: var(--radius-sm);
+            margin-top: 16px; font-size: 12px; color: var(--text-secondary);
+            text-align: center; padding: 8px 16px;
+            background: linear-gradient(135deg, #FDF9F2, #FAF5E8);
+            border-radius: var(--radius-sm); font-weight: 500;
         }
         .bond-modal .be-score-bar {
-            height: 6px; background: #F0EAE0; border-radius: 3px;
-            margin-top: 14px; overflow: hidden;
+            height: 8px; background: #F0E8D8; border-radius: 4px;
+            margin-top: 16px; overflow: hidden;
+            box-shadow: inset 0 1px 2px rgba(60,35,15,0.06);
         }
         .bond-modal .be-score-fill {
-            height: 100%; background: #C5B090; border-radius: 3px; transition: width 0.3s;
+            height: 100%; background: linear-gradient(90deg, #C5B090, #D4B870);
+            border-radius: 4px; transition: width 0.3s;
         }
         .bond-modal .be-mistakes {
-            text-align: center; margin-top: 8px; font-size: 12px; color: var(--accent-red);
+            text-align: center; margin-top: 10px; font-size: 12px; color: var(--accent-red);
+            font-weight: 500;
         }
 
         /* Bond result */

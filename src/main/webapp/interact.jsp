@@ -24,75 +24,91 @@
     <title><%= pet.getName() %> - 宠物乐园</title>
     <link rel="stylesheet" href="<%= request.getContextPath() %>/assets/common.css">
     <style>
-        .back-link { display: inline-block; color: var(--text-muted); text-decoration: none; font-weight: 500; margin-bottom: 16px; font-size: 14px; }
+        .main { max-width: 860px; margin: 0 auto; padding: 24px 20px 80px; }
+        .back-link { display: inline-block; color: var(--text-muted); text-decoration: none; font-weight: 500; margin-bottom: 18px; font-size: 14px; transition: color 0.2s; }
         .back-link:hover { color: var(--text-secondary); }
         .pet-hero {
-            background: var(--card-bg); border-radius: var(--radius-lg); padding: 28px; margin-bottom: 20px;
-            border: 1px solid var(--border); box-shadow: var(--shadow-xs); text-align: center;
+            background: linear-gradient(135deg, var(--card-bg), #FFFDF8);
+            border-radius: var(--radius-xl); padding: 32px; margin-bottom: 22px;
+            border: 1px solid var(--border); box-shadow: var(--shadow-sm); text-align: center;
         }
-        .pet-hero .ph-emoji { font-size: 80px; display: block; }
-        .pet-hero .ph-name { font-size: 26px; font-weight: 600; color: var(--text); margin-top: 8px; }
-        .pet-hero .ph-species { font-size: 14px; color: var(--text-secondary); }
+        .pet-hero .ph-emoji { font-size: 88px; display: block; filter: drop-shadow(0 4px 12px rgba(120,80,40,0.15)); }
+        .pet-hero .ph-name { font-size: 28px; font-weight: 700; color: var(--text); margin-top: 10px; letter-spacing: 1px; }
+        .pet-hero .ph-species { font-size: 14px; color: var(--text-secondary); font-weight: 500; margin-top: 2px; }
         .ph-trait-box {
-            margin-top: 10px; padding: 10px 16px; background: #FDF9F2;
+            margin-top: 12px; padding: 12px 18px; background: linear-gradient(135deg, #FDF9F2, #FAF5E8);
             border-radius: var(--radius); border: 1px solid var(--border-light);
             display: inline-block; text-align: left;
         }
-        .food-pref { margin-top: 8px; font-size: 12px; color: var(--text-muted); }
+        .food-pref { margin-top: 10px; font-size: 12px; color: var(--text-muted); font-weight: 500; }
 
-        .two-col { display: flex; gap: 16px; margin-bottom: 20px; }
+        .two-col { display: flex; gap: 18px; margin-bottom: 22px; }
         .two-col .card { flex: 1; min-width: 0; }
         .log-box { max-height: 300px; overflow-y: auto; }
-        .log-entry { padding: 7px 0; border-bottom: 1px solid var(--border-light); font-size: 13px; color: var(--text-secondary); }
+        .log-entry {
+            padding: 8px 0; border-bottom: 1px solid var(--border-light);
+            font-size: 13px; color: var(--text-secondary); font-weight: 500;
+        }
         .log-entry:last-child { border-bottom: none; }
 
-        .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .status-item .s-label { font-size: 12px; font-weight: 500; color: var(--text-secondary); margin-bottom: 3px; }
-        .status-item .s-num { font-size: 12px; color: var(--text-muted); float: right; }
-        .attr-list { display: flex; gap: 10px; margin-top: 14px; }
+        .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .status-item .s-label { font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px; }
+        .status-item .s-num { font-size: 12px; color: var(--text-muted); float: right; font-weight: 500; }
+        .attr-list { display: flex; gap: 12px; margin-top: 16px; }
         .attr-chip {
-            flex: 1; text-align: center; background: #FDF9F2; border-radius: var(--radius);
-            padding: 12px 8px; border: 1px solid var(--border-light);
+            flex: 1; text-align: center; background: linear-gradient(135deg, #FDF9F2, #FAF5E8);
+            border-radius: var(--radius); padding: 14px 8px; border: 2px solid var(--border-light);
+            transition: all var(--transition);
         }
-        .attr-chip .av { font-size: 18px; font-weight: 600; color: var(--text); }
-        .attr-chip .an { font-size: 11px; color: var(--text-muted); }
+        .attr-chip:hover { border-color: var(--border-warm); transform: translateY(-1px); }
+        .attr-chip .av { font-size: 20px; font-weight: 700; color: var(--text); }
+        .attr-chip .an { font-size: 11px; color: var(--text-muted); margin-top: 2px; font-weight: 500; }
 
         .effect-box {
-            margin-top: 10px; padding: 10px 14px; background: #FDF9F2;
-            border-radius: var(--radius); font-size: 11px; color: var(--text-secondary); line-height: 1.8;
+            margin-top: 12px; padding: 12px 16px;
+            background: linear-gradient(135deg, #FDF9F2, #FAF5E8);
+            border-radius: var(--radius); font-size: 11px; color: var(--text-secondary);
+            line-height: 1.9; border: 1px solid var(--border-light);
         }
 
-        .food-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; margin-bottom: 14px; }
+        .food-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin-bottom: 16px; }
         .food-item {
-            border: 1px solid var(--border-light); border-radius: var(--radius); padding: 12px;
-            text-align: center; cursor: pointer; transition: all var(--transition); background: #FDFBF6;
+            border: 2px solid var(--border-light); border-radius: var(--radius); padding: 14px;
+            text-align: center; cursor: pointer; transition: all var(--transition);
+            background: linear-gradient(135deg, #FDFBF6, #FAF7F0);
         }
-        .food-item:hover { border-color: #C5B8A0; background: #FAF7F0; }
-        .food-item.selected { border-color: var(--accent-warm); background: #FDF5EC; }
-        .food-like { border-color: #80A080 !important; background: #F0F5EC !important; }
-        .food-like .food-hint { color: #6A8A5A; }
-        .food-dislike { border-color: #C08070 !important; background: #FEF5F0 !important; }
+        .food-item:hover { border-color: var(--border-warm); background: #FAF7F0; transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+        .food-item.selected { border-color: var(--accent-warm); background: linear-gradient(135deg, #FDF5EC, #FDF0E0); box-shadow: 0 0 0 3px rgba(212,149,106,0.12); }
+        .food-like { border-color: #80A080 !important; background: linear-gradient(135deg, #F2F8EC, #E8F2E0) !important; }
+        .food-like .food-hint { color: #5A8A4A; }
+        .food-dislike { border-color: #C08070 !important; background: linear-gradient(135deg, #FEF5F0, #FDF0E8) !important; }
         .food-dislike .food-hint { color: #B06040; }
-        .food-item .food-emoji { font-size: 28px; display: block; margin-bottom: 2px; }
-        .food-item .food-name { font-size: 13px; font-weight: 500; color: var(--text); }
-        .food-item .food-qty { font-size: 11px; color: var(--text-muted); }
-        .food-item .food-hint { font-size: 10px; margin-top: 2px; font-weight: 600; }
-        .no-food { text-align: center; padding: 16px; color: var(--text-muted); font-size: 14px; }
+        .food-item .food-emoji { font-size: 30px; display: block; margin-bottom: 4px; }
+        .food-item .food-name { font-size: 13px; font-weight: 600; color: var(--text); }
+        .food-item .food-qty { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+        .food-item .food-hint { font-size: 10px; margin-top: 3px; font-weight: 700; }
+        .no-food { text-align: center; padding: 20px; color: var(--text-muted); font-size: 14px; }
 
-        .btn-feed { width: 100%; padding: 14px; border: none; border-radius: var(--radius); font-size: 16px; font-weight: 600; cursor: pointer; font-family: inherit; background: var(--accent-warm); color: #fff; }
+        .btn-feed { width: 100%; padding: 15px; border: none; border-radius: var(--radius); font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit; background: var(--accent-warm); color: #fff; letter-spacing: 1px; transition: all var(--transition); }
+        .btn-feed:hover:not(:disabled) { background: var(--accent-warm-hover); box-shadow: 0 4px 14px rgba(200,128,80,0.25); transform: translateY(-1px); }
         .btn-feed:disabled { background: #D5C8B5; cursor: not-allowed; }
-        .section-title { font-size: 17px; font-weight: 600; color: var(--text); margin-bottom: 14px; }
+        .section-title { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 16px; letter-spacing: 0.5px; }
 
         .play-link {
-            display: flex; align-items: center; justify-content: center; gap: 12px;
-            padding: 20px; background: #FDF9F2; border: 1px solid var(--border-light);
-            border-radius: var(--radius); text-decoration: none; color: var(--text);
-            font-weight: 600; font-size: 16px; transition: all var(--transition); margin-bottom: 16px;
+            display: flex; align-items: center; justify-content: center; gap: 14px;
+            padding: 22px; background: linear-gradient(135deg, #FDF9F2, #FAF5E8);
+            border: 2px solid var(--border-light); border-radius: var(--radius); text-decoration: none;
+            color: var(--text); font-weight: 700; font-size: 16px;
+            transition: all var(--transition); margin-bottom: 18px; letter-spacing: 1px;
         }
-        .play-link:hover { border-color: #C5B8A0; background: #FAF5EC; }
-        .play-link .pl-icon { font-size: 28px; }
+        .play-link:hover { border-color: var(--accent-green); background: #F5F8F0; transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+        .play-link .pl-icon { font-size: 30px; }
 
-        .section { background: var(--card-bg); border-radius: var(--radius-lg); border: 1px solid var(--border); padding: 20px 24px; margin-bottom: 16px; box-shadow: var(--shadow-xs); }
+        .section {
+            background: var(--card-bg); border-radius: var(--radius-lg);
+            border: 1px solid var(--border); padding: 22px 26px;
+            margin-bottom: 18px; box-shadow: var(--shadow-xs);
+        }
 
         @media (max-width: 600px) {
             .two-col { flex-direction: column; }

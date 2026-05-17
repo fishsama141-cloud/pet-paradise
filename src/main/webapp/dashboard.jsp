@@ -24,130 +24,177 @@
     <title>我的宠物 - 宠物乐园</title>
     <link rel="stylesheet" href="<%= request.getContextPath() %>/assets/common.css">
     <style>
+        .main { max-width: 960px; margin: 0 auto; padding: 28px 20px 80px; }
+
+        .pet-count-bar {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            margin-top: 6px; font-size: 13px; color: var(--text-secondary);
+        }
+        .pet-count-bar .count-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            display: inline-block; transition: background 0.3s;
+        }
+        .count-dot.filled { background: var(--accent-green); }
+        .count-dot.empty { background: var(--border); }
+
         /* ===== 栖息地地图 ===== */
         .habitat-map {
             position: relative;
             width: 100%;
             max-width: 900px;
-            margin: 0 auto 32px;
-            height: 420px;
-            background: url('<%= request.getContextPath() %>/assets/images/bg/map-bg.png') center/cover no-repeat;
-            background-color: #E8E0D0;
-            border-radius: var(--radius-lg);
+            margin: 0 auto 36px;
+            height: 440px;
+            background: linear-gradient(135deg, #E8DCC8 0%, #DDCFB0 30%, #C8D8B8 70%, #D8CFB8 100%);
+            border-radius: var(--radius-xl);
             border: 1px solid var(--border);
             box-shadow: var(--shadow);
             overflow: hidden;
         }
+        .habitat-map::before {
+            content: '';
+            position: absolute; inset: 0;
+            background:
+                radial-gradient(ellipse at 20% 30%, rgba(255,252,245,0.3) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 60%, rgba(255,252,245,0.2) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 1;
+        }
         .habitat-map::after {
             content: '';
             position: absolute; inset: 0;
-            background: linear-gradient(180deg, rgba(255,252,245,0.15) 0%, rgba(255,252,245,0.05) 100%);
-            pointer-events: none;
+            pointer-events: none; z-index: 0;
+            opacity: 0.04;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
         }
 
         .zone-node {
             position: absolute; transform: translate(-50%, -50%);
-            text-align: center; cursor: pointer; transition: all 0.25s;
+            text-align: center; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             text-decoration: none; z-index: 2;
         }
-        .zone-node:hover { transform: translate(-50%, -50%) scale(1.08); }
+        .zone-node:hover { transform: translate(-50%, -50%) scale(1.1); }
         .zone-node .zone-icon {
-            width: 72px; height: 72px; border-radius: 50%;
+            width: 76px; height: 76px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            margin: 0 auto; border: 2px solid rgba(120,100,70,0.3);
-            box-shadow: var(--shadow-xs); transition: all 0.25s;
+            margin: 0 auto; border: 2.5px solid rgba(120,100,70,0.25);
+            box-shadow: 0 2px 12px rgba(60,35,15,0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
         }
         .zone-node:hover .zone-icon {
-            box-shadow: var(--shadow);
-            border-color: rgba(120,100,70,0.5);
+            box-shadow: 0 6px 20px rgba(60,35,15,0.15);
+            border-color: rgba(120,100,70,0.45);
         }
-        .zone-node .zone-icon img { width: 40px; height: 40px; object-fit: contain; }
+        .zone-node .zone-icon img { width: 42px; height: 42px; object-fit: contain; }
         .zone-node .zone-name {
-            font-size: 12px; font-weight: 600; color: var(--text);
-            text-shadow: 0 1px 2px rgba(255,255,255,0.8); margin-top: 4px;
+            font-size: 12px; font-weight: 700; color: var(--text);
+            text-shadow: 0 1px 3px rgba(255,255,255,0.9); margin-top: 6px;
+            letter-spacing: 0.5px;
         }
         .zone-node .zone-count {
-            position: absolute; top: -6px; right: -6px;
+            position: absolute; top: -4px; right: -4px;
             background: var(--accent-warm); color: white;
-            min-width: 22px; height: 22px; border-radius: 11px;
-            font-size: 11px; font-weight: 600;
+            min-width: 24px; height: 24px; border-radius: 12px;
+            font-size: 11px; font-weight: 700;
             display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 2px 6px rgba(200,128,80,0.3);
+            letter-spacing: 0.5px;
         }
-        .zone-node.empty .zone-count { background: #C0B5A5; }
+        .zone-node.empty .zone-count { background: #C0B5A5; box-shadow: 0 2px 6px rgba(150,130,110,0.2); }
 
         /* ===== 区域详情 ===== */
         .zone-section {
             background: var(--card-bg);
             border-radius: var(--radius-lg);
             border: 1px solid var(--border);
-            padding: 22px 24px;
-            margin-bottom: 16px;
+            padding: 24px 26px;
+            margin-bottom: 18px;
             box-shadow: var(--shadow-xs);
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.4s ease;
+        }
+        .zone-section:target {
+            border-color: var(--accent-warm);
+            box-shadow: 0 0 0 4px rgba(212,149,106,0.1);
         }
         .zone-section-header {
             display: flex; align-items: center; gap: 14px;
-            margin-bottom: 16px; padding-bottom: 14px;
-            border-bottom: 1px solid var(--border-light);
+            margin-bottom: 18px; padding-bottom: 16px;
+            border-bottom: 2px solid var(--border-light);
         }
-        .zone-section-header .zs-icon { font-size: 32px; }
-        .zone-section-header .zs-icon img { width: 40px; height: 40px; object-fit: contain; }
-        .zone-section-header .zs-name { font-size: 18px; font-weight: 600; color: var(--text); }
-        .zone-section-header .zs-count { font-size: 13px; color: var(--text-secondary); }
+        .zone-section-header .zs-icon { font-size: 34px; line-height: 1; }
+        .zone-section-header .zs-name { font-size: 18px; font-weight: 700; color: var(--text); letter-spacing: 1px; }
+        .zone-section-header .zs-count { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
 
         /* ===== 宠物小卡片 ===== */
         .pet-card-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+            gap: 14px;
         }
         .pet-card {
             display: flex; align-items: center; gap: 14px;
-            padding: 14px 16px;
+            padding: 16px 18px;
             border-radius: var(--radius);
             border: 1px solid var(--border-light);
             text-decoration: none; color: inherit;
             transition: all var(--transition);
-            background: #FCFAF5;
+            background: #FCFAF6;
+            position: relative;
+            overflow: hidden;
+        }
+        .pet-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 3px; height: 100%;
+            background: var(--accent-green);
+            opacity: 0;
+            transition: opacity var(--transition);
+            border-radius: 0 2px 2px 0;
         }
         .pet-card:hover {
-            border-color: #C5B8A0;
+            border-color: var(--border-warm);
             background: var(--card-hover);
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-xs);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
         }
+        .pet-card:hover::before { opacity: 0.6; }
         .pet-card .pc-emoji {
-            width: 56px; height: 56px;
+            width: 58px; height: 58px;
             border-radius: var(--radius-sm);
             flex-shrink: 0;
-            background: #F5F0E8;
+            background: linear-gradient(135deg, #F5F0E8, #EDE5D5);
             display: flex; align-items: center; justify-content: center;
-            font-size: 32px;
+            font-size: 34px;
         }
         .pet-card .pc-info { flex: 1; min-width: 0; }
-        .pet-card .pc-name { font-size: 15px; font-weight: 600; color: var(--text); }
-        .pet-card .pc-species { font-size: 12px; color: var(--text-secondary); }
+        .pet-card .pc-name { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: 0.5px; }
+        .pet-card .pc-species { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
         .pet-card .pc-stats {
-            display: flex; gap: 6px; margin-top: 4px; flex-wrap: wrap;
+            display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; align-items: center;
         }
         .pc-stat {
             font-size: 11px; color: var(--text-secondary);
-            background: #F5F0E8; padding: 2px 8px; border-radius: 4px;
+            background: #F5F0E8; padding: 2px 8px; border-radius: 6px;
+            font-weight: 500;
         }
         .pet-card .pc-level {
-            background: var(--accent-warm); color: #fff;
-            padding: 3px 10px; border-radius: 10px;
-            font-size: 12px; font-weight: 600; flex-shrink: 0;
+            background: linear-gradient(135deg, var(--accent-warm), #E0A870);
+            color: #fff;
+            padding: 4px 12px; border-radius: 12px;
+            font-size: 12px; font-weight: 700; flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(200,128,80,0.2);
+            letter-spacing: 0.5px;
         }
 
         .empty-zone {
-            text-align: center; padding: 20px; color: var(--text-muted);
+            text-align: center; padding: 24px; color: var(--text-muted);
             font-size: 14px;
         }
 
         @media (max-width: 768px) {
-            .habitat-map { height: 300px; border-radius: 12px; }
-            .zone-node .zone-icon { width: 52px; height: 52px; }
-            .zone-node .zone-icon img { width: 28px; height: 28px; }
+            .habitat-map { height: 320px; border-radius: 16px; }
+            .zone-node .zone-icon { width: 56px; height: 56px; }
             .zone-node .zone-name { font-size: 10px; }
             .pet-card-grid { grid-template-columns: 1fr; }
         }
@@ -171,7 +218,12 @@
     <div class="main">
         <div class="page-header">
             <h1>宠物栖息地</h1>
-            <p>每只宠物都在适合自己习性的环境中生活 · 共 <strong><%= petCount %></strong> / <%= maxPets %> 只</p>
+            <div class="pet-count-bar">
+                <% for (int i = 0; i < maxPets; i++) { %>
+                <span class="count-dot <%= i < petCount ? "filled" : "empty" %>"></span>
+                <% } %>
+                <span style="margin-left:6px;font-weight:600;"><%= petCount %> / <%= maxPets %></span>
+            </div>
         </div>
 
         <% if (error != null) { %><div class="alert alert-error"><%= error %></div><% } %>
@@ -187,7 +239,7 @@
             <a href="#zone-<%= z.id() %>" class="zone-node <%= cnt == 0 ? "empty" : "" %>"
                style="top:<%= z.topPct() %>%; left:<%= z.leftPct() %>%;">
                 <div class="zone-icon" style="background:<%= z.color() %>20;">
-                    <span style="font-size:28px;"><%= z.emoji() %></span>
+                    <span style="font-size:30px;"><%= z.emoji() %></span>
                 </div>
                 <span class="zone-name"><%= z.name() %></span>
                 <span class="zone-count"><%= cnt %></span>
@@ -228,8 +280,8 @@
                             <span class="pc-stat">🎭<%= p.getPersonality() %></span>
                         </div>
                         <% if (ct != null) { %>
-                        <div style="margin-top:4px;">
-                            <span style="font-size:10px; background:#F0EDE0; color:var(--text-secondary); padding:2px 8px; border-radius:6px; font-weight:500;">
+                        <div style="margin-top:5px;">
+                            <span style="font-size:10px; background:#F2EDE0; color:var(--text-secondary); padding:3px 9px; border-radius:8px; font-weight:600;">
                                 ⭐ <%= ct.getName() %> · <%= ct.getPositioning() %>
                             </span>
                         </div>
@@ -251,8 +303,12 @@
                 var target = document.querySelector(this.getAttribute('href'));
                 if (target) {
                     target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    target.style.borderColor = '#C5B8A0';
-                    setTimeout(function() { target.style.borderColor = '#E5DDD0'; }, 1500);
+                    target.style.borderColor = '#D4956A';
+                    target.style.boxShadow = '0 0 0 4px rgba(212,149,106,0.12)';
+                    setTimeout(function() {
+                        target.style.borderColor = '#E8DDCC';
+                        target.style.boxShadow = '';
+                    }, 1800);
                 }
             });
         });

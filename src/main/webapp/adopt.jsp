@@ -20,51 +20,62 @@
         body {
             display: flex; align-items: center; justify-content: center;
             min-height: 100vh; padding: 20px;
+            background-image:
+                radial-gradient(ellipse at 30% 30%, rgba(180,150,110,0.06) 0%, transparent 55%),
+                radial-gradient(ellipse at 70% 70%, rgba(140,170,120,0.05) 0%, transparent 55%);
         }
         .adopt-card {
-            background: var(--card-bg); border-radius: var(--radius-lg);
-            border: 1px solid var(--border); box-shadow: var(--shadow-lg);
-            max-width: 460px; width: 100%; overflow: hidden;
-            animation: fadeIn 0.4s ease;
+            background: var(--card-bg); border-radius: var(--radius-xl);
+            border: 1px solid var(--border); box-shadow: var(--shadow-xl);
+            max-width: 480px; width: 100%; overflow: hidden;
+            animation: fadeInScale 0.45s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .adopt-header {
-            background: #F5EDE0; padding: 28px 24px; text-align: center;
+            background: linear-gradient(135deg, #F7F0E3, #F2E8D5);
+            padding: 32px 28px; text-align: center;
             border-bottom: 1px solid var(--border-light);
         }
         .adopt-header .location-tag {
-            display: inline-block; background: #EDE5D5; padding: 4px 14px;
-            border-radius: 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary);
-            margin-bottom: 12px;
+            display: inline-block; background: rgba(255,255,255,0.6);
+            padding: 5px 16px; border-radius: 14px; font-size: 12px;
+            font-weight: 700; color: var(--text-secondary); margin-bottom: 14px;
+            letter-spacing: 0.5px;
         }
-        .adopt-header .an-emoji { font-size: 72px; }
-        .adopt-header .an-name { font-size: 24px; font-weight: 600; color: var(--text); margin-top: 8px; }
-        .adopt-header .an-sub { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
-        .adopt-body { padding: 20px 24px; }
-        .adopt-body .desc { font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 12px; text-align: center; }
-        .attr-row { display: flex; gap: 10px; margin-bottom: 18px; }
+        .adopt-header .an-emoji { font-size: 80px; filter: drop-shadow(0 4px 12px rgba(120,80,40,0.15)); }
+        .adopt-header .an-name { font-size: 26px; font-weight: 700; color: var(--text); margin-top: 10px; letter-spacing: 1px; }
+        .adopt-header .an-sub { font-size: 14px; color: var(--text-secondary); margin-top: 4px; font-weight: 500; }
+        .adopt-body { padding: 22px 26px; }
+        .adopt-body .desc { font-size: 14px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 14px; text-align: center; }
+        .attr-row { display: flex; gap: 12px; margin-bottom: 20px; }
         .attr-box {
-            flex: 1; text-align: center; background: #FDF9F2;
-            border-radius: var(--radius); padding: 14px 8px; border: 1px solid var(--border-light);
+            flex: 1; text-align: center;
+            background: linear-gradient(135deg, #FDF9F2, #FAF5E8);
+            border-radius: var(--radius); padding: 16px 8px; border: 2px solid var(--border-light);
+            transition: all var(--transition);
         }
-        .attr-box .val { font-size: 18px; font-weight: 600; color: var(--text); }
-        .attr-box .name { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
-        .attr-box .hint { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+        .attr-box:hover { border-color: var(--border-warm); transform: translateY(-1px); }
+        .attr-box .val { font-size: 20px; font-weight: 700; color: var(--text); }
+        .attr-box .name { font-size: 11px; color: var(--text-secondary); margin-top: 4px; font-weight: 500; }
+        .attr-box .hint { font-size: 10px; color: var(--text-muted); margin-top: 4px; }
         .encounter-fb {
-            background: #FDF9F2; border-radius: var(--radius); padding: 12px 16px;
-            margin-bottom: 16px; font-size: 13px; color: var(--text-secondary);
-            border-left: 3px solid #C5B8A0; white-space: pre-line; line-height: 1.6;
+            background: linear-gradient(135deg, #FDF9F2, #FAF5E8);
+            border-radius: var(--radius); padding: 14px 18px;
+            margin-bottom: 18px; font-size: 13px; color: var(--text-secondary);
+            border-left: 4px solid var(--accent-warm); white-space: pre-line; line-height: 1.7;
         }
-        .name-group { margin-bottom: 16px; }
-        .name-group label { display: block; font-weight: 500; margin-bottom: 6px; font-size: 14px; color: var(--text); }
+        .name-group { margin-bottom: 18px; }
+        .name-group label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px; color: var(--text); }
         .name-group input {
-            width: 100%; padding: 11px 14px; border: 1px solid var(--border);
+            width: 100%; padding: 12px 16px; border: 2px solid var(--border);
             border-radius: var(--radius); font-size: 15px; outline: none;
             font-family: inherit; color: var(--text); background: #FDFBF6;
+            transition: all var(--transition);
         }
-        .name-group input:focus { border-color: #C5B8A0; }
-        .btn-group { display: flex; gap: 10px; }
-        .btn-adopt { background: var(--accent-warm); color: #fff; border-color: var(--accent-warm); font-weight: 600; }
-        .btn-release { background: #F5F0E8; color: var(--text-secondary); border-color: var(--border-light); }
+        .name-group input:focus { border-color: var(--accent-warm); box-shadow: 0 0 0 3px rgba(212,149,106,0.1); }
+        .btn-group { display: flex; gap: 12px; }
+        .btn-adopt { background: var(--accent-warm); color: #fff; border-color: var(--accent-warm); font-weight: 700; letter-spacing: 1px; }
+        .btn-adopt:hover { background: var(--accent-warm-hover); }
+        .btn-release { background: #F5F0E8; color: var(--text-secondary); border-color: var(--border-light); font-weight: 500; }
     </style>
 </head>
 <body>

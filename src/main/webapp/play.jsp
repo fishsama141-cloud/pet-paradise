@@ -32,45 +32,47 @@
     <title>玩耍 - <%= pet.getName() %> - 宠物乐园</title>
     <link rel="stylesheet" href="<%= request.getContextPath() %>/assets/common.css">
     <style>
-        .back-link { display: inline-block; color: var(--text-muted); text-decoration: none; font-weight: 500; margin-bottom: 16px; font-size: 14px; }
+        .main { max-width: 700px; margin: 0 auto; padding: 24px 20px 80px; }
+        .back-link { display: inline-block; color: var(--text-muted); text-decoration: none; font-weight: 500; margin-bottom: 18px; font-size: 14px; transition: color 0.2s; }
         .back-link:hover { color: var(--text-secondary); }
 
         .pet-card {
-            background: var(--card-bg); border-radius: var(--radius-lg); padding: 20px;
-            border: 1px solid var(--border); box-shadow: var(--shadow-xs); margin-bottom: 16px;
-            display: flex; align-items: center; gap: 16px;
+            background: linear-gradient(135deg, var(--card-bg), #FFFDF8);
+            border-radius: var(--radius-lg); padding: 22px;
+            border: 1px solid var(--border); box-shadow: var(--shadow-sm); margin-bottom: 18px;
+            display: flex; align-items: center; gap: 18px;
         }
-        .pet-card .pc-emoji { font-size: 52px; }
+        .pet-card .pc-emoji { font-size: 56px; filter: drop-shadow(0 3px 8px rgba(120,80,40,0.12)); }
         .pet-info { flex: 1; min-width: 0; }
-        .pet-info h3 { font-size: 18px; margin-bottom: 2px; color: var(--text); }
-        .pet-info .stats { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; }
+        .pet-info h3 { font-size: 18px; margin-bottom: 4px; color: var(--text); font-weight: 700; }
+        .pet-info .stats { font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500; }
 
         .hunger-row { display: flex; align-items: center; gap: 8px; }
-        .hunger-bar-wrap { flex: 1; height: 8px; background: #EDE5D5; border-radius: 4px; overflow: hidden; }
-        .hunger-bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s; }
-        .hunger-high { background: #8BAA7A; }
-        .hunger-mid { background: #D4B870; }
-        .hunger-low { background: #C08070; }
-        .hunger-text { font-size: 11px; color: var(--text-secondary); white-space: nowrap; }
-        .plays-left { font-size: 12px; color: var(--accent-warm); font-weight: 600; margin-top: 4px; }
+        .hunger-bar-wrap { flex: 1; height: 8px; background: #EDE5D5; border-radius: 4px; overflow: hidden; box-shadow: inset 0 1px 2px rgba(60,35,15,0.06); }
+        .hunger-bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .hunger-high { background: linear-gradient(90deg, #7DA068, #8BAA7A); }
+        .hunger-mid { background: linear-gradient(90deg, #D4B870, #DCC080); }
+        .hunger-low { background: linear-gradient(90deg, #C08070, #D09080); }
+        .hunger-text { font-size: 11px; color: var(--text-secondary); white-space: nowrap; font-weight: 500; }
+        .plays-left { font-size: 12px; color: var(--accent-warm); font-weight: 700; margin-top: 6px; }
 
-        .game-tabs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 18px; }
+        .game-tabs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
         .game-tab {
-            padding: 14px 6px; border-radius: var(--radius); border: 1px solid var(--border-light);
-            background: var(--card-bg); cursor: pointer; text-align: center; font-size: 12px;
-            font-weight: 600; transition: all var(--transition); color: var(--text); font-family: inherit;
+            padding: 16px 6px; border-radius: var(--radius); border: 2px solid var(--border-light);
+            background: var(--card-bg); cursor: pointer; text-align: center; font-size: 13px;
+            font-weight: 700; transition: all var(--transition); color: var(--text); font-family: inherit;
         }
-        .game-tab:hover { border-color: #C5B8A0; background: #FAF7F0; }
-        .game-tab.active { border-color: var(--accent-warm); background: #FDF5EC; color: #B87050; }
-        .game-tab .tab-emoji { font-size: 28px; display: block; margin-bottom: 2px; }
+        .game-tab:hover { border-color: var(--border-warm); background: #FAF7F0; transform: translateY(-2px); }
+        .game-tab.active { border-color: var(--accent-warm); background: linear-gradient(135deg, #FDF5EC, #FDF0E0); color: #B06840; box-shadow: 0 0 0 3px rgba(212,149,106,0.1); }
+        .game-tab .tab-emoji { font-size: 30px; display: block; margin-bottom: 4px; }
 
-        .game-panel { display: none; background: var(--card-bg); border-radius: var(--radius-lg); padding: 24px;
-            border: 1px solid var(--border); box-shadow: var(--shadow-xs); margin-bottom: 16px; }
-        .game-panel.active { display: block; }
-        .game-panel h3 { text-align: center; margin-bottom: 4px; font-size: 18px; color: var(--accent-warm); }
-        .game-desc { text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
-        .hunger-warn { text-align: center; padding: 12px; background: #FDF9F2; border-radius: var(--radius);
-            margin-bottom: 16px; font-size: 13px; color: var(--accent-warm); border: 1px solid var(--border-light); }
+        .game-panel { display: none; background: var(--card-bg); border-radius: var(--radius-lg); padding: 26px;
+            border: 1px solid var(--border); box-shadow: var(--shadow-sm); margin-bottom: 18px; }
+        .game-panel.active { display: block; animation: fadeInScale 0.3s ease; }
+        .game-panel h3 { text-align: center; margin-bottom: 6px; font-size: 20px; color: var(--accent-warm); font-weight: 700; letter-spacing: 1px; }
+        .game-desc { text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 18px; font-weight: 500; }
+        .hunger-warn { text-align: center; padding: 14px; background: linear-gradient(135deg, #FDF9F2, #FAF5E8); border-radius: var(--radius);
+            margin-bottom: 18px; font-size: 13px; color: var(--accent-warm); border: 2px solid var(--border-light); font-weight: 500; }
 
         .rps-scoreboard { display: flex; align-items: center; justify-content: center; gap: 20px;
             margin-bottom: 16px; padding: 14px; background: #FDF9F2; border-radius: var(--radius); }

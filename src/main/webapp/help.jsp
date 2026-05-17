@@ -13,53 +13,60 @@
     <title>游戏帮助 - 宠物乐园</title>
     <link rel="stylesheet" href="<%= request.getContextPath() %>/assets/common.css">
     <style>
-        .main { max-width: 860px; margin: 0 auto; padding: 24px 20px; }
+        .main { max-width: 860px; margin: 0 auto; padding: 28px 20px 80px; }
 
         .help-tabs {
-            display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap;
-            position: sticky; top: 60px; z-index: 10;
-            background: rgba(253,248,240,0.95); padding: 10px 0; backdrop-filter: blur(4px);
+            display: flex; gap: 8px; margin-bottom: 28px; flex-wrap: wrap;
+            position: sticky; top: 64px; z-index: 10;
+            background: rgba(251,246,237,0.92); padding: 12px 0; backdrop-filter: blur(8px);
         }
         .help-tab {
-            padding: 10px 20px; border-radius: 20px; border: 1px solid var(--border-light);
-            cursor: pointer; font-weight: 600; font-size: 14px; transition: all var(--transition);
+            padding: 10px 22px; border-radius: 22px; border: 2px solid var(--border-light);
+            cursor: pointer; font-weight: 700; font-size: 14px; transition: all var(--transition);
             background: var(--card-bg); color: var(--text-secondary); font-family: inherit;
         }
-        .help-tab:hover { border-color: #C5B8A0; color: var(--text); }
+        .help-tab:hover { border-color: var(--border-warm); color: var(--text); transform: translateY(-1px); }
         .help-tab.active {
-            background: #FDF5EC; border-color: var(--accent-warm); color: #B87050;
+            background: linear-gradient(135deg, #FDF5EC, #FDF0E0); border-color: var(--accent-warm);
+            color: #B06840; box-shadow: 0 2px 8px rgba(200,128,80,0.15);
         }
         .help-section { display: none; }
-        .help-section.active { display: block; }
+        .help-section.active { display: block; animation: fadeInUp 0.35s ease; }
 
         .section-title {
-            font-size: 20px; font-weight: 600; color: var(--text);
-            margin-bottom: 16px; padding-bottom: 10px;
-            border-bottom: 1px solid var(--border-light);
+            font-size: 22px; font-weight: 700; color: var(--text);
+            margin-bottom: 18px; padding-bottom: 12px; letter-spacing: 1px;
+            border-bottom: 2px solid var(--border-light);
         }
         .rule-card {
-            background: var(--card-bg); border-radius: var(--radius); padding: 18px 20px;
-            margin-bottom: 12px; border-left: 4px solid #C5B8A0;
+            background: var(--card-bg); border-radius: var(--radius); padding: 20px 22px;
+            margin-bottom: 14px; border-left: 4px solid var(--border-warm);
             transition: all var(--transition); border-top: 1px solid var(--border-light);
             border-right: 1px solid var(--border-light); border-bottom: 1px solid var(--border-light);
         }
-        .rule-card:hover { border-left-color: var(--accent-warm); }
-        .rule-card .rc-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-        .rule-card .rc-icon { font-size: 28px; }
-        .rule-card .rc-name { font-size: 18px; font-weight: 600; color: var(--text); }
-        .rule-card .rc-formula {
-            font-size: 12px; color: #708A50; background: #F7FAF5;
-            padding: 8px 12px; border-radius: 8px; margin-top: 8px;
-            font-family: "Consolas", "Courier New", monospace; white-space: pre-line; line-height: 1.7;
+        .rule-card:hover {
+            border-left-color: var(--accent-warm);
+            box-shadow: var(--shadow-sm);
+            transform: translateX(2px);
         }
-        .rule-card .rc-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.7; }
+        .rule-card .rc-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+        .rule-card .rc-icon { font-size: 30px; }
+        .rule-card .rc-name { font-size: 18px; font-weight: 700; color: var(--text); letter-spacing: 0.5px; }
+        .rule-card .rc-formula {
+            font-size: 12px; color: #608040; background: linear-gradient(135deg, #F7FAF5, #F2F7EC);
+            padding: 10px 14px; border-radius: 8px; margin-top: 10px;
+            font-family: "Consolas", "Courier New", monospace; white-space: pre-line; line-height: 1.8;
+            border: 1px solid #D8E8D0;
+        }
+        .rule-card .rc-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.8; }
         .rule-card .rc-penalty {
-            font-size: 12px; color: #B06040; background: #FDF5F0;
-            padding: 8px 12px; border-radius: 8px; margin-top: 6px;
+            font-size: 12px; color: #B06040; background: linear-gradient(135deg, #FDF5F0, #FEF0E8);
+            padding: 10px 14px; border-radius: 8px; margin-top: 8px; font-weight: 500;
+            border: 1px solid #F0D0C0;
         }
 
         @media (max-width: 600px) {
-            .help-tab { padding: 8px 14px; font-size: 13px; }
+            .help-tab { padding: 8px 16px; font-size: 13px; }
         }
     </style>
 </head>

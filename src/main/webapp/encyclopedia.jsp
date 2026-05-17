@@ -32,21 +32,20 @@
     <title>动物图鉴 - 宠物乐园</title>
     <link rel="stylesheet" href="<%= request.getContextPath() %>/assets/common.css">
     <style>
-        .main { max-width: 960px; margin: 0 auto; padding: 24px 20px; }
-        .page-header { text-align: center; margin-bottom: 20px; }
-        .page-header h1 { font-size: 28px; color: var(--text); font-weight: 600; }
-        .page-header .sub { font-size: 14px; color: var(--text-secondary); margin-top: 4px; }
+        .main { max-width: 960px; margin: 0 auto; padding: 28px 20px 80px; }
+        .page-header { margin-bottom: 22px; }
+        .page-header .sub { font-size: 14px; color: var(--text-secondary); margin-top: 6px; font-weight: 500; }
 
-        .filter-section { margin-bottom: 14px; }
-        .filter-label { font-size: 12px; color: var(--text-muted); font-weight: 600; margin-bottom: 6px; letter-spacing: 0.5px; }
+        .filter-section { margin-bottom: 16px; }
+        .filter-label { font-size: 12px; color: var(--text-muted); font-weight: 700; margin-bottom: 8px; letter-spacing: 1px; text-transform: uppercase; }
         .filter-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
         .filter-tab {
-            padding: 8px 16px; border: 1px solid var(--border-light); border-radius: 20px;
+            padding: 8px 18px; border: 2px solid var(--border-light); border-radius: 20px;
             cursor: pointer; font-size: 13px; font-weight: 600; transition: all var(--transition);
             background: var(--card-bg); color: var(--text-secondary); font-family: inherit;
         }
-        .filter-tab:hover { border-color: #C5B8A0; color: var(--text); }
-        .filter-tab.active { background: #FDF5EC; border-color: var(--accent-warm); color: #B87050; }
+        .filter-tab:hover { border-color: var(--border-warm); color: var(--text); transform: translateY(-1px); }
+        .filter-tab.active { background: linear-gradient(135deg, #FDF5EC, #FDF0E0); border-color: var(--accent-warm); color: #B06840; }
         .filter-tab .count { font-size: 11px; opacity: 0.7; margin-left: 2px; }
 
         .arch-tab.active[data-arch="CAUTIOUS"] { border-color: #D4A060; background: #FDF5EC; color: #B87030; }
@@ -57,53 +56,53 @@
         .arch-tab.active[data-arch="MYSTERIOUS"] { border-color: #A080C0; background: #F2ECF8; color: #604080; }
 
         .section-title {
-            font-size: 18px; font-weight: 600; color: var(--text);
-            margin: 24px 0 12px; padding-bottom: 8px;
-            border-bottom: 1px solid var(--border-light);
-            display: flex; align-items: center; gap: 8px;
+            font-size: 19px; font-weight: 700; color: var(--text);
+            margin: 28px 0 14px; padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-light);
+            display: flex; align-items: center; gap: 10px; letter-spacing: 0.5px;
         }
-        .section-title .icon { font-size: 22px; }
+        .section-title .icon { font-size: 24px; }
         .section-subtitle {
-            font-size: 13px; color: var(--text-secondary); margin-bottom: 10px; padding-left: 4px;
-            display: flex; align-items: center; gap: 8px;
+            font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; padding-left: 4px;
+            display: flex; align-items: center; gap: 8px; font-weight: 500;
         }
-        .section-subtitle .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-        .dot-owned { background: var(--accent-green); }
+        .section-subtitle .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+        .dot-owned { background: var(--accent-green); box-shadow: 0 0 6px rgba(100,150,80,0.3); }
         .dot-missing { background: #D5C8B5; }
 
         .species-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 12px; margin-bottom: 16px;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+            gap: 14px; margin-bottom: 18px;
         }
         .species-card {
-            background: var(--card-bg); border-radius: var(--radius); padding: 16px;
+            background: var(--card-bg); border-radius: var(--radius); padding: 18px;
             border: 1px solid var(--border-light); transition: all var(--transition);
             position: relative; overflow: hidden;
         }
-        .species-card:hover { transform: translateY(-2px); border-color: #C5B8A0; box-shadow: var(--shadow-xs); }
-        .species-card.collected { border-color: #B0C8A0; }
+        .species-card:hover { transform: translateY(-2px); border-color: var(--border-warm); box-shadow: var(--shadow-sm); }
+        .species-card.collected { border-color: #B0C8A0; background: linear-gradient(135deg, #FFFEFA, #F7FAF5); }
         .species-card.collected::after {
-            content: '✓'; position: absolute; top: 10px; right: 14px;
+            content: '✓'; position: absolute; top: 12px; right: 14px;
             font-size: 14px; color: #fff; background: var(--accent-green);
-            width: 26px; height: 26px; border-radius: 50%; display: flex;
-            align-items: center; justify-content: center;
+            width: 28px; height: 28px; border-radius: 50%; display: flex;
+            align-items: center; justify-content: center; font-weight: 700;
         }
-        .species-card.not-collected { opacity: 0.65; }
-        .species-card .sc-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-        .species-card .sc-emoji { font-size: 36px; }
-        .species-card .sc-name { font-size: 17px; font-weight: 600; color: var(--text); }
-        .species-card .sc-rarity { font-size: 11px; color: var(--text-muted); }
-        .species-card .sc-info { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
-        .species-card .sc-info span { display: block; margin-bottom: 1px; }
-        .species-card .sc-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+        .species-card.not-collected { opacity: 0.6; }
+        .species-card .sc-top { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+        .species-card .sc-emoji { font-size: 38px; }
+        .species-card .sc-name { font-size: 17px; font-weight: 700; color: var(--text); letter-spacing: 0.5px; }
+        .species-card .sc-rarity { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+        .species-card .sc-info { font-size: 12px; color: var(--text-secondary); line-height: 1.7; }
+        .species-card .sc-info span { display: block; margin-bottom: 2px; }
+        .species-card .sc-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
         .sc-tag {
-            font-size: 10px; padding: 3px 10px; border-radius: 10px;
-            font-weight: 600; white-space: nowrap;
+            font-size: 10px; padding: 4px 12px; border-radius: 12px;
+            font-weight: 700; white-space: nowrap; letter-spacing: 0.3px;
         }
         .sc-tag-archetype { background: #FDF9F2; color: #B89060; border: 1px solid #E8DDCA; }
         .sc-tag-trait { background: #F2F7EC; color: #708A50; border: 1px solid #D0E0C8; }
         .sc-tag-starter { background: #F5F0F8; color: #7058A0; border: 1px solid #D8D0E8; }
-        .sc-capture { font-size: 11px; margin-top: 8px; padding: 8px 10px; background: #FDF9F2; border-radius: 8px; color: var(--text-secondary); line-height: 1.5; border: 1px solid var(--border-light); }
+        .sc-capture { font-size: 11px; margin-top: 10px; padding: 10px 12px; background: linear-gradient(135deg, #FDF9F2, #FAF5E8); border-radius: 8px; color: var(--text-secondary); line-height: 1.6; border: 1px solid var(--border-light); }
 
         .food-grid {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));

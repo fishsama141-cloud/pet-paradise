@@ -19,57 +19,59 @@
         body {
             display: flex; align-items: center; justify-content: center;
             min-height: 100vh; padding: 20px;
+            background-image:
+                radial-gradient(ellipse at 20% 20%, rgba(180,150,110,0.06) 0%, transparent 55%),
+                radial-gradient(ellipse at 80% 60%, rgba(140,170,120,0.05) 0%, transparent 55%);
         }
         .card {
-            background: var(--card-bg); border-radius: var(--radius-lg);
-            border: 1px solid var(--border); box-shadow: var(--shadow-lg);
-            max-width: 600px; width: 100%; overflow: hidden;
-            animation: fadeIn 0.5s ease;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            background: var(--card-bg); border-radius: var(--radius-xl);
+            border: 1px solid var(--border); box-shadow: var(--shadow-xl);
+            max-width: 640px; width: 100%; overflow: hidden;
+            animation: fadeInScale 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .card-top {
-            background: #F5EDE0; padding: 28px 24px; text-align: center;
+            background: linear-gradient(135deg, #F7F0E3, #F2E8D5);
+            padding: 32px 28px; text-align: center;
             border-bottom: 1px solid var(--border-light);
         }
-        .card-top .icon { font-size: 40px; display: block; margin-bottom: 4px; }
-        .card-top h2 { font-size: 22px; color: var(--text); font-weight: 600; }
-        .card-top p { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
-        .card-body { padding: 28px 28px 32px; }
+        .card-top .icon { font-size: 44px; display: block; margin-bottom: 8px; }
+        .card-top h2 { font-size: 24px; color: var(--text); font-weight: 700; letter-spacing: 1px; }
+        .card-top p { font-size: 13px; color: var(--text-secondary); margin-top: 6px; font-weight: 500; }
+        .card-body { padding: 28px 30px 34px; }
 
-        .form-group { margin-bottom: 22px; }
+        .form-group { margin-bottom: 24px; }
         .form-group label {
-            display: block; font-weight: 600; font-size: 15px;
-            margin-bottom: 10px; color: var(--text);
+            display: block; font-weight: 700; font-size: 15px;
+            margin-bottom: 12px; color: var(--text); letter-spacing: 0.5px;
         }
         .options { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
         .option { position: relative; cursor: pointer; }
         .option input { display: none; }
         .option .label {
-            display: block; padding: 12px 10px; border: 1px solid var(--border-light);
+            display: block; padding: 14px 10px; border: 2px solid var(--border-light);
             border-radius: var(--radius); text-align: center; font-size: 13px;
             font-weight: 600; transition: all var(--transition);
-            background: #FDFBF6; color: var(--text); line-height: 1.5;
+            background: linear-gradient(135deg, #FDFBF6, #FAF7F0); color: var(--text); line-height: 1.5;
         }
-        .option .label .env-emoji { font-size: 28px; display: block; margin-bottom: 2px; }
-        .option .label .env-hint { font-size: 10px; color: var(--text-muted); font-weight: 400; margin-top: 2px; }
+        .option .label .env-emoji { font-size: 30px; display: block; margin-bottom: 4px; }
+        .option .label .env-hint { font-size: 10px; color: var(--text-muted); font-weight: 500; margin-top: 3px; }
         .option input:checked + .label {
-            border-color: var(--accent-warm); background: #FDF5EC; color: #B87050;
+            border-color: var(--accent-warm); background: linear-gradient(135deg, #FDF5EC, #FDF0E0);
+            color: #B06840; box-shadow: 0 0 0 3px rgba(212,149,106,0.12);
         }
-        .option .label:hover { border-color: #C5B8A0; background: #FAF7F0; }
+        .option .label:hover { border-color: var(--border-warm); background: #FAF7F0; transform: translateY(-1px); }
         .name-input {
-            width: 100%; padding: 12px 16px; border: 1px solid var(--border);
+            width: 100%; padding: 13px 18px; border: 2px solid var(--border);
             border-radius: var(--radius); font-size: 15px; color: var(--text);
             outline: none; transition: all var(--transition);
             font-family: inherit; background: #FDFBF6;
         }
-        .name-input:focus { border-color: var(--accent-warm); }
+        .name-input:focus { border-color: var(--accent-warm); box-shadow: 0 0 0 3px rgba(212,149,106,0.1); }
         .step-indicator {
-            text-align: center; margin-bottom: 20px;
-            font-size: 13px; color: var(--text-secondary);
-            background: #FDF9F2; padding: 10px 16px; border-radius: var(--radius);
+            text-align: center; margin-bottom: 22px;
+            font-size: 13px; color: var(--text-secondary); font-weight: 500;
+            background: linear-gradient(135deg, #FDF9F2, #FAF5E8);
+            padding: 12px 18px; border-radius: var(--radius); border: 1px solid var(--border-light);
         }
 
         @media (max-width: 500px) {
