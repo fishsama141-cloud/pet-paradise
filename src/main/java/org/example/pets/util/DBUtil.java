@@ -39,7 +39,7 @@ public class DBUtil {
                     + "&serverTimezone=Asia/Shanghai&characterEncoding=UTF-8"
                     + "&connectionCollation=utf8mb4_unicode_ci";
                 USER = envFirst("DB_USER", "MYSQLUSER", "root");
-                PASSWORD = envFirst("DB_PASSWORD", "MYSQLPASSWORD", "");
+                PASSWORD = envFirst("DB_PASSWORD", "MYSQLPASSWORD", "123456");
             }
         }
     }
