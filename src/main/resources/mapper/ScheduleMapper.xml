@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.zixuan.mapper.ScheduleMapper">
+
+    <select id="findByStudent" resultType="org.example.zixuan.model.Schedule">
+        SELECT s.*, p.title AS position_title, u.name AS student_name
+        FROM schedules s
+        JOIN positions p ON s.position_id = p.id
+        JOIN users u ON s.student_id = u.id
+        WHERE s.student_id = #{studentId}
+        ORDER BY s.created_at ASC
+    </select>
+
+    <select id="findByPosition" resultType="org.example.zixuan.model.Schedule">
+        SELECT s.*, p.title AS position_title, u.name AS student_name
+        FROM schedules s
+        JOIN positions p ON s.position_id = p.id
+        JOIN users u ON s.student_id = u.id
+        WHERE s.position_id = #{positionId}
+        ORDER BY s.week_day, s.time_slot
+    </select>
+
+    <select id="findByTeacher" resultType="org.example.zixuan.model.Schedule">
+        SELECT s.*, p.title AS position_title, u.name AS student_name
+        FROM schedules s
+        JOIN positions p ON s.position_id = p.id
+        JOIN users u ON s.student_id = u.id
+        WHERE p.teacher_id = #{teacherId}
+        ORDER BY s.created_at DESC
+    </select>
+
+</mapper>

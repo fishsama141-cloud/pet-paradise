@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.zixuan.mapper.UserMapper">
+
+    <insert id="insertLoginToken">
+        INSERT INTO login_tokens (user_id, token, expires_at)
+        VALUES (#{userId}, #{token}, DATE_ADD(NOW(), INTERVAL 7 DAY))
+    </insert>
+
+    <select id="findByToken" resultType="org.example.zixuan.model.User">
+        SELECT u.* FROM users u
+        JOIN login_tokens t ON u.id = t.user_id
+        WHERE t.token = #{token} AND t.expires_at > NOW()
+    </select>
+
+    <delete id="deleteToken">
+        DELETE FROM login_tokens WHERE token = #{token}
+    </delete>
+
+</mapper>

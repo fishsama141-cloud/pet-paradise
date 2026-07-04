@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.zixuan.mapper.TaskMapper">
+
+    <select id="findById" resultType="org.example.zixuan.model.Task">
+        SELECT t.*, p.title AS position_title, u.name AS student_name
+        FROM tasks t
+        LEFT JOIN positions p ON t.position_id = p.id
+        LEFT JOIN users u ON t.student_id = u.id
+        WHERE t.id = #{id}
+    </select>
+
+    <select id="findByStudent" resultType="org.example.zixuan.model.Task">
+        SELECT t.*, p.title AS position_title, u.name AS student_name
+        FROM tasks t
+        LEFT JOIN positions p ON t.position_id = p.id
+        LEFT JOIN users u ON t.student_id = u.id
+        WHERE t.student_id = #{studentId}
+        ORDER BY t.created_at DESC
+    </select>
+
+    <select id="findByPosition" resultType="org.example.zixuan.model.Task">
+        SELECT t.*, p.title AS position_title, u.name AS student_name
+        FROM tasks t
+        LEFT JOIN positions p ON t.position_id = p.id
+        LEFT JOIN users u ON t.student_id = u.id
+        WHERE t.position_id = #{positionId}
+        ORDER BY t.created_at DESC
+    </select>
+
+    <select id="findByTeacher" resultType="org.example.zixuan.model.Task">
+        SELECT t.*, p.title AS position_title, u.name AS student_name
+        FROM tasks t
+        JOIN positions p ON t.position_id = p.id
+        LEFT JOIN users u ON t.student_id = u.id
+        WHERE p.teacher_id = #{teacherId}
+        ORDER BY t.created_at DESC
+    </select>
+
+
+</mapper>
