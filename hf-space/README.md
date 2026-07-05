@@ -2,7 +2,7 @@
 title: Pet Paradise
 emoji: 🐾
 colorFrom: yellow
-colorTo: amber
+colorTo: green
 sdk: docker
 pinned: false
 ---
