@@ -62,7 +62,11 @@ public class DBUtil {
 
     public static Connection getConnection() throws SQLException {
         System.out.println("==> DB connecting to: " + URL);
-        return DriverManager.getConnection(URL, USER, PASSWORD);
+        Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+        try (Statement stmt = conn.createStatement()) {
+            stmt.execute("SET SESSION sql_mode = 'NO_ENGINE_SUBSTITUTION'");
+        }
+        return conn;
     }
 
     public static void close(Connection conn, PreparedStatement ps, ResultSet rs) {
