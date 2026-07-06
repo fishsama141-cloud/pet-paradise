@@ -11,7 +11,7 @@ RUN sed -i 's/port="8080"/port="7860"/' /usr/local/tomcat/conf/server.xml \
 COPY --from=builder /app/target/*.war /usr/local/tomcat/webapps/ROOT.war
 ENV CATALINA_OPTS="-Xmx256m -Xms128m -XX:+UseG1GC -XX:MaxMetaspaceSize=128m" \
     JAVA_OPTS="-Djava.awt.headless=true -Dfile.encoding=UTF-8" \
-    DB_URL=jdbc:mysql://gateway03.us-west-2.prod.aws.tidbcloud.com:4000/test?connectTimeout=10000&socketTimeout=15000&useSSL=true&requireSSL=true&serverTimezone=Asia/Shanghai&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci \
-    DB_USER=2Cq6PCSMaEBVkVo.root \
-    DB_PASSWORD=mge7hXRR84BXt4OH
+    DB_URL=jdbc:mysql://gateway01.ap-southeast-1.prod.alicloud.tidbcloud.com:4000/test?connectTimeout=10000&socketTimeout=15000&useSSL=true&requireSSL=true&serverTimezone=Asia/Shanghai&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci \
+    DB_USER=2JdeEn6BzvHrA3T.root \
+    DB_PASSWORD=j8Tpbj6G3XuHpAoG
 EXPOSE 7860
