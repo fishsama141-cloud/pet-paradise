@@ -76,7 +76,6 @@ public class DatabaseInitListener implements ServletContextListener {
         } catch (SQLException e) {
             System.err.println("==> DB init error: " + e.getMessage());
             e.printStackTrace();
-            throw new RuntimeException("Database initialization failed", e);
         }
     }
 }
