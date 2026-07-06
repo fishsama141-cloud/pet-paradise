@@ -59,7 +59,8 @@ public class PetDAO {
             ps.setInt(6, pet.getBond());
             ps.setString(7, pet.getPersonality());
             ps.setString(8, pet.getRarity() != null ? pet.getRarity() : "common");
-            ps.setTimestamp(9, new Timestamp(pet.getLastInteraction().getTime()));
+            java.util.Date li = pet.getLastInteraction();
+            ps.setTimestamp(9, li != null ? new Timestamp(li.getTime()) : null);
             ps.setString(10, pet.getId());
             ps.executeUpdate();
         }

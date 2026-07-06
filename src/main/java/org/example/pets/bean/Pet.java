@@ -122,6 +122,10 @@ public class Pet implements Serializable {
     }
 
     public void decay() {
+        if (lastInteraction == null) {
+            lastInteraction = new Date();
+            return;
+        }
         Date now = new Date();
         long diffHours = (now.getTime() - lastInteraction.getTime()) / (1000 * 60 * 60);
         if (diffHours > 0) {
