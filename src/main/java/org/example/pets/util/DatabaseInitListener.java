@@ -38,7 +38,7 @@ public class DatabaseInitListener implements ServletContextListener {
                     bond INT DEFAULT 0,
                     personality VARCHAR(20) DEFAULT '活泼',
                     rarity VARCHAR(20) DEFAULT 'common',
-                    last_interaction TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    last_interaction TIMESTAMP NULL DEFAULT NULL,
                     adopted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
                 """);
