@@ -64,7 +64,7 @@ public class DBUtil {
         System.out.println("==> DB connecting to: " + URL);
         Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
         try (Statement stmt = conn.createStatement()) {
-            stmt.execute("SET SESSION sql_mode = 'NO_ENGINE_SUBSTITUTION'");
+            try { stmt.execute("SET SESSION sql_mode = 'NO_ENGINE_SUBSTITUTION'"); } catch (SQLException ignored) {}
         }
         return conn;
     }
